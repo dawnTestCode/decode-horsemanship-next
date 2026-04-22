@@ -2,9 +2,14 @@
 
 import * as React from "react"
 import { createContext, useContext, useEffect, useState } from "react"
-import { ThemeProviderProps } from "next-themes/dist/types"
 
 type Theme = "dark" | "light" | "system"
+
+interface ThemeProviderProps {
+  children: React.ReactNode
+  defaultTheme?: Theme
+  value?: { theme: Theme; setTheme: (theme: Theme) => void }
+}
 
 type ThemeContextType = {
   theme: Theme
