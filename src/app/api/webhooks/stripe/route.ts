@@ -31,8 +31,8 @@ export async function POST(request: Request) {
     const session = event.data.object as Stripe.Checkout.Session;
     const meta = session.metadata!;
 
-    // ─── Groundwork Registration ─────────────────────────────────────────────
-    if (meta.program === 'groundwork') {
+    // ─── Groundwork Registration (Deposit) ──────────────────────────────────
+    if (meta.program === 'groundwork' && !meta.paymentType) {
       try {
         // Write to groundwork_registrations table
         const { data: registration, error: regError } = await supabase
@@ -88,6 +88,32 @@ export async function POST(request: Request) {
 
       } catch (err: unknown) {
         console.error('Groundwork webhook error:', err);
+      }
+
+      return NextResponse.json({ received: true });
+    }
+
+    // ─── Groundwork Balance Payment ───────────────────────────────────────────
+    if (meta.program === 'groundwork' && meta.paymentType === 'balance') {
+      try {
+        const { error: updateError } = await supabase
+          .from('groundwork_registrations')
+          .update({
+            balance_due: 0,
+            balance_paid_at: new Date().toISOString(),
+            status: 'paid_in_full',
+          })
+          .eq('id', meta.registrationId);
+
+        if (updateError) {
+          console.error('Failed to update Groundwork registration:', updateError);
+          throw updateError;
+        }
+
+        console.log(`Groundwork balance paid: ${meta.confirmationCode}`);
+
+      } catch (err: unknown) {
+        console.error('Groundwork balance webhook error:', err);
       }
 
       return NextResponse.json({ received: true });
