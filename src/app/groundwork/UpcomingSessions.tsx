@@ -22,8 +22,7 @@ export function UpcomingSessions() {
         .select('id, session_date, capacity, enrolled, status')
         .eq('status', 'open')
         .gte('session_date', new Date().toISOString().split('T')[0])
-        .order('session_date', { ascending: true })
-        .limit(3);
+        .order('session_date', { ascending: true });
 
       if (!error && data) {
         setSessions(data);
