@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, ArrowRight, Check, Loader2, ChevronDown } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -60,10 +61,7 @@ const experienceLevels = [
   { value: 'own-horses', label: 'Own horses' },
 ];
 
-const availableSessions = [
-  { value: 'tba-1', label: 'Date TBA — email to be notified' },
-  { value: 'tba-2', label: 'Date TBA — email to be notified' },
-];
+// Sessions will be fetched from database
 
 // ─── Form Components ─────────────────────────────────────────────────────────
 
@@ -256,13 +254,70 @@ function StepIndicator({ current, total }: { current: number; total: number }) {
 
 // ─── Main Component ──────────────────────────────────────────────────────────
 
+interface GroundworkSession {
+  id: string;
+  session_date: string;
+  start_time: string;
+  end_time: string;
+  capacity: number;
+  enrolled: number;
+  status: string;
+}
+
 export default function GroundworkRegisterPage() {
   const [step, setStep] = useState(0);
   const [form, setForm] = useState<FormData>(initialFormData);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [sessions, setSessions] = useState<GroundworkSession[]>([]);
+  const [loadingSessions, setLoadingSessions] = useState(true);
 
   const steps = ['Session', 'About You', 'Questions', 'Agreement'];
+
+  // Fetch available sessions
+  useEffect(() => {
+    const fetchSessions = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('groundwork_sessions')
+          .select('*')
+          .eq('status', 'open')
+          .gte('session_date', new Date().toISOString().split('T')[0])
+          .order('session_date', { ascending: true });
+
+        if (error) {
+          console.log('Sessions not available:', error);
+          setSessions([]);
+        } else {
+          setSessions(data || []);
+        }
+      } catch (err) {
+        console.error('Error fetching sessions:', err);
+      } finally {
+        setLoadingSessions(false);
+      }
+    };
+
+    fetchSessions();
+  }, []);
+
+  // Format session for display
+  const formatSessionDate = (dateStr: string) => {
+    return new Date(dateStr + 'T12:00:00').toLocaleDateString('en-US', {
+      weekday: 'long',
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric',
+    });
+  };
+
+  // Build session options for Select
+  const sessionOptions = sessions.length > 0
+    ? sessions.map((s) => ({
+        value: s.session_date,
+        label: `${formatSessionDate(s.session_date)} (${s.capacity - s.enrolled} spots left)`,
+      }))
+    : [{ value: 'tba', label: 'Date TBA — email to be notified' }];
 
   const updateForm = <K extends keyof FormData>(key: K, value: FormData[K]) => {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -323,13 +378,20 @@ export default function GroundworkRegisterPage() {
         </p>
       </div>
 
-      <Select
-        label="Session Date"
-        value={form.sessionDate}
-        onChange={(v) => updateForm('sessionDate', v)}
-        options={availableSessions}
-        required
-      />
+      {loadingSessions ? (
+        <div className="flex items-center gap-2 text-groundwork-muted">
+          <Loader2 className="animate-spin" size={18} />
+          <span className="font-sans text-sm">Loading available dates...</span>
+        </div>
+      ) : (
+        <Select
+          label="Session Date"
+          value={form.sessionDate}
+          onChange={(v) => updateForm('sessionDate', v)}
+          options={sessionOptions}
+          required
+        />
+      )}
     </div>
   );
 
