@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { ArrowLeft, ArrowRight, Check, Loader2, ChevronDown } from 'lucide-react';
@@ -265,7 +265,7 @@ interface GroundworkSession {
   status: string;
 }
 
-export default function GroundworkRegisterPage() {
+function GroundworkRegisterForm() {
   const searchParams = useSearchParams();
   const [step, setStep] = useState(0);
   const [form, setForm] = useState<FormData>(initialFormData);
@@ -654,5 +654,19 @@ export default function GroundworkRegisterPage() {
         </div>
       </section>
     </div>
+  );
+}
+
+export default function GroundworkRegisterPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-groundwork-cream flex items-center justify-center">
+          <Loader2 className="animate-spin text-groundwork-dark" size={32} />
+        </div>
+      }
+    >
+      <GroundworkRegisterForm />
+    </Suspense>
   );
 }
