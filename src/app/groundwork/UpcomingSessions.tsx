@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 
 interface Session {
@@ -65,12 +66,16 @@ export function UpcomingSessions() {
       {sessions.map((session) => {
         const spotsLeft = session.capacity - session.enrolled;
         return (
-          <p key={session.id} className="text-groundwork-dark">
+          <Link
+            key={session.id}
+            href={`/groundwork/register?date=${session.session_date}`}
+            className="text-groundwork-dark hover:text-groundwork-dark/70 transition-colors"
+          >
             {formatDate(session.session_date)}
             <span className="text-groundwork-muted ml-2">
               — {spotsLeft} {spotsLeft === 1 ? 'spot' : 'spots'} left
             </span>
-          </p>
+          </Link>
         );
       })}
     </div>

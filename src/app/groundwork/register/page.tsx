@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { ArrowLeft, ArrowRight, Check, Loader2, ChevronDown } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
@@ -265,6 +266,7 @@ interface GroundworkSession {
 }
 
 export default function GroundworkRegisterPage() {
+  const searchParams = useSearchParams();
   const [step, setStep] = useState(0);
   const [form, setForm] = useState<FormData>(initialFormData);
   const [submitting, setSubmitting] = useState(false);
@@ -274,7 +276,7 @@ export default function GroundworkRegisterPage() {
 
   const steps = ['Session', 'About You', 'Questions', 'Agreement'];
 
-  // Fetch available sessions
+  // Fetch available sessions and pre-select from URL param
   useEffect(() => {
     const fetchSessions = async () => {
       try {
@@ -290,6 +292,11 @@ export default function GroundworkRegisterPage() {
           setSessions([]);
         } else {
           setSessions(data || []);
+          // Pre-select date from URL if provided
+          const dateParam = searchParams.get('date');
+          if (dateParam && data?.some(s => s.session_date === dateParam)) {
+            setForm(prev => ({ ...prev, sessionDate: dateParam }));
+          }
         }
       } catch (err) {
         console.error('Error fetching sessions:', err);
@@ -299,7 +306,7 @@ export default function GroundworkRegisterPage() {
     };
 
     fetchSessions();
-  }, []);
+  }, [searchParams]);
 
   // Format session for display
   const formatSessionDate = (dateStr: string) => {
