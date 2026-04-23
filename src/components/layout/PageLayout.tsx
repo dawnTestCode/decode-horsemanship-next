@@ -186,6 +186,11 @@ const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {
                     Liability Waiver
                   </a>
                 </li>
+                <li>
+                  <Link href="/groundwork" className="text-stone-500 hover:text-red-500 transition-colors text-sm">
+                    Groundwork
+                  </Link>
+                </li>
               </ul>
             </div>
             <div>

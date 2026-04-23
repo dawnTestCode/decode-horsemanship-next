@@ -18,6 +18,15 @@ export default {
     },
     extend: {
       colors: {
+        // Groundwork color palette
+        groundwork: {
+          cream: '#f5f1ea',
+          dark: '#1a1a1a',
+          muted: '#666666',
+          label: '#888888',
+          border: '#dddddd',
+          'border-light': '#cccccc',
+        },
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',
@@ -65,6 +74,7 @@ export default {
       fontFamily: {
         mono: ['JetBrains Mono', 'monospace'],
         sans: ['Inter', 'sans-serif'],
+        serif: ['Lora', 'Georgia', 'serif'],
       },
       borderRadius: {
         lg: 'calc(var(--radius) + 2px)',
