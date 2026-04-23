@@ -61,7 +61,7 @@ export function UpcomingSessions() {
   }
 
   return (
-    <div className="space-y-3 mb-10 font-sans text-base">
+    <div className="grid grid-cols-2 gap-x-8 gap-y-3 mb-10 font-sans text-base">
       {sessions.map((session) => {
         const spotsLeft = session.capacity - session.enrolled;
         return (
