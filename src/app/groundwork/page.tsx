@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { ChevronDown, Mail, Phone, MapPin } from 'lucide-react';
+import { UpcomingSessions } from './UpcomingSessions';
 
 export default function GroundworkPage() {
   return (
@@ -133,11 +134,7 @@ export default function GroundworkPage() {
             Next dates
           </p>
 
-          {/* Placeholder dates */}
-          <div className="space-y-3 mb-10 font-sans text-base">
-            <p className="text-groundwork-muted">Date TBA — email to be notified</p>
-            <p className="text-groundwork-muted">Date TBA — email to be notified</p>
-          </div>
+          <UpcomingSessions />
 
           <div className="space-y-2 text-lg md:text-xl leading-relaxed mb-10">
             <p>One day, 8:30 AM to 4:00 PM. Group of 4–6 men. Lunch included.</p>
