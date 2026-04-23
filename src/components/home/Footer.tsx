@@ -39,8 +39,13 @@ export default function Footer({ onSectionClick }: FooterProps) {
             </ul>
           </div>
           <div>
-            <h4 className="font-semibold text-stone-200 mb-4">EAL Programs</h4>
+            <h4 className="font-semibold text-stone-200 mb-4">Programs</h4>
             <ul className="space-y-2">
+              <li>
+                <Link href="/groundwork" className="text-stone-500 hover:text-red-500 transition-colors text-sm">
+                  Groundwork
+                </Link>
+              </li>
               <li>
                 <Link href="/eal" className="text-stone-500 hover:text-red-500 transition-colors text-sm">
                   What is EAL?
