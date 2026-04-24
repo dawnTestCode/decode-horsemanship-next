@@ -17,6 +17,7 @@ import ProgramsEditor from '@/components/admin/ProgramsEditor';
 import ProgramEnrollmentsEditor from '@/components/admin/ProgramEnrollmentsEditor';
 import SummerCampSessionsEditor from '@/components/admin/SummerCampSessionsEditor';
 import GroundworkSessionsEditor from '@/components/admin/GroundworkSessionsEditor';
+import ProgramCalendar from '@/components/admin/ProgramCalendar';
 
 interface VolunteerContent {
   id: string;
@@ -101,7 +102,7 @@ export default function AdminPage() {
   const [unreadInquiriesCount, setUnreadInquiriesCount] = useState(0);
 
   // Admin tabs
-  const [activeTab, setActiveTab] = useState<'horses' | 'gallery' | 'volunteers' | 'eal' | 'programs' | 'summercamp' | 'groundwork'>('horses');
+  const [activeTab, setActiveTab] = useState<'horses' | 'gallery' | 'volunteers' | 'eal' | 'programs' | 'summercamp' | 'groundwork' | 'calendar'>('horses');
 
   // Gallery state
   const [galleryItems, setGalleryItems] = useState<GalleryItem[]>([]);
@@ -779,6 +780,17 @@ export default function AdminPage() {
             <Users size={18} />
             <span>Groundwork</span>
           </button>
+          <button
+            onClick={() => setActiveTab('calendar')}
+            className={`px-6 py-3 rounded-lg font-medium transition-colors flex items-center gap-2 ${
+              activeTab === 'calendar'
+                ? 'bg-indigo-700 text-white'
+                : 'bg-stone-800 text-stone-400 hover:bg-stone-700 hover:text-stone-200'
+            }`}
+          >
+            <Calendar size={18} />
+            <span>Calendar</span>
+          </button>
         </div>
 
         {/* Horses Tab Content */}
@@ -1361,6 +1373,11 @@ export default function AdminPage() {
         {/* Groundwork Tab Content */}
         {activeTab === 'groundwork' && (
           <GroundworkSessionsEditor embedded />
+        )}
+
+        {/* Calendar Tab Content */}
+        {activeTab === 'calendar' && (
+          <ProgramCalendar />
         )}
       </div>
 
