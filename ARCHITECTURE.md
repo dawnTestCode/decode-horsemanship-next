@@ -60,8 +60,14 @@
 
 | Function | Trigger | Purpose |
 |----------|---------|---------|
+| `admin-auth` | HTTP | Admin authentication |
+| `enrollment-checkout` | HTTP | EAL program enrollment checkout |
+| `enrollment-programs` | HTTP | Fetch EAL program data |
+| `enrollment-webhook` | Stripe webhook | Handle EAL enrollment payments |
 | `groundwork-reminder` | pg_cron (daily 14:00 UTC) | Send reminder emails 7 days before session |
+| `summer-camp-balance-checkout` | HTTP | Create Stripe checkout for camp balance |
 | `summer-camp-balance-reminder` | pg_cron (daily 14:00 UTC) | Send balance reminder emails 14 days before camp |
+| `summer-camp-checkout` | HTTP | Create Stripe checkout for camp registration |
 
 #### Scheduled Jobs (pg_cron)
 
