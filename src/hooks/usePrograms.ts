@@ -69,7 +69,7 @@ export function usePrograms(slugs?: string[]) {
         return;
       }
 
-      // Fetch upcoming dates for these programs
+      // Fetch upcoming dates for these programs (including full ones to show as "Sold Out")
       const today = new Date().toISOString().split('T')[0];
       const programIds = programsData.map(p => p.id);
 
@@ -77,17 +77,43 @@ export function usePrograms(slugs?: string[]) {
         .from('program_dates')
         .select('*')
         .in('program_id', programIds)
-        .eq('status', 'open')
+        .in('status', ['open', 'full'])
         .gte('start_date', today)
         .order('start_date', { ascending: true });
 
       if (datesError) throw datesError;
 
       // Combine programs with their dates
-      const programsWithDates: ProgramWithDates[] = programsData.map(program => ({
-        ...program,
-        dates: (datesData || []).filter(d => d.program_id === program.id),
-      }));
+      // Show up to 3 available dates per program, plus any full dates that come before them
+      const programsWithDates: ProgramWithDates[] = programsData.map(program => {
+        const programDates = (datesData || []).filter(d => d.program_id === program.id);
+        const result: ProgramDate[] = [];
+        let availableCount = 0;
+
+        for (const date of programDates) {
+          const capacity = date.capacity || program.max_capacity;
+          const isFull = (capacity - date.enrolled) <= 0 || date.status === 'full';
+
+          if (isFull) {
+            // Always include full dates (they show as "Sold Out")
+            result.push(date);
+          } else {
+            // Only include up to 3 available dates
+            if (availableCount < 3) {
+              result.push(date);
+              availableCount++;
+            } else {
+              // We have 3 available dates, stop adding
+              break;
+            }
+          }
+        }
+
+        return {
+          ...program,
+          dates: result,
+        };
+      });
 
       setPrograms(programsWithDates);
     } catch (err: any) {
