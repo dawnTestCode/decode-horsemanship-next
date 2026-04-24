@@ -209,13 +209,13 @@ decode-next/
 | `/eal/personal` | Personal development |
 | `/eal/youth` | Youth programs |
 | `/horses/[id]` | Individual horse page |
-| `/volunteer` | Volunteer portal |
 
 ### Protected Pages
 
 | Route | Description |
 |-------|-------------|
 | `/admin` | Admin dashboard (password protected) |
+| `/volunteer` | Volunteer portal (password protected) |
 
 ---
 
