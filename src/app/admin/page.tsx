@@ -18,6 +18,7 @@ import ProgramEnrollmentsEditor from '@/components/admin/ProgramEnrollmentsEdito
 import SummerCampSessionsEditor from '@/components/admin/SummerCampSessionsEditor';
 import GroundworkSessionsEditor from '@/components/admin/GroundworkSessionsEditor';
 import ProgramCalendar from '@/components/admin/ProgramCalendar';
+import { formatPrice } from '@/lib/utils';
 
 interface VolunteerContent {
   id: string;
@@ -930,7 +931,7 @@ export default function AdminPage() {
                         {horse.training_status}
                       </span>
                     </div>
-                    <p className="text-red-500 font-bold">{horse.price}</p>
+                    <p className="text-red-500 font-bold">{formatPrice(horse.price)}</p>
                   </div>
 
                   {/* Actions */}

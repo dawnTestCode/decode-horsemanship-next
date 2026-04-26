@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { ChevronDown, Heart, Filter, Loader2, Video } from 'lucide-react';
 import { Horse } from '@/types';
+import { formatPrice } from '@/lib/utils';
 
 interface HorsesSectionProps {
   horses: Horse[];
@@ -204,7 +205,7 @@ export default function HorsesSection({
                     <div className="flex justify-between items-start mb-2">
                       <h3 className="text-xl font-bold text-stone-100">{horse.name}</h3>
                       {horse.status !== 'not_for_sale' && (
-                        <span className="text-red-500 font-bold">{horse.price}</span>
+                        <span className="text-red-500 font-bold">{formatPrice(horse.price)}</span>
                       )}
                     </div>
                     <p className="text-stone-400 text-sm mb-3">

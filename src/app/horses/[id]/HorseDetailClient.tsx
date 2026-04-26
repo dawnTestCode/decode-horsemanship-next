@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Heart, Image, Video, Play } from 'lucide-react';
 import { siteConfig } from '@/config/siteConfig';
+import { formatPrice } from '@/lib/utils';
 
 interface Horse {
   id: string;
@@ -241,7 +242,7 @@ export default function HorseDetailClient({ horse }: { horse: Horse }) {
                 </p>
               </div>
               {horse.status !== 'not_for_sale' && (
-                <span className="text-2xl text-red-500 font-bold">{horse.price}</span>
+                <span className="text-2xl text-red-500 font-bold">{formatPrice(horse.price)}</span>
               )}
             </div>
 
