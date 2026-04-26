@@ -7,9 +7,10 @@ export const metadata: Metadata = {
     title: "Groundwork — A day with horses, for men who want something else.",
     description: "A one-day equine-assisted experience for men at Decode Horsemanship in Chapel Hill, North Carolina.",
     type: "website",
+    siteName: "Decode Horsemanship",
     images: [
       {
-        url: "/og-groundwork.png",
+        url: "https://www.decodehorsemanship.com/og-groundwork.png",
         width: 1200,
         height: 630,
         alt: "Groundwork — A day with horses",
@@ -20,7 +21,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Groundwork — A day with horses, for men who want something else.",
     description: "A one-day equine-assisted experience for men at Decode Horsemanship in Chapel Hill, North Carolina.",
-    images: ["/og-groundwork.png"],
+    images: ["https://www.decodehorsemanship.com/og-groundwork.png"],
   },
 };
 
