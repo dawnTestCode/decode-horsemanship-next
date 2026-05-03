@@ -216,7 +216,7 @@ export default function HorsesSection({
                         {horse.temperament}
                       </span>
                       <span className="text-xs bg-stone-800 px-2 py-1 rounded text-stone-300">
-                        {horse.experience_level}
+                        {horse.experience_level} Riders
                       </span>
                     </div>
                   </div>
@@ -296,7 +296,7 @@ export default function HorsesSection({
                         {horse.temperament}
                       </span>
                       <span className="text-xs bg-stone-800 px-2 py-1 rounded text-stone-300">
-                        {horse.experience_level}
+                        {horse.experience_level} Riders
                       </span>
                     </div>
                   </div>

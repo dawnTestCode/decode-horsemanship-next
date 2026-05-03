@@ -359,15 +359,15 @@ const HorseForm: React.FC<HorseFormProps> = ({ horse, onSave, onCancel }) => {
               </select>
             </div>
             <div>
-              <label className="block text-sm text-stone-400 mb-2">Experience Level *</label>
+              <label className="block text-sm text-stone-400 mb-2">Suitable For *</label>
               <select
                 value={formData.experience_level}
                 onChange={(e) => setFormData({ ...formData, experience_level: e.target.value as any })}
                 className="w-full bg-stone-800 border border-stone-700 rounded-lg px-4 py-3 text-stone-200 focus:border-red-500 focus:outline-none"
               >
-                <option value="Beginner">Beginner</option>
-                <option value="Intermediate">Intermediate</option>
-                <option value="Advanced">Advanced</option>
+                <option value="Beginner">Beginner Riders</option>
+                <option value="Intermediate">Intermediate Riders</option>
+                <option value="Advanced">Advanced Riders</option>
               </select>
             </div>
             <div>

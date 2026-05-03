@@ -249,7 +249,7 @@ export default function HorseDetailClient({ horse }: { horse: Horse }) {
             <div className="flex gap-2 mb-6 flex-wrap">
               <span className="bg-red-700 px-3 py-1 rounded-full text-sm">{horse.training_status}</span>
               <span className="bg-stone-800 px-3 py-1 rounded-full text-sm">{horse.temperament}</span>
-              <span className="bg-stone-800 px-3 py-1 rounded-full text-sm">{horse.experience_level} Rider</span>
+              <span className="bg-stone-800 px-3 py-1 rounded-full text-sm">Suitable for {horse.experience_level} Riders</span>
               {horse.videos && horse.videos.length > 0 && (
                 <span className="bg-stone-800 px-3 py-1 rounded-full text-sm flex items-center gap-1">
                   <Video size={14} />
