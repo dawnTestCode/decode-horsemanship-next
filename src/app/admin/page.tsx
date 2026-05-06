@@ -17,7 +17,9 @@ import ProgramsEditor from '@/components/admin/ProgramsEditor';
 import ProgramEnrollmentsEditor from '@/components/admin/ProgramEnrollmentsEditor';
 import SummerCampSessionsEditor from '@/components/admin/SummerCampSessionsEditor';
 import GroundworkSessionsEditor from '@/components/admin/GroundworkSessionsEditor';
+import DustLeatherSessionsEditor from '@/components/admin/DustLeatherSessionsEditor';
 import ProgramCalendar from '@/components/admin/ProgramCalendar';
+import { Flame } from 'lucide-react';
 import { formatPrice } from '@/lib/utils';
 
 interface VolunteerContent {
@@ -31,50 +33,100 @@ interface VolunteerContent {
 }
 
 
-// Sub-component for Programs tab with sub-tabs
-const ProgramsAndDatesTab: React.FC = () => {
-  const [subTab, setSubTab] = useState<'dates' | 'registrations' | 'programs'>('dates');
+// Sub-component for unified Programs tab with program selector
+const UnifiedProgramsTab: React.FC = () => {
+  const [programTab, setProgramTab] = useState<'groundwork' | 'dustleather' | 'eal'>('groundwork');
+  const [ealSubTab, setEalSubTab] = useState<'dates' | 'registrations' | 'programs'>('dates');
 
   return (
     <div>
-      {/* Sub-tabs */}
-      <div className="flex gap-2 mb-6">
+      {/* Program selector */}
+      <div className="flex gap-2 mb-6 pb-4 border-b border-stone-800">
         <button
-          onClick={() => setSubTab('dates')}
-          className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-            subTab === 'dates'
-              ? 'bg-blue-700 text-white'
-              : 'bg-stone-800 text-stone-400 hover:bg-stone-700'
+          onClick={() => setProgramTab('groundwork')}
+          className={`px-5 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
+            programTab === 'groundwork'
+              ? 'bg-stone-600 text-white'
+              : 'bg-stone-800/50 text-stone-400 hover:bg-stone-800 hover:text-stone-300'
           }`}
         >
-          Scheduled Dates
+          <Users size={16} />
+          Groundwork
         </button>
         <button
-          onClick={() => setSubTab('registrations')}
-          className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-            subTab === 'registrations'
-              ? 'bg-blue-700 text-white'
-              : 'bg-stone-800 text-stone-400 hover:bg-stone-700'
+          onClick={() => setProgramTab('dustleather')}
+          className={`px-5 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
+            programTab === 'dustleather'
+              ? 'bg-amber-700 text-white'
+              : 'bg-stone-800/50 text-stone-400 hover:bg-stone-800 hover:text-stone-300'
           }`}
         >
-          Registrations
+          <Flame size={16} />
+          Dust & Leather
         </button>
         <button
-          onClick={() => setSubTab('programs')}
-          className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-            subTab === 'programs'
+          onClick={() => setProgramTab('eal')}
+          className={`px-5 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
+            programTab === 'eal'
               ? 'bg-blue-700 text-white'
-              : 'bg-stone-800 text-stone-400 hover:bg-stone-700'
+              : 'bg-stone-800/50 text-stone-400 hover:bg-stone-800 hover:text-stone-300'
           }`}
         >
-          Programs & Pricing
+          <Sparkles size={16} />
+          EAL Programs
         </button>
       </div>
 
-      {/* Content */}
-      {subTab === 'dates' && <ProgramDatesEditor onClose={() => {}} embedded />}
-      {subTab === 'registrations' && <ProgramEnrollmentsEditor embedded />}
-      {subTab === 'programs' && <ProgramsEditor embedded />}
+      {/* Groundwork content */}
+      {programTab === 'groundwork' && (
+        <GroundworkSessionsEditor embedded />
+      )}
+
+      {/* Dust & Leather content */}
+      {programTab === 'dustleather' && (
+        <DustLeatherSessionsEditor embedded />
+      )}
+
+      {/* EAL Programs content with sub-tabs */}
+      {programTab === 'eal' && (
+        <div>
+          <div className="flex gap-2 mb-6">
+            <button
+              onClick={() => setEalSubTab('dates')}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                ealSubTab === 'dates'
+                  ? 'bg-blue-700 text-white'
+                  : 'bg-stone-800 text-stone-400 hover:bg-stone-700'
+              }`}
+            >
+              Scheduled Dates
+            </button>
+            <button
+              onClick={() => setEalSubTab('registrations')}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                ealSubTab === 'registrations'
+                  ? 'bg-blue-700 text-white'
+                  : 'bg-stone-800 text-stone-400 hover:bg-stone-700'
+              }`}
+            >
+              Registrations
+            </button>
+            <button
+              onClick={() => setEalSubTab('programs')}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                ealSubTab === 'programs'
+                  ? 'bg-blue-700 text-white'
+                  : 'bg-stone-800 text-stone-400 hover:bg-stone-700'
+              }`}
+            >
+              Programs & Pricing
+            </button>
+          </div>
+          {ealSubTab === 'dates' && <ProgramDatesEditor onClose={() => {}} embedded />}
+          {ealSubTab === 'registrations' && <ProgramEnrollmentsEditor embedded />}
+          {ealSubTab === 'programs' && <ProgramsEditor embedded />}
+        </div>
+      )}
     </div>
   );
 };
@@ -102,8 +154,8 @@ export default function AdminPage() {
   const [showInquiries, setShowInquiries] = useState(false);
   const [unreadInquiriesCount, setUnreadInquiriesCount] = useState(0);
 
-  // Admin tabs
-  const [activeTab, setActiveTab] = useState<'horses' | 'gallery' | 'volunteers' | 'eal' | 'programs' | 'summercamp' | 'groundwork' | 'calendar'>('horses');
+  // Admin tabs (removed separate 'groundwork' - now unified under 'programs')
+  const [activeTab, setActiveTab] = useState<'horses' | 'gallery' | 'volunteers' | 'eal' | 'programs' | 'summercamp' | 'calendar'>('horses');
 
   // Gallery state
   const [galleryItems, setGalleryItems] = useState<GalleryItem[]>([]);
@@ -757,7 +809,7 @@ export default function AdminPage() {
             }`}
           >
             <Calendar size={18} />
-            <span>EAL Programs</span>
+            <span>Programs</span>
           </button>
           <button
             onClick={() => setActiveTab('summercamp')}
@@ -769,17 +821,6 @@ export default function AdminPage() {
           >
             <Calendar size={18} />
             <span>Summer Camp</span>
-          </button>
-          <button
-            onClick={() => setActiveTab('groundwork')}
-            className={`px-6 py-3 rounded-lg font-medium transition-colors flex items-center gap-2 ${
-              activeTab === 'groundwork'
-                ? 'bg-stone-600 text-white'
-                : 'bg-stone-800 text-stone-400 hover:bg-stone-700 hover:text-stone-200'
-            }`}
-          >
-            <Users size={18} />
-            <span>Groundwork</span>
           </button>
           <button
             onClick={() => setActiveTab('calendar')}
@@ -1361,19 +1402,14 @@ export default function AdminPage() {
           </>
         )}
 
-        {/* Programs Tab Content */}
+        {/* Programs Tab Content (unified: Groundwork, Dust & Leather, EAL) */}
         {activeTab === 'programs' && (
-          <ProgramsAndDatesTab />
+          <UnifiedProgramsTab />
         )}
 
         {/* Summer Camp Tab Content */}
         {activeTab === 'summercamp' && (
           <SummerCampSessionsEditor embedded />
-        )}
-
-        {/* Groundwork Tab Content */}
-        {activeTab === 'groundwork' && (
-          <GroundworkSessionsEditor embedded />
         )}
 
         {/* Calendar Tab Content */}

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { InquiryForm } from "./inquiry-form";
+import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Dust & Leather — A man's day at Decode Horsemanship",
@@ -291,12 +291,12 @@ export default function DustAndLeatherPage() {
 
           {/* Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center mt-10 opacity-0 animate-[fade-in_0.6s_ease-out_0.9s_forwards]">
-            <a
-              href="#booking"
+            <Link
+              href="/dust-and-leather/register"
               className="inline-block font-mono-old uppercase tracking-[0.3em] text-sm bg-field hover:bg-field-deep text-bone px-8 py-4 transition-colors"
             >
               Hold a Spot
-            </a>
+            </Link>
             <a
               href="#the-day"
               className="inline-block font-mono-old uppercase tracking-[0.3em] text-sm border border-tobacco text-bone hover:bg-tobacco/20 px-8 py-4 transition-colors"
@@ -361,7 +361,7 @@ export default function DustAndLeatherPage() {
               <ScheduleItem
                 time="01:30"
                 title="The leather bench."
-                description="Cut and stitch a belt that's yours."
+                description="Cut and stamp a belt that's yours."
               />
               <ScheduleItem
                 time="03:00"
@@ -403,7 +403,7 @@ export default function DustAndLeatherPage() {
             <SkillCard
               number="04"
               title="The leather bench."
-              description="Cut, punch, stitch, and finish a real leather belt with the horseman who taught a hundred others to do the same. It goes home with you."
+              description="Cut, punch, stamp, and finish a real leather belt with the horseman who taught a hundred others to do the same. It goes home with you."
             />
             <SkillCard
               number="05"
@@ -463,7 +463,7 @@ export default function DustAndLeatherPage() {
             {/* Left column - description */}
             <div>
               <p className="font-body text-bone text-lg sm:text-xl leading-snug mb-3">
-                The work&apos;s done. The belts are stitched. The fire&apos;s already going
+                The work&apos;s done. The belts are stamped. The fire&apos;s already going
                 from lunch and the Dutch oven goes on as the light drops.
               </p>
               <p className="font-body text-bone text-lg sm:text-xl leading-snug">
@@ -593,10 +593,15 @@ export default function DustAndLeatherPage() {
               Book the day.
             </h2>
             <p className="font-voice italic text-dust text-xl sm:text-2xl mb-8">
-              Tell us when you&apos;re free and how many of you. We&apos;ll write back.
+              Pick a date, fill in the details, and lock in your spot.
             </p>
 
-            <InquiryForm />
+            <Link
+              href="/dust-and-leather/register"
+              className="inline-block font-mono-old uppercase tracking-[0.3em] text-sm bg-field hover:bg-field-deep text-bone px-10 py-5 transition-colors"
+            >
+              See Available Dates
+            </Link>
 
             <p className="font-voice italic text-dust text-base mt-6">
               Or text the horseman directly: (919) 244-2647

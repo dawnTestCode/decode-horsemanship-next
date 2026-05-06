@@ -30,10 +30,12 @@ export async function POST(request: Request) {
       partySize,
       packageType,
       message,
+      sessionId,
+      sessionDate,
     } = body;
 
     // Validate required fields
-    if (!name || !email || !partySize || !packageType) {
+    if (!name || !email || !partySize || !packageType || !sessionId || !sessionDate) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
@@ -75,7 +77,7 @@ export async function POST(request: Request) {
             currency: 'usd',
             product_data: {
               name: `Dust & Leather — ${packageName}`,
-              description: `${partySizeNum} men · Date to be coordinated after payment`,
+              description: `${partySizeNum} men · ${new Date(sessionDate).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}`,
             },
             unit_amount: amount,
           },
@@ -92,9 +94,11 @@ export async function POST(request: Request) {
         packageType,
         message: message || '',
         amount: String(amount),
+        sessionId,
+        sessionDate,
       },
       success_url: `${siteUrl}/dust-and-leather/success?code=${confirmationCode}&session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${siteUrl}/dust-and-leather#booking`,
+      cancel_url: `${siteUrl}/dust-and-leather/register`,
       expires_at: Math.floor(Date.now() / 1000) + 30 * 60,
     });
 

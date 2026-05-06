@@ -131,6 +131,8 @@ export async function POST(request: Request) {
         const { data: booking, error: bookingError } = await supabase
           .from('dust_and_leather_bookings')
           .insert({
+            session_id: meta.sessionId || null,
+            session_date: meta.sessionDate,
             confirmation_code: meta.confirmationCode,
             name: meta.name,
             email: meta.email,
@@ -150,6 +152,19 @@ export async function POST(request: Request) {
         if (bookingError) {
           console.error('Failed to create Dust & Leather booking:', bookingError);
           throw bookingError;
+        }
+
+        // Increment enrolled count on the session
+        if (meta.sessionId) {
+          const { error: sessionError } = await supabase.rpc('increment_dust_leather_enrolled', {
+            p_session_id: meta.sessionId,
+            p_party_size: parseInt(meta.partySize),
+          });
+
+          if (sessionError) {
+            console.error('Failed to update session enrolled count:', sessionError);
+            // Don't throw - booking was created successfully
+          }
         }
 
         // Send confirmation email to customer
