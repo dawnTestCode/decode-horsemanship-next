@@ -439,6 +439,41 @@ export default function DustAndLeatherPage() {
       </Section>
 
       {/* ============================================
+          5b. Two Ways (Daylight mode)
+          ============================================ */}
+      <Section mode="daylight" className="py-16 sm:py-24">
+        <Container>
+          <h2 className="font-display text-ink text-2xl sm:text-3xl text-center mb-10">
+            Two ways to do this.
+          </h2>
+
+          <div className="grid sm:grid-cols-2 gap-10 sm:gap-12 max-w-3xl mx-auto">
+            {/* Open enrollment */}
+            <div className="text-center sm:text-left">
+              <Eyebrow className="text-tobacco mb-3">Open enrollment</Eyebrow>
+              <p className="font-body text-ink text-lg leading-snug">
+                Show up alone or with a buddy. We&apos;ll pair you with a small group
+                of two to four. You&apos;ll all do the day together.
+              </p>
+            </div>
+
+            {/* Private booking */}
+            <div className="text-center sm:text-left">
+              <Eyebrow className="text-tobacco mb-3">Private booking</Eyebrow>
+              <p className="font-body text-ink text-lg leading-snug">
+                Bring up to three buddies and claim the day for your group. Same
+                day, same price — just yours.
+              </p>
+            </div>
+          </div>
+
+          <p className="font-voice italic text-field text-lg text-center mt-10">
+            Same day. Same price. Either way, four men max.
+          </p>
+        </Container>
+      </Section>
+
+      {/* ============================================
           6. Evening — Stay for the Fire (Evening mode)
           ============================================ */}
       <Section mode="evening" id="fire" className="py-20 sm:py-28">
@@ -520,21 +555,32 @@ export default function DustAndLeatherPage() {
           <dl className="max-w-2xl mx-auto divide-y divide-tobacco/20">
             <FinePrintItem
               label="WHO"
-              value="Men, 2 to 4 at a time. No experience necessary."
+              value="Two to four men per day. No experience necessary."
             />
             <FinePrintItem
               label="WHEN"
-              value="Saturdays, by appointment. Spring through fall."
+              value="The first Saturday of every month. Severe weather reschedules."
             />
             <FinePrintItem
               label="WHERE"
               value="Decode Horsemanship · Chapel Hill, NC."
             />
             <FinePrintItem
+              label="HOW LONG"
+              value="Sunup to four-thirty. Or stay for the fire."
+            />
+            <FinePrintItem
+              label="BOOKING"
+              value="Open enrollment. Or claim the day for your group of 2-4."
+            />
+            <FinePrintItem
               label="WEAR"
               value="Boots or sturdy shoes. Long pants. A hat if you've got one."
             />
-            <FinePrintItem label="BRING" value="Yourself. We've got the rest." />
+            <FinePrintItem 
+              label="BRING" 
+              value="Yourself. We've got the rest." 
+            />
           </dl>
         </Container>
       </Section>
