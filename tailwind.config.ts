@@ -27,6 +27,21 @@ export default {
           border: '#dddddd',
           'border-light': '#cccccc',
         },
+        // Dust & Leather color palette
+        paper: 'var(--paper)',
+        bone: 'var(--bone)',
+        dust: 'var(--dust)',
+        sage: 'var(--sage)',
+        field: 'var(--field)',
+        'field-deep': 'var(--field-deep)',
+        tobacco: 'var(--tobacco)',
+        'tobacco-deep': 'var(--tobacco-deep)',
+        ink: 'var(--ink)',
+        char: 'var(--char)',
+        soot: 'var(--soot)',
+        ember: 'var(--ember)',
+        oxblood: 'var(--oxblood)',
+        hearth: 'var(--hearth)',
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',
@@ -75,6 +90,12 @@ export default {
         mono: ['JetBrains Mono', 'monospace'],
         sans: ['Inter', 'sans-serif'],
         serif: ['Lora', 'Georgia', 'serif'],
+        // Dust & Leather fonts
+        display: ['var(--font-display)', 'serif'],
+        voice: ['var(--font-voice)', 'serif'],
+        body: ['var(--font-body)', 'serif'],
+        'mono-old': ['var(--font-mono-old)', 'monospace'],
+        numerals: ['var(--font-numerals)', 'serif'],
       },
       borderRadius: {
         lg: 'calc(var(--radius) + 2px)',
@@ -98,12 +119,17 @@ export default {
           from: { transform: 'translateY(10px)', opacity: '0' },
           to: { transform: 'translateY(0)', opacity: '1' },
         },
+        'ember-pulse': {
+          '0%, 100%': { opacity: '0.6', boxShadow: '0 0 8px 2px var(--ember)' },
+          '50%': { opacity: '1', boxShadow: '0 0 16px 4px var(--ember)' },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
         'fade-in': 'fade-in 0.3s ease-out',
         'slide-in': 'slide-in 0.3s ease-out',
+        'ember-pulse': 'ember-pulse 2.4s ease-in-out infinite',
       },
       typography: {
         DEFAULT: {

@@ -1,7 +1,12 @@
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
-import { sendGroundworkConfirmation, sendGroundworkOwnerNotification } from '@/lib/email';
+import {
+  sendGroundworkConfirmation,
+  sendGroundworkOwnerNotification,
+  sendDustLeatherConfirmation,
+  sendDustLeatherOwnerNotification,
+} from '@/lib/email';
 
 export async function POST(request: Request) {
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
@@ -119,7 +124,59 @@ export async function POST(request: Request) {
       return NextResponse.json({ received: true });
     }
 
-    // Handle other programs here if needed...
+    // ─── Dust & Leather Booking ────────────────────────────────────────────────
+    if (meta.program === 'dust-and-leather') {
+      try {
+        // Write to dust_and_leather_bookings table
+        const { data: booking, error: bookingError } = await supabase
+          .from('dust_and_leather_bookings')
+          .insert({
+            confirmation_code: meta.confirmationCode,
+            name: meta.name,
+            email: meta.email,
+            phone: meta.phone || null,
+            party_size: parseInt(meta.partySize),
+            package_type: meta.packageType,
+            message: meta.message || null,
+            amount_paid: parseInt(meta.amount),
+            paid_at: new Date().toISOString(),
+            status: 'paid',
+            stripe_session_id: session.id,
+            stripe_payment_intent_id: session.payment_intent as string,
+          })
+          .select()
+          .single();
+
+        if (bookingError) {
+          console.error('Failed to create Dust & Leather booking:', bookingError);
+          throw bookingError;
+        }
+
+        // Send confirmation email to customer
+        await sendDustLeatherConfirmation({
+          booking,
+          confirmationCode: meta.confirmationCode,
+        });
+
+        // Send notification to the horseman
+        await sendDustLeatherOwnerNotification({
+          booking,
+        });
+
+        // Mark confirmation sent
+        await supabase
+          .from('dust_and_leather_bookings')
+          .update({ confirmation_sent: true })
+          .eq('id', booking.id);
+
+        console.log(`Dust & Leather booking confirmed: ${meta.confirmationCode}`);
+
+      } catch (err: unknown) {
+        console.error('Dust & Leather webhook error:', err);
+      }
+
+      return NextResponse.json({ received: true });
+    }
   }
 
   return NextResponse.json({ received: true });
