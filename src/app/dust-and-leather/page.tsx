@@ -429,7 +429,7 @@ export default function DustAndLeatherPage() {
               What you&apos;ll take home.
             </h2>
             <p className="font-body text-ink text-xl sm:text-2xl leading-snug">
-              A belt you cut and stitched yourself. The quiet knowledge of how a
+              A belt you cut and stamped yourself. The quiet knowledge of how a
               horse follows a man it trusts. Dust on your jeans that won&apos;t come
               out in the wash.{" "}
               <Em>And the kind of tired that feels earned.</Em>
