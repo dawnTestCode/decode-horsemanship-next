@@ -265,38 +265,32 @@ export default function DustAndLeatherPage() {
           ============================================ */}
       <Section mode="anchor" className="py-20 sm:py-32">
         <Container className="text-center">
-          {/* Eyebrow */}
-          <Eyebrow className="text-sage mb-6 opacity-0 animate-[fade-in_0.6s_ease-out_0.1s_forwards]">
-            Decode Horsemanship <span className="text-sage/60">·</span> Chapel
-            Hill, NC
-          </Eyebrow>
-
           {/* Headline */}
-          <h1 className="font-display text-bone text-5xl sm:text-7xl md:text-8xl tracking-wide opacity-0 animate-[fade-in_0.6s_ease-out_0.3s_forwards]">
+          <h1 className="font-display text-bone text-5xl sm:text-7xl md:text-8xl tracking-wide opacity-0 animate-[fade-in_0.6s_ease-out_0.1s_forwards]">
             Dust <Amp mode="anchor" /> Leather
           </h1>
 
           {/* Subtitle */}
-          <p className="font-voice italic text-dust text-xl sm:text-2xl mt-4 opacity-0 animate-[fade-in_0.6s_ease-out_0.5s_forwards]">
+          <p className="font-voice italic text-dust text-xl sm:text-2xl mt-4 opacity-0 animate-[fade-in_0.6s_ease-out_0.3s_forwards]">
             Horses, fire, leather.
           </p>
 
           {/* Divider */}
-          <div className="flex items-center justify-center gap-3 my-8 opacity-0 animate-[fade-in_0.6s_ease-out_0.7s_forwards]">
+          <div className="flex items-center justify-center gap-3 my-8 opacity-0 animate-[fade-in_0.6s_ease-out_0.5s_forwards]">
             <span className="w-2 h-2 rounded-full bg-sage/60" />
             <span className="w-20 h-px bg-sage/40" />
             <span className="w-2 h-2 rounded-full bg-sage/60" />
           </div>
 
           {/* Pitch */}
-          <p className="font-body text-bone text-xl sm:text-2xl leading-snug max-w-[48ch] mx-auto opacity-0 animate-[fade-in_0.6s_ease-out_0.9s_forwards]">
+          <p className="font-body text-bone text-xl sm:text-2xl leading-snug max-w-[48ch] mx-auto opacity-0 animate-[fade-in_0.6s_ease-out_0.7s_forwards]">
             No riding. No roping cattle. Just real farm work, real skills, and
             real food cooked over a real fire. You&apos;ll show up clean and go
             home with <Em mode="dark">dust on your jeans and a belt you cut yourself.</Em>
           </p>
 
           {/* Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mt-10 opacity-0 animate-[fade-in_0.6s_ease-out_1.1s_forwards]">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mt-10 opacity-0 animate-[fade-in_0.6s_ease-out_0.9s_forwards]">
             <a
               href="#booking"
               className="inline-block font-mono-old uppercase tracking-[0.3em] text-sm bg-field hover:bg-field-deep text-bone px-8 py-4 transition-colors"
