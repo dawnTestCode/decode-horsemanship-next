@@ -57,13 +57,21 @@ interface SummerCampSession {
   capacity_trailblazers: number;
 }
 
+interface DustLeatherSession {
+  id: string;
+  session_date: string;
+  status: string;
+  enrolled: number;
+  capacity: number;
+}
+
 // Unified calendar event type
 interface CalendarEvent {
   id: string;
   date: string;
   endDate?: string;
   title: string;
-  type: 'eal' | 'groundwork' | 'summercamp';
+  type: 'eal' | 'groundwork' | 'summercamp' | 'dustleather';
   category?: string;
   status: string;
   enrolled: number;
@@ -90,6 +98,12 @@ const typeColors: Record<string, { bg: string; border: string; text: string; dot
     text: 'text-green-300',
     dot: 'bg-green-500',
   },
+  dustleather: {
+    bg: 'bg-orange-900/40',
+    border: 'border-orange-700',
+    text: 'text-orange-300',
+    dot: 'bg-orange-500',
+  },
 };
 
 // Category colors for EAL programs
@@ -105,7 +119,7 @@ const ProgramCalendar: React.FC = () => {
   const [programs, setPrograms] = useState<Program[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
-  const [filterType, setFilterType] = useState<'all' | 'eal' | 'groundwork' | 'summercamp'>('all');
+  const [filterType, setFilterType] = useState<'all' | 'eal' | 'groundwork' | 'summercamp' | 'dustleather'>('all');
 
   useEffect(() => {
     fetchAllData();
@@ -139,6 +153,12 @@ const ProgramCalendar: React.FC = () => {
         .from('summer_camp_sessions')
         .select('*')
         .order('start_date');
+
+      // Fetch Dust & Leather sessions
+      const { data: dustLeatherSessions } = await supabase
+        .from('dust_and_leather_sessions')
+        .select('*')
+        .order('session_date');
 
       // Convert all to unified CalendarEvent format
       const allEvents: CalendarEvent[] = [];
@@ -190,6 +210,21 @@ const ProgramCalendar: React.FC = () => {
             status: sc.status,
             enrolled: sc.enrolled_explorers + sc.enrolled_trailblazers,
             capacity: sc.capacity_explorers + sc.capacity_trailblazers,
+          });
+        });
+      }
+
+      // Dust & Leather sessions
+      if (dustLeatherSessions) {
+        dustLeatherSessions.forEach((dl: DustLeatherSession) => {
+          allEvents.push({
+            id: `dustleather-${dl.id}`,
+            date: dl.session_date,
+            title: 'Dust & Leather',
+            type: 'dustleather',
+            status: dl.status,
+            enrolled: dl.enrolled,
+            capacity: dl.capacity,
           });
         });
       }
@@ -323,6 +358,17 @@ const ProgramCalendar: React.FC = () => {
             <span className="w-2 h-2 rounded-full bg-green-500" />
             Summer Camp
           </button>
+          <button
+            onClick={() => setFilterType('dustleather')}
+            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
+              filterType === 'dustleather'
+                ? 'bg-orange-700 text-white'
+                : 'bg-stone-800 text-stone-400 hover:bg-stone-700'
+            }`}
+          >
+            <span className="w-2 h-2 rounded-full bg-orange-500" />
+            Dust & Leather
+          </button>
         </div>
       </div>
 
@@ -339,6 +385,10 @@ const ProgramCalendar: React.FC = () => {
         <div className="flex items-center gap-2">
           <span className="w-3 h-3 rounded-full bg-green-500" />
           <span className="text-stone-400">Summer Camp</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="w-3 h-3 rounded-full bg-orange-500" />
+          <span className="text-stone-400">Dust & Leather</span>
         </div>
         <div className="ml-4 flex items-center gap-4 text-xs text-stone-500">
           <span className="flex items-center gap-1">
@@ -447,6 +497,8 @@ const ProgramCalendar: React.FC = () => {
                       ? `EAL - ${selectedEvent.category}`
                       : selectedEvent.type === 'groundwork'
                       ? 'Groundwork'
+                      : selectedEvent.type === 'dustleather'
+                      ? 'Dust & Leather'
                       : 'Summer Camp'}
                   </span>
                 </div>
