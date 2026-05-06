@@ -120,17 +120,17 @@ function ScheduleItem({
 }) {
   return (
     <div
-      className={`py-4 ${!isLast ? "border-b border-dashed border-tobacco/30" : ""}`}
+      className={`py-3 ${!isLast ? "border-b border-dashed border-tobacco/30" : ""}`}
     >
-      <div className="flex gap-4 sm:gap-6">
-        <span className="font-mono-old text-tobacco text-sm sm:text-base w-14 sm:w-16 shrink-0">
+      <div className="flex gap-4 sm:gap-5">
+        <span className="font-mono-old text-tobacco text-base sm:text-lg w-14 sm:w-16 shrink-0">
           {time}
         </span>
         <div>
-          <p className="font-body font-semibold text-ink text-base sm:text-lg">
+          <p className="font-body font-semibold text-ink text-lg sm:text-xl">
             {title}
           </p>
-          <p className="font-voice italic text-tobacco text-sm sm:text-base mt-0.5">
+          <p className="font-voice italic text-tobacco text-base sm:text-lg mt-0.5">
             {description}
           </p>
         </div>
@@ -150,12 +150,12 @@ function SkillCard({
   description: string;
 }) {
   return (
-    <div className="pb-6 border-b border-dashed border-tobacco/30">
-      <span className="font-numerals text-tobacco text-sm">{number}</span>
-      <h3 className="font-display text-ink text-lg sm:text-xl mt-2 mb-2">
+    <div className="pb-5 border-b border-dashed border-tobacco/30">
+      <span className="font-numerals text-tobacco text-base">{number}</span>
+      <h3 className="font-display text-ink text-xl sm:text-2xl mt-1.5 mb-1.5">
         {title}
       </h3>
-      <p className="font-body text-ink text-base leading-relaxed">
+      <p className="font-body text-ink text-lg leading-snug">
         {description}
       </p>
     </div>
@@ -171,11 +171,11 @@ function FinePrintItem({
   value: string;
 }) {
   return (
-    <div className="flex flex-col sm:flex-row sm:gap-4 py-2">
-      <dt className="font-mono-old uppercase tracking-[0.3em] text-tobacco text-xs sm:text-sm w-20 shrink-0">
+    <div className="flex flex-col sm:flex-row sm:gap-4 py-2.5">
+      <dt className="font-mono-old uppercase tracking-[0.25em] text-tobacco text-sm w-20 shrink-0">
         {label}
       </dt>
-      <dd className="font-body text-ink text-base mt-1 sm:mt-0">{value}</dd>
+      <dd className="font-body text-ink text-lg mt-1 sm:mt-0">{value}</dd>
     </div>
   );
 }
@@ -190,11 +190,11 @@ function PackingItem({
 }) {
   const bulletColor = type === "bring" ? "bg-field" : "bg-tobacco";
   return (
-    <li className="flex items-start gap-3 py-1.5">
+    <li className="flex items-start gap-3 py-1">
       <span
-        className={`w-1.5 h-1.5 rounded-full ${bulletColor} mt-2 shrink-0`}
+        className={`w-1.5 h-1.5 rounded-full ${bulletColor} mt-2.5 shrink-0`}
       />
-      <span className="font-body text-ink text-base">{children}</span>
+      <span className="font-body text-ink text-lg">{children}</span>
     </li>
   );
 }
@@ -209,10 +209,10 @@ function EveningListItem({
 }) {
   return (
     <div className="py-2">
-      <span className="font-mono-old uppercase tracking-[0.3em] text-sage text-xs">
+      <span className="font-mono-old uppercase tracking-[0.25em] text-sage text-sm">
         {label}
       </span>
-      <span className="font-body text-bone text-base ml-4">{description}</span>
+      <span className="font-body text-bone text-lg ml-4">{description}</span>
     </div>
   );
 }
@@ -228,10 +228,10 @@ function PricingCard({
   description: string;
 }) {
   return (
-    <div className="border-t border-hearth pt-6">
+    <div className="border-t border-hearth pt-5">
       <Eyebrow className="text-tobacco">{label}</Eyebrow>
-      <p className="font-display text-bone text-4xl sm:text-5xl mt-3">{price}</p>
-      <p className="font-voice italic text-dust text-base mt-2">{description}</p>
+      <p className="font-display text-bone text-4xl sm:text-5xl mt-2">{price}</p>
+      <p className="font-voice italic text-dust text-lg mt-1.5">{description}</p>
     </div>
   );
 }
@@ -289,7 +289,7 @@ export default function DustAndLeatherPage() {
           </div>
 
           {/* Pitch */}
-          <p className="font-body text-bone text-lg sm:text-xl leading-[1.7] max-w-[52ch] mx-auto opacity-0 animate-[fade-in_0.6s_ease-out_0.9s_forwards]">
+          <p className="font-body text-bone text-xl sm:text-2xl leading-snug max-w-[48ch] mx-auto opacity-0 animate-[fade-in_0.6s_ease-out_0.9s_forwards]">
             No riding. No roping cattle. Just real farm work, real skills, and
             real food cooked over a real fire. You&apos;ll show up clean and go
             home with <Em mode="dark">dust on your jeans and a belt you cut yourself.</Em>
@@ -325,17 +325,17 @@ export default function DustAndLeatherPage() {
               <h2 className="font-display text-ink text-3xl sm:text-4xl mb-6">
                 A working day, not a tour.
               </h2>
-              <p className="font-voice italic text-field text-lg sm:text-xl mb-6">
+              <p className="font-voice italic text-field text-xl sm:text-2xl mb-5">
                 You&apos;ll work alongside the horseman on whatever needs doing — and
                 learn the skills that make it possible.
               </p>
-              <p className="font-body text-ink text-base sm:text-lg leading-[1.7] mb-4">
+              <p className="font-body text-ink text-lg sm:text-xl leading-snug mb-3">
                 We don&apos;t put you on a horse. We teach you how to{" "}
                 <Em>read one.</Em> How to load it. How to tack it. How to walk
                 into a round pen and have it follow you across the dirt with no
                 rope at all.
               </p>
-              <p className="font-body text-ink text-base sm:text-lg leading-[1.7]">
+              <p className="font-body text-ink text-lg sm:text-xl leading-snug">
                 Then we put you to work. Posts, fence, a round bale that needs
                 moving without a tractor. Real work, with real callouses to show
                 for it.
@@ -431,10 +431,10 @@ export default function DustAndLeatherPage() {
       <Section mode="daylight" className="py-16 sm:py-24">
         <Container className="text-center">
           <div className="max-w-[50ch] mx-auto">
-            <h2 className="font-display text-ink text-2xl sm:text-3xl mb-6">
+            <h2 className="font-display text-ink text-2xl sm:text-3xl mb-5">
               What you&apos;ll take home.
             </h2>
-            <p className="font-body text-ink text-lg sm:text-xl leading-[1.7]">
+            <p className="font-body text-ink text-xl sm:text-2xl leading-snug">
               A belt you cut and stitched yourself. The quiet knowledge of how a
               horse follows a man it trusts. Dust on your jeans that won&apos;t come
               out in the wash.{" "}
@@ -460,19 +460,19 @@ export default function DustAndLeatherPage() {
             <h2 className="font-display text-bone text-3xl sm:text-4xl mb-4">
               Stay for the fire.
             </h2>
-            <p className="font-voice italic text-sage text-lg sm:text-xl">
+            <p className="font-voice italic text-sage text-xl sm:text-2xl">
               Some days end when the work&apos;s done. Some end when the cards do.
             </p>
           </div>
 
-          <div className="grid lg:grid-cols-2 gap-12 lg:gap-16">
+          <div className="grid lg:grid-cols-2 gap-10 lg:gap-14">
             {/* Left column - description */}
             <div>
-              <p className="font-body text-bone text-base sm:text-lg leading-[1.7] mb-4">
+              <p className="font-body text-bone text-lg sm:text-xl leading-snug mb-3">
                 The work&apos;s done. The belts are stitched. The fire&apos;s already going
                 from lunch and the Dutch oven goes on as the light drops.
               </p>
-              <p className="font-body text-bone text-base sm:text-lg leading-[1.7]">
+              <p className="font-body text-bone text-lg sm:text-xl leading-snug">
                 Cobbler. Cigars. Whiskey by the bottle. Cards by lantern light.{" "}
                 <Em mode="dark">
                   We play until somebody runs out of chips or somebody runs out
@@ -512,7 +512,7 @@ export default function DustAndLeatherPage() {
               description="Day Pass plus Dutch oven supper, whiskey, and cards."
             />
           </div>
-          <p className="font-voice italic text-dust text-center mt-10">
+          <p className="font-voice italic text-dust text-lg text-center mt-8">
             2 to 4 men per day. Private bookings only.
           </p>
         </Container>
@@ -598,13 +598,13 @@ export default function DustAndLeatherPage() {
             <h2 className="font-display text-bone text-3xl sm:text-4xl mb-4">
               Book the day.
             </h2>
-            <p className="font-voice italic text-dust text-lg sm:text-xl mb-10">
+            <p className="font-voice italic text-dust text-xl sm:text-2xl mb-8">
               Tell us when you&apos;re free and how many of you. We&apos;ll write back.
             </p>
 
             <InquiryForm />
 
-            <p className="font-voice italic text-dust text-sm mt-8">
+            <p className="font-voice italic text-dust text-base mt-6">
               Or text the horseman directly: (919) 244-2647
             </p>
           </div>
@@ -623,20 +623,20 @@ export default function DustAndLeatherPage() {
             Dust <Amp mode="anchor" /> Leather &nbsp;·&nbsp; A Day at Decode
             Horsemanship &nbsp;·&nbsp; Chapel Hill, NC
           </p>
-          <p className="font-body text-tobacco text-sm">
+          <p className="font-body text-tobacco text-base">
             © {new Date().getFullYear()} Decode Horsemanship. All rights
             reserved.
           </p>
-          <div className="flex justify-center gap-6 mt-6">
+          <div className="flex justify-center gap-6 mt-5">
             <a
               href="/"
-              className="font-body text-sage hover:text-bone text-sm transition-colors underline-offset-4 hover:underline"
+              className="font-body text-sage hover:text-bone text-base transition-colors underline-offset-4 hover:underline"
             >
               Main Site
             </a>
             <a
               href="mailto:info@decodehorsemanship.com"
-              className="font-body text-sage hover:text-bone text-sm transition-colors underline-offset-4 hover:underline"
+              className="font-body text-sage hover:text-bone text-base transition-colors underline-offset-4 hover:underline"
             >
               Email
             </a>
