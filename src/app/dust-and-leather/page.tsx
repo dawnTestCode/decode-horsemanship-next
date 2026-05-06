@@ -254,7 +254,7 @@ export default function DustAndLeatherPage() {
           ============================================ */}
       <Section mode="anchor" className="py-3">
         <Container>
-          <p className="font-mono-old uppercase tracking-[0.4em] text-sage text-[10px] sm:text-xs text-center">
+          <p className="font-mono-old uppercase tracking-[0.2em] sm:tracking-[0.4em] text-sage text-[10px] sm:text-xs text-center">
             Decode Horsemanship &nbsp;·&nbsp; Chapel Hill, NC
           </p>
         </Container>
