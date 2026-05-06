@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS dust_and_leather_bookings (
   name TEXT NOT NULL,
   email TEXT NOT NULL,
   phone TEXT,
-  party_size INTEGER NOT NULL CHECK (party_size >= 2 AND party_size <= 4),
+  party_size INTEGER NOT NULL CHECK (party_size >= 1 AND party_size <= 4),
   package_type TEXT NOT NULL CHECK (package_type IN ('day-pass', 'stay-for-fire')),
   message TEXT,
   amount_paid INTEGER NOT NULL,  -- in cents

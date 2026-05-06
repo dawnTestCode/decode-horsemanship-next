@@ -361,8 +361,9 @@ function DustLeatherRegisterForm() {
   };
 
   const getPrice = () => {
-    if (form.packageType === 'day-pass') return 72500;
-    if (form.packageType === 'stay-for-fire') return 89500;
+    const partySize = parseInt(form.partySize) || 1;
+    if (form.packageType === 'day-pass') return 72500 * partySize;
+    if (form.packageType === 'stay-for-fire') return 89500 * partySize;
     return 0;
   };
 
@@ -452,6 +453,7 @@ function DustLeatherRegisterForm() {
         value={form.partySize}
         onChange={(v) => updateForm('partySize', v)}
         options={[
+          { value: '1', label: '1 (just me)' },
           { value: '2', label: '2 men' },
           { value: '3', label: '3 men' },
           { value: '4', label: '4 men' },
@@ -468,7 +470,7 @@ function DustLeatherRegisterForm() {
           <RadioOption
             label="Day Pass"
             description="From sunup to four-thirty. Lunch and belt included."
-            price="$725"
+            price="$725/person"
             value="day-pass"
             checked={form.packageType === 'day-pass'}
             onChange={(v) => updateForm('packageType', v as 'day-pass')}
@@ -476,7 +478,7 @@ function DustLeatherRegisterForm() {
           <RadioOption
             label="Stay for the Fire"
             description="Day Pass plus Dutch oven supper, whiskey, and cards."
-            price="$895"
+            price="$895/person"
             value="stay-for-fire"
             checked={form.packageType === 'stay-for-fire'}
             onChange={(v) => updateForm('packageType', v as 'stay-for-fire')}

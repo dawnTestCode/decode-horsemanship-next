@@ -52,16 +52,17 @@ export async function POST(request: Request) {
 
     // Validate party size
     const partySizeNum = parseInt(partySize);
-    if (isNaN(partySizeNum) || partySizeNum < 2 || partySizeNum > 4) {
+    if (isNaN(partySizeNum) || partySizeNum < 1 || partySizeNum > 4) {
       return NextResponse.json(
-        { error: 'Party size must be 2, 3, or 4' },
+        { error: 'Party size must be 1, 2, 3, or 4' },
         { status: 400 }
       );
     }
 
     const confirmationCode = generateConfirmationCode();
     const validPackageType = packageType as keyof typeof PRICING;
-    const amount = PRICING[validPackageType];
+    const pricePerPerson = PRICING[validPackageType];
+    const amount = pricePerPerson * partySizeNum;
     const packageName = PACKAGE_NAMES[validPackageType];
 
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.decodehorsemanship.com';
@@ -77,7 +78,7 @@ export async function POST(request: Request) {
             currency: 'usd',
             product_data: {
               name: `Dust & Leather — ${packageName}`,
-              description: `${partySizeNum} men · ${new Date(sessionDate).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}`,
+              description: `${partySizeNum} ${partySizeNum === 1 ? 'person' : 'men'} · ${new Date(sessionDate).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}`,
             },
             unit_amount: amount,
           },
