@@ -54,13 +54,16 @@ export async function PATCH(request: NextRequest) {
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      console.error('Supabase error:', error);
+      return NextResponse.json({ error: error.message, code: error.code, details: error.details }, { status: 500 });
+    }
     return NextResponse.json(data);
   } catch (error: any) {
     console.error('Error updating inquiry:', error);
     const message = error?.message?.includes('not configured')
       ? 'Admin actions require SUPABASE_SERVICE_ROLE_KEY'
-      : 'Failed to update inquiry';
+      : error?.message || 'Failed to update inquiry';
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
