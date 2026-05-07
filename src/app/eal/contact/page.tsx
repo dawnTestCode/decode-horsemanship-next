@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { Phone, Mail, MapPin, Clock, Loader2 } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
 import { siteConfig } from '@/config/siteConfig';
 
 export default function ContactPage() {
@@ -23,18 +22,20 @@ export default function ContactPage() {
     setFormError(null);
 
     try {
-      const { error } = await supabase
-        .from('contact_inquiries')
-        .insert({
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
           name: formData.name,
           email: formData.email,
           phone: formData.phone || null,
           inquiry_type: formData.program || 'general',
           message: formData.message,
           horse_name: null
-        });
+        }),
+      });
 
-      if (error) throw error;
+      if (!response.ok) throw new Error('Failed to submit');
 
       setFormSubmitted(true);
       setFormData({ name: '', email: '', phone: '', program: '', message: '' });

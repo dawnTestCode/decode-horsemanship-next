@@ -1,7 +1,8 @@
 // lib/email.ts
-// Email sending via Resend
+// Email sending via Resend, SMS via Twilio
 
 import { Resend } from 'resend';
+import twilio from 'twilio';
 
 function getResend() {
   return new Resend(process.env.RESEND_API_KEY);
@@ -10,7 +11,18 @@ function getResend() {
 const FROM_EMAIL = 'Decode Horsemanship <hello@decodehorsemanship.com>';
 const GROUNDWORK_FROM_EMAIL = 'Groundwork <groundwork@decodehorsemanship.com>';
 const OWNER_EMAIL = process.env.OWNER_EMAIL || 'dawn@decodehorsemanship.com';
+const OWNER_PHONE = process.env.OWNER_PHONE;
 const GROUNDWORK_EMAIL = 'groundwork@decodehorsemanship.com';
+
+// Twilio client (lazy initialization)
+function getTwilio() {
+  const accountSid = process.env.TWILIO_ACCOUNT_SID;
+  const authToken = process.env.TWILIO_AUTH_TOKEN;
+  if (!accountSid || !authToken) {
+    return null;
+  }
+  return twilio(accountSid, authToken);
+}
 
 function formatCurrency(cents: number): string {
   return `$${(cents / 100).toFixed(0)}`;
@@ -447,4 +459,121 @@ export async function sendGroundworkOwnerNotification({
     subject: `New Groundwork registration — ${fullName} (${registration.confirmation_code})`,
     html,
   });
+}
+
+// ─── Contact Inquiry Notification ─────────────────────────────────────────────
+
+export async function sendContactInquiryNotification({
+  inquiry,
+}: {
+  inquiry: {
+    name: string;
+    email: string;
+    phone?: string | null;
+    inquiry_type: string;
+    horse_name?: string | null;
+    message: string;
+  };
+}) {
+  const inquiryTypeLabels: Record<string, string> = {
+    adoption: 'Horse Adoption',
+    boarding: 'Boarding Inquiry',
+    general: 'General Question',
+    'volunteer/support': 'Volunteer/Support',
+    corporate: 'Corporate Programs',
+    personal: 'Personal Development',
+    mustang: 'Mustang Immersion',
+    youth: 'Youth Programs',
+  };
+
+  const typeLabel = inquiryTypeLabels[inquiry.inquiry_type] || inquiry.inquiry_type;
+
+  const html = `
+<!DOCTYPE html>
+<html>
+<body style="font-family: Arial, sans-serif; background: #f5f1ea; padding: 20px;">
+  <div style="max-width: 560px; margin: 0 auto; background: #fff; border-radius: 4px; overflow: hidden; border: 1px solid #ddd;">
+
+    <div style="background: #1a1a1a; padding: 20px 24px;">
+      <p style="margin: 0; color: #888; font-size: 11px; letter-spacing: 2px;">DECODE HORSEMANSHIP</p>
+      <h2 style="margin: 4px 0 0; color: #f5f1ea; font-size: 20px; font-weight: 500;">New ${typeLabel} Inquiry</h2>
+    </div>
+
+    <div style="padding: 24px;">
+
+      <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+        <tr style="background: #f9f9f9;">
+          <td style="padding: 10px 12px; color: #666; width: 30%;">Name</td>
+          <td style="padding: 10px 12px; font-weight: 600;">${inquiry.name}</td>
+        </tr>
+        <tr>
+          <td style="padding: 10px 12px; color: #666;">Email</td>
+          <td style="padding: 10px 12px;">
+            <a href="mailto:${inquiry.email}" style="color: #1a1a1a;">${inquiry.email}</a>
+          </td>
+        </tr>
+        ${inquiry.phone ? `
+        <tr style="background: #f9f9f9;">
+          <td style="padding: 10px 12px; color: #666;">Phone</td>
+          <td style="padding: 10px 12px;">${inquiry.phone}</td>
+        </tr>` : ''}
+        <tr${inquiry.phone ? '' : ' style="background: #f9f9f9;"'}>
+          <td style="padding: 10px 12px; color: #666;">Type</td>
+          <td style="padding: 10px 12px;">${typeLabel}</td>
+        </tr>
+        ${inquiry.horse_name ? `
+        <tr style="background: #f9f9f9;">
+          <td style="padding: 10px 12px; color: #666;">Horse</td>
+          <td style="padding: 10px 12px;">${inquiry.horse_name}</td>
+        </tr>` : ''}
+        <tr>
+          <td style="padding: 10px 12px; color: #666; vertical-align: top; border-top: 2px solid #eee;">Message</td>
+          <td style="padding: 10px 12px; border-top: 2px solid #eee; line-height: 1.5;">${inquiry.message.replace(/\n/g, '<br>')}</td>
+        </tr>
+      </table>
+
+    </div>
+
+    <div style="background: #f5f5f5; padding: 16px 24px; text-align: center; font-size: 12px; color: #999;">
+      Reply directly to this email to respond
+    </div>
+
+  </div>
+</body>
+</html>`;
+
+  // Send email
+  await getResend().emails.send({
+    from: FROM_EMAIL,
+    to: OWNER_EMAIL,
+    replyTo: inquiry.email,
+    subject: `New inquiry from ${inquiry.name} — ${typeLabel}`,
+    html,
+  });
+
+  // Send SMS if configured
+  await sendSmsNotification(
+    `New ${typeLabel} inquiry from ${inquiry.name}. Check your email for details.`
+  );
+}
+
+// ─── SMS Notification ─────────────────────────────────────────────────────────
+
+export async function sendSmsNotification(message: string) {
+  const client = getTwilio();
+  if (!client || !OWNER_PHONE || !process.env.TWILIO_PHONE_NUMBER) {
+    // SMS not configured, skip silently
+    return;
+  }
+
+  try {
+    await client.messages.create({
+      body: message,
+      from: process.env.TWILIO_PHONE_NUMBER,
+      to: OWNER_PHONE,
+    });
+  } catch (error) {
+    // Log but don't throw - SMS is secondary to email
+    console.error('Failed to send SMS notification:', error);
+  }
 }

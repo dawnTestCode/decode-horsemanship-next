@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { Phone, Mail, MapPin, Clock, Facebook, Instagram, Youtube, Loader2 } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
 import { siteConfig } from '@/config/siteConfig';
 import { Horse } from '@/types';
 
@@ -30,16 +29,20 @@ export default function ContactSection({ horses }: ContactSectionProps) {
     setFormError(null);
 
     try {
-      const { error } = await supabase.from('contact_inquiries').insert({
-        name: contactForm.name,
-        email: contactForm.email,
-        phone: contactForm.phone || null,
-        inquiry_type: contactForm.inquiryType,
-        message: contactForm.message,
-        horse_name: contactForm.horseName || null,
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: contactForm.name,
+          email: contactForm.email,
+          phone: contactForm.phone || null,
+          inquiry_type: contactForm.inquiryType,
+          message: contactForm.message,
+          horse_name: contactForm.horseName || null,
+        }),
       });
 
-      if (error) throw error;
+      if (!response.ok) throw new Error('Failed to submit');
 
       setFormSubmitted(true);
       setContactForm({ name: '', email: '', phone: '', inquiryType: 'adoption', message: '', horseName: '' });
