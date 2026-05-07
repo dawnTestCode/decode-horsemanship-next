@@ -392,19 +392,20 @@ const InquiriesPanel: React.FC<InquiriesPanelProps> = ({ onClose }) => {
                           <textarea
                             value={notesText}
                             onChange={(e) => setNotesText(e.target.value)}
+                            onClick={(e) => e.stopPropagation()}
                             className="w-full bg-stone-800 border border-stone-700 rounded-lg px-4 py-2 text-stone-200 focus:border-red-500 focus:outline-none resize-none"
                             rows={3}
                             placeholder="Add notes about this inquiry..."
                           />
                           <div className="flex gap-2">
                             <button
-                              onClick={() => saveNotes(inquiry.id)}
+                              onClick={(e) => { e.stopPropagation(); saveNotes(inquiry.id); }}
                               className="px-4 py-2 bg-red-700 hover:bg-red-600 text-white text-sm rounded-lg transition-colors"
                             >
                               Save Notes
                             </button>
                             <button
-                              onClick={() => setEditingNotes(null)}
+                              onClick={(e) => { e.stopPropagation(); setEditingNotes(null); }}
                               className="px-4 py-2 bg-stone-800 hover:bg-stone-700 text-stone-300 text-sm rounded-lg transition-colors"
                             >
                               Cancel
@@ -412,8 +413,8 @@ const InquiriesPanel: React.FC<InquiriesPanelProps> = ({ onClose }) => {
                           </div>
                         </div>
                       ) : (
-                        <div 
-                          onClick={() => { setEditingNotes(inquiry.id); setNotesText(inquiry.admin_notes || ''); }}
+                        <div
+                          onClick={(e) => { e.stopPropagation(); setEditingNotes(inquiry.id); setNotesText(inquiry.admin_notes || ''); }}
                           className="p-3 bg-stone-800/50 rounded-lg text-stone-400 cursor-pointer hover:bg-stone-800 transition-colors min-h-[60px]"
                         >
                           {inquiry.admin_notes || 'Click to add notes...'}
@@ -425,7 +426,7 @@ const InquiriesPanel: React.FC<InquiriesPanelProps> = ({ onClose }) => {
                     <div className="mt-6 pt-4 border-t border-stone-800 flex flex-wrap gap-3">
                       {inquiry.status !== 'responded' && (
                         <button
-                          onClick={() => markAsResponded(inquiry)}
+                          onClick={(e) => { e.stopPropagation(); markAsResponded(inquiry); }}
                           className="px-4 py-2 bg-green-700 hover:bg-green-600 text-white text-sm rounded-lg transition-colors flex items-center gap-2"
                         >
                           <CheckCheck size={16} />
@@ -440,7 +441,7 @@ const InquiriesPanel: React.FC<InquiriesPanelProps> = ({ onClose }) => {
                         Send Email
                       </a>
                       <button
-                        onClick={() => setDeleteConfirm(inquiry.id)}
+                        onClick={(e) => { e.stopPropagation(); setDeleteConfirm(inquiry.id); }}
                         className="px-4 py-2 bg-red-900/30 hover:bg-red-900/50 text-red-400 text-sm rounded-lg transition-colors flex items-center gap-2"
                       >
                         <Trash2 size={16} />
