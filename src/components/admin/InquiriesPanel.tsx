@@ -1,8 +1,7 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Mail, Phone, User, Clock, MessageSquare, Check, CheckCheck, Trash2, X, Loader2, ChevronDown, ChevronUp, Search, Filter } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
 
 interface Inquiry {
   id: string;
@@ -35,16 +34,14 @@ const InquiriesPanel: React.FC<InquiriesPanelProps> = ({ onClose }) => {
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [editingNotes, setEditingNotes] = useState<string | null>(null);
   const [notesText, setNotesText] = useState('');
+  const notesTextareaRef = useRef<HTMLTextAreaElement>(null);
 
   const fetchInquiries = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
-        .from('contact_inquiries')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
+      const response = await fetch('/api/admin/inquiries');
+      if (!response.ok) throw new Error('Failed to fetch');
+      const data = await response.json();
       setInquiries(data || []);
     } catch (err: any) {
       console.error('Error fetching inquiries:', err);
@@ -58,20 +55,27 @@ const InquiriesPanel: React.FC<InquiriesPanelProps> = ({ onClose }) => {
     fetchInquiries();
   }, []);
 
+  // Auto-focus notes textarea when editing starts
+  useEffect(() => {
+    if (editingNotes && notesTextareaRef.current) {
+      notesTextareaRef.current.focus();
+    }
+  }, [editingNotes]);
+
   const markAsRead = async (inquiry: Inquiry) => {
     if (inquiry.status !== 'unread') return;
-    
+
     try {
-      const { error } = await supabase
-        .from('contact_inquiries')
-        .update({ 
+      const response = await fetch('/api/admin/inquiries', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: inquiry.id,
           status: 'read',
           read_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', inquiry.id);
-
-      if (error) throw error;
+        }),
+      });
+      if (!response.ok) throw new Error('Failed to update');
       fetchInquiries();
     } catch (err: any) {
       console.error('Error marking as read:', err);
@@ -80,16 +84,16 @@ const InquiriesPanel: React.FC<InquiriesPanelProps> = ({ onClose }) => {
 
   const markAsResponded = async (inquiry: Inquiry) => {
     try {
-      const { error } = await supabase
-        .from('contact_inquiries')
-        .update({ 
+      const response = await fetch('/api/admin/inquiries', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: inquiry.id,
           status: 'responded',
           responded_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', inquiry.id);
-
-      if (error) throw error;
+        }),
+      });
+      if (!response.ok) throw new Error('Failed to update');
       fetchInquiries();
     } catch (err: any) {
       console.error('Error marking as responded:', err);
@@ -98,15 +102,15 @@ const InquiriesPanel: React.FC<InquiriesPanelProps> = ({ onClose }) => {
 
   const saveNotes = async (inquiryId: string) => {
     try {
-      const { error } = await supabase
-        .from('contact_inquiries')
-        .update({ 
+      const response = await fetch('/api/admin/inquiries', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: inquiryId,
           admin_notes: notesText,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', inquiryId);
-
-      if (error) throw error;
+        }),
+      });
+      if (!response.ok) throw new Error('Failed to update');
       setEditingNotes(null);
       fetchInquiries();
     } catch (err: any) {
@@ -116,12 +120,10 @@ const InquiriesPanel: React.FC<InquiriesPanelProps> = ({ onClose }) => {
 
   const deleteInquiry = async (id: string) => {
     try {
-      const { error } = await supabase
-        .from('contact_inquiries')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
+      const response = await fetch(`/api/admin/inquiries?id=${id}`, {
+        method: 'DELETE',
+      });
+      if (!response.ok) throw new Error('Failed to delete');
       setDeleteConfirm(null);
       fetchInquiries();
     } catch (err: any) {
@@ -390,6 +392,7 @@ const InquiriesPanel: React.FC<InquiriesPanelProps> = ({ onClose }) => {
                       {editingNotes === inquiry.id ? (
                         <div className="space-y-2">
                           <textarea
+                            ref={notesTextareaRef}
                             value={notesText}
                             onChange={(e) => setNotesText(e.target.value)}
                             onClick={(e) => e.stopPropagation()}
