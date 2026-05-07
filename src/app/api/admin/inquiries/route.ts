@@ -1,15 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
-const supabase = createClient(
+// Use anon key for reads (RLS allows select)
+const supabaseAnon = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
-// GET - Fetch all inquiries
+// Use service role for writes (bypasses RLS)
+function getServiceClient() {
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!serviceKey) {
+    throw new Error('SUPABASE_SERVICE_ROLE_KEY not configured');
+  }
+  return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, serviceKey);
+}
+
+// GET - Fetch all inquiries (uses anon key - RLS allows select)
 export async function GET() {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAnon
       .from('contact_inquiries')
       .select('*')
       .order('created_at', { ascending: false });
@@ -22,9 +32,10 @@ export async function GET() {
   }
 }
 
-// PATCH - Update an inquiry (status, notes)
+// PATCH - Update an inquiry (status, notes) - requires service role
 export async function PATCH(request: NextRequest) {
   try {
+    const supabase = getServiceClient();
     const body = await request.json();
     const { id, ...updates } = body;
 
@@ -44,15 +55,19 @@ export async function PATCH(request: NextRequest) {
 
     if (error) throw error;
     return NextResponse.json(data);
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error updating inquiry:', error);
-    return NextResponse.json({ error: 'Failed to update inquiry' }, { status: 500 });
+    const message = error?.message?.includes('not configured')
+      ? 'Admin actions require SUPABASE_SERVICE_ROLE_KEY'
+      : 'Failed to update inquiry';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
 
-// DELETE - Delete an inquiry
+// DELETE - Delete an inquiry - requires service role
 export async function DELETE(request: NextRequest) {
   try {
+    const supabase = getServiceClient();
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
 
@@ -67,8 +82,11 @@ export async function DELETE(request: NextRequest) {
 
     if (error) throw error;
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error deleting inquiry:', error);
-    return NextResponse.json({ error: 'Failed to delete inquiry' }, { status: 500 });
+    const message = error?.message?.includes('not configured')
+      ? 'Admin actions require SUPABASE_SERVICE_ROLE_KEY'
+      : 'Failed to delete inquiry';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
