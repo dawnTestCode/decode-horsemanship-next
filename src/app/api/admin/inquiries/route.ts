@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
-// Use anon key for reads (RLS allows select)
-const supabaseAnon = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+// Lazy initialization to avoid build-time errors
+function getAnonClient() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+}
 
-// Use service role for writes (bypasses RLS)
 function getServiceClient() {
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!serviceKey) {
@@ -19,7 +20,7 @@ function getServiceClient() {
 // GET - Fetch all inquiries (uses anon key - RLS allows select)
 export async function GET() {
   try {
-    const { data, error } = await supabaseAnon
+    const { data, error } = await getAnonClient()
       .from('contact_inquiries')
       .select('*')
       .order('created_at', { ascending: false });
