@@ -26,14 +26,24 @@ export default function HorsesSection({
   });
   const [showFilters, setShowFilters] = useState(false);
 
-  // Filter for available horses (excluding not_for_sale)
-  const filteredHorses = horses.filter((horse) => {
-    if (horse.status === 'not_for_sale') return false;
-    if (filters.temperament !== 'All' && horse.temperament !== filters.temperament) return false;
-    if (filters.experience !== 'All' && horse.experience_level !== filters.experience) return false;
-    if (filters.training !== 'All' && horse.training_status !== filters.training) return false;
-    return true;
-  });
+  // Filter for available horses (available and pending only, excluding sold and not_for_sale)
+  const filteredHorses = horses
+    .filter((horse) => {
+      if (horse.status === 'not_for_sale' || horse.status === 'sold') return false;
+      if (filters.temperament !== 'All' && horse.temperament !== filters.temperament) return false;
+      if (filters.experience !== 'All' && horse.experience_level !== filters.experience) return false;
+      if (filters.training !== 'All' && horse.training_status !== filters.training) return false;
+      return true;
+    })
+    // Sort to show available horses first, then pending
+    .sort((a, b) => {
+      if (a.status === 'available' && b.status === 'pending') return -1;
+      if (a.status === 'pending' && b.status === 'available') return 1;
+      return 0;
+    });
+
+  // Filter for sold horses
+  const soldHorses = horses.filter((horse) => horse.status === 'sold');
 
   // Filter for our horses (only not_for_sale)
   const ourHorses = horses.filter((horse) => horse.status === 'not_for_sale');
@@ -227,9 +237,88 @@ export default function HorsesSection({
         </div>
       </section>
 
+      {/* Sold Horses Section */}
+      {soldHorses.length > 0 && (
+        <section id="sold-horses" className="py-20 px-4 bg-stone-900/30">
+          <div className="max-w-7xl mx-auto">
+            <div className="text-center mb-12">
+              <h2 className="text-4xl md:text-5xl font-bold mb-4">
+                <span className="text-stone-500">Sold</span> Horses
+              </h2>
+              <p className="text-stone-400 max-w-2xl mx-auto">
+                These horses have found their forever homes. We&apos;re grateful to have been part of their journey.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {soldHorses.map((horse) => (
+                <Link
+                  key={horse.id}
+                  href={`/horses/${horse.id}`}
+                  className="group bg-stone-900/50 rounded-xl overflow-hidden border border-stone-800 opacity-75 hover:opacity-100 transition-all duration-300 cursor-pointer"
+                >
+                  <div className="relative aspect-[4/3] overflow-hidden">
+                    {horse.photos && horse.photos.length > 0 ? (
+                      <img
+                        src={horse.photos[0]}
+                        alt={horse.name}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-stone-800 flex items-center justify-center text-stone-600">
+                        No Photo
+                      </div>
+                    )}
+                    {getStatusBadge(horse.status)}
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        onToggleFavorite(horse.id);
+                      }}
+                      className="absolute top-3 right-3 p-2 bg-black/50 rounded-full hover:bg-stone-700 transition-colors"
+                    >
+                      <Heart
+                        size={20}
+                        className={favorites.includes(horse.id) ? 'fill-stone-500 text-stone-500' : 'text-white'}
+                      />
+                    </button>
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs bg-stone-700 px-2 py-1 rounded">{horse.training_status}</span>
+                        {horse.videos && horse.videos.length > 0 && (
+                          <span className="text-xs bg-stone-700 px-2 py-1 rounded flex items-center gap-1">
+                            <Video size={12} />
+                            {horse.videos.length}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="p-4">
+                    <h3 className="text-xl font-bold text-stone-100 mb-2">{horse.name}</h3>
+                    <p className="text-stone-400 text-sm mb-3">
+                      {horse.age} yr old {horse.gender} &bull; {horse.breed}
+                    </p>
+                    <div className="flex gap-2 flex-wrap">
+                      <span className="text-xs bg-stone-800 px-2 py-1 rounded text-stone-300">
+                        {horse.temperament}
+                      </span>
+                      <span className="text-xs bg-stone-800 px-2 py-1 rounded text-stone-300">
+                        {horse.experience_level} Riders
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Our Horses Section (Not For Sale) */}
       {ourHorses.length > 0 && (
-        <section id="our-horses" className="py-20 px-4 bg-stone-900/30">
+        <section id="our-horses" className="py-20 px-4">
           <div className="max-w-7xl mx-auto">
             <div className="text-center mb-12">
               <h2 className="text-4xl md:text-5xl font-bold mb-4">
