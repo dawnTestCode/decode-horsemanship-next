@@ -11,7 +11,6 @@ import {
   ChevronDown,
   Sun,
 } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
 import { useSummerCampSessions } from '@/hooks/useSummerCampSessions';
 
 const tiers = [
@@ -407,8 +406,10 @@ export default function SummerCampRegisterPage() {
     setError(null);
 
     try {
-      const { data, error } = await supabase.functions.invoke('summer-camp-checkout', {
-        body: {
+      const response = await fetch('/api/summer-camp-checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
           ...form,
           sessionCount,
           depositAmount: depositAmount * 100,
@@ -422,11 +423,14 @@ export default function SummerCampRegisterPage() {
               : isEarlyBird
               ? 'early_bird'
               : null,
-        },
+        }),
       });
 
-      if (error) throw error;
-      if (data.error) throw new Error(data.error);
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Something went wrong');
+      }
 
       window.location.href = data.url;
     } catch (err: unknown) {
