@@ -6,6 +6,8 @@ import {
   sendGroundworkOwnerNotification,
   sendDustLeatherConfirmation,
   sendDustLeatherOwnerNotification,
+  sendSummerCampConfirmation,
+  sendSummerCampOwnerNotification,
 } from '@/lib/email';
 
 export async function POST(request: Request) {
@@ -188,6 +190,108 @@ export async function POST(request: Request) {
 
       } catch (err: unknown) {
         console.error('Dust & Leather webhook error:', err);
+      }
+
+      return NextResponse.json({ received: true });
+    }
+
+    // ─── Summer Camp Registration (Deposit) ───────────────────────────────────
+    if (meta.program === 'summer-camp' && !meta.paymentType) {
+      try {
+        // Write to summer_camp_registrations table
+        const { data: registration, error: regError } = await supabase
+          .from('summer_camp_registrations')
+          .insert({
+            confirmation_code: meta.confirmationCode,
+            tier: meta.tier,
+            session_1: meta.session1,
+            session_2: meta.session2 || null,
+            camper_first_name: meta.camperFirstName,
+            camper_last_name: meta.camperLastName,
+            camper_dob: meta.camperDob,
+            tshirt_size: meta.tshirtSize,
+            horse_experience: meta.horseExperience || null,
+            referral_source: meta.referralSource || null,
+            is_sibling: meta.isSibling === 'true',
+            sibling_confirmation_code: meta.siblingConfirmationCode || null,
+            parent_name: meta.parentName,
+            parent_relationship: meta.parentRelationship,
+            parent_email: meta.parentEmail,
+            parent_phone: meta.parentPhone,
+            emergency_name: meta.emergencyName,
+            emergency_relationship: meta.emergencyRelationship,
+            emergency_phone: meta.emergencyPhone,
+            allergies: meta.allergies || null,
+            medical_conditions: meta.medicalConditions || null,
+            needs_accommodations: meta.needsAccommodations === 'true',
+            accommodations_details: meta.accommodationsDetails || null,
+            photo_release: meta.photoRelease === 'true',
+            digital_signature: meta.digitalSignature,
+            deposit_paid: parseInt(meta.depositAmount),
+            balance_due: parseInt(meta.balanceDue),
+            balance_paid: 0,
+            discount_type: meta.discountType || null,
+            status: 'deposit_paid',
+            stripe_session_id: session.id,
+            stripe_payment_intent_id: session.payment_intent as string,
+          })
+          .select()
+          .single();
+
+        if (regError) {
+          console.error('Failed to create Summer Camp registration:', regError);
+          throw regError;
+        }
+
+        // Send confirmation email to parent
+        await sendSummerCampConfirmation({
+          registration,
+          confirmationCode: meta.confirmationCode,
+        });
+
+        // Send notification to owner
+        await sendSummerCampOwnerNotification({
+          registration,
+        });
+
+        // Mark confirmation sent
+        await supabase
+          .from('summer_camp_registrations')
+          .update({ confirmation_sent: true })
+          .eq('id', registration.id);
+
+        console.log(`Summer Camp registration confirmed: ${meta.confirmationCode}`);
+
+      } catch (err: unknown) {
+        console.error('Summer Camp webhook error:', err);
+      }
+
+      return NextResponse.json({ received: true });
+    }
+
+    // ─── Summer Camp Balance Payment ──────────────────────────────────────────
+    if (meta.program === 'summer-camp' && meta.paymentType === 'balance') {
+      try {
+        const balanceAmount = parseInt(meta.balanceAmount);
+
+        const { error: updateError } = await supabase
+          .from('summer_camp_registrations')
+          .update({
+            balance_paid: balanceAmount,
+            balance_due: 0,
+            status: 'paid_in_full',
+          })
+          .eq('id', meta.registrationId);
+
+        if (updateError) {
+          console.error('Failed to update Summer Camp registration:', updateError);
+          throw updateError;
+        }
+
+        console.log(`Summer Camp balance paid: ${meta.confirmationCode}`);
+
+      } catch (err: unknown) {
+        console.error('Summer Camp balance webhook error:', err);
       }
 
       return NextResponse.json({ received: true });

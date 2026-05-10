@@ -577,3 +577,314 @@ export async function sendSmsNotification(message: string) {
     console.error('Failed to send SMS notification:', error);
   }
 }
+
+// ─── Summer Camp Confirmation Email ───────────────────────────────────────────
+
+const SUMMER_CAMP_FROM_EMAIL = 'Decode Summer Camp <summercamp@decodehorsemanship.com>';
+
+export async function sendSummerCampConfirmation({
+  registration,
+  confirmationCode,
+}: {
+  registration: {
+    camper_first_name: string;
+    camper_last_name: string;
+    parent_name: string;
+    parent_email: string;
+    tier: string;
+    session_1: string;
+    session_2: string | null;
+    deposit_paid: number;
+    balance_due: number;
+  };
+  confirmationCode: string;
+}) {
+  const tierLabel = registration.tier === 'explorers' ? 'Explorers (Ages 6–9)' : 'Trailblazers (Ages 10–14)';
+  const parentFirst = registration.parent_name.split(' ')[0];
+
+  const html = `
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width"></head>
+<body style="margin: 0; padding: 0; background: #1c1917; font-family: Arial, sans-serif;">
+  <div style="max-width: 560px; margin: 0 auto; background: #1c1917;">
+
+    <!-- Header -->
+    <div style="background: #b91c1c; padding: 40px; text-align: center;">
+      <p style="margin: 0 0 8px; color: rgba(255,255,255,0.7); font-size: 11px; letter-spacing: 2px; text-transform: uppercase;">
+        Decode Horsemanship
+      </p>
+      <h1 style="margin: 0; color: #fff; font-size: 28px; font-weight: 700;">
+        Summer Camp
+      </h1>
+    </div>
+
+    <!-- Body -->
+    <div style="padding: 40px; background: #292524;">
+      <p style="color: #fafaf9; font-size: 18px; line-height: 1.6; margin: 0 0 24px;">
+        ${parentFirst},<br><br>
+        You're all set! <strong>${registration.camper_first_name}</strong> is registered for summer camp.
+      </p>
+
+      <!-- Confirmation details -->
+      <div style="background: #1c1917; border: 1px solid #44403c; border-radius: 12px; padding: 24px; margin-bottom: 24px;">
+        <table style="width: 100%; border-collapse: collapse;">
+          <tr>
+            <td style="padding: 8px 0; color: #a8a29e; font-size: 12px; text-transform: uppercase; letter-spacing: 1px;">Confirmation</td>
+            <td style="padding: 8px 0; font-size: 18px; font-weight: 700; color: #fafaf9; font-family: monospace; text-align: right;">
+              ${confirmationCode}
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; color: #a8a29e; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; border-top: 1px solid #44403c;">Camper</td>
+            <td style="padding: 8px 0; font-size: 14px; color: #fafaf9; text-align: right; border-top: 1px solid #44403c;">
+              ${registration.camper_first_name} ${registration.camper_last_name}
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; color: #a8a29e; font-size: 12px; text-transform: uppercase; letter-spacing: 1px;">Program</td>
+            <td style="padding: 8px 0; font-size: 14px; color: #fafaf9; text-align: right;">
+              ${tierLabel}
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; color: #a8a29e; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; border-top: 1px solid #44403c;">Deposit Paid</td>
+            <td style="padding: 8px 0; font-size: 14px; color: #4ade80; text-align: right; border-top: 1px solid #44403c;">
+              ${formatCurrency(registration.deposit_paid)}
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; color: #a8a29e; font-size: 12px; text-transform: uppercase; letter-spacing: 1px;">Balance Due</td>
+            <td style="padding: 8px 0; font-size: 14px; color: #fbbf24; text-align: right;">
+              ${formatCurrency(registration.balance_due)} — 2 weeks before session
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- What's next -->
+      <div style="margin-bottom: 24px;">
+        <p style="color: #fafaf9; font-size: 14px; font-weight: 600; margin: 0 0 12px;">What's Next</p>
+        <ul style="color: #d6d3d1; font-size: 14px; line-height: 1.8; padding-left: 20px; margin: 0;">
+          <li>Complete the <a href="https://forms.gle/DszFyex1HKBbLDw6A" style="color: #f87171;">liability waiver</a> before the first day</li>
+          <li>You'll receive a balance invoice 2 weeks before camp</li>
+          <li>Packing list and directions will be sent closer to your session</li>
+        </ul>
+      </div>
+
+      <!-- Questions -->
+      <div style="border-top: 1px solid #44403c; padding-top: 20px;">
+        <p style="color: #a8a29e; font-size: 14px; margin: 0;">
+          Questions? Reply to this email or reach us at
+          <a href="mailto:dawn@decodehorsemanship.com" style="color: #f87171;">dawn@decodehorsemanship.com</a>
+        </p>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div style="background: #1c1917; padding: 20px; text-align: center; border-top: 1px solid #44403c;">
+      <p style="color: #78716c; font-size: 12px; margin: 0;">
+        Decode Horsemanship · Summer Camp · Chapel Hill, NC
+      </p>
+    </div>
+
+  </div>
+</body>
+</html>`;
+
+  await getResend().emails.send({
+    from: SUMMER_CAMP_FROM_EMAIL,
+    to: registration.parent_email,
+    subject: `${registration.camper_first_name} is registered! (${confirmationCode})`,
+    html,
+  });
+}
+
+// ─── Summer Camp Owner Notification ───────────────────────────────────────────
+
+export async function sendSummerCampOwnerNotification({
+  registration,
+}: {
+  registration: {
+    confirmation_code: string;
+    camper_first_name: string;
+    camper_last_name: string;
+    camper_dob: string;
+    tier: string;
+    session_1: string;
+    session_2: string | null;
+    tshirt_size: string;
+    horse_experience: string | null;
+    referral_source: string | null;
+    is_sibling: boolean;
+    sibling_confirmation_code: string | null;
+    parent_name: string;
+    parent_email: string;
+    parent_phone: string;
+    emergency_name: string;
+    emergency_relationship: string;
+    emergency_phone: string;
+    allergies: string | null;
+    medical_conditions: string | null;
+    needs_accommodations: boolean;
+    accommodations_details: string | null;
+    photo_release: boolean;
+    deposit_paid: number;
+    balance_due: number;
+    discount_type: string | null;
+  };
+}) {
+  const tierLabel = registration.tier === 'explorers' ? 'Explorers (6–9)' : 'Trailblazers (10–14)';
+  const camperName = `${registration.camper_first_name} ${registration.camper_last_name}`;
+
+  const discountLabels: Record<string, string> = {
+    early_bird: 'Early Bird',
+    sibling: 'Sibling',
+    early_bird_sibling: 'Early Bird + Sibling',
+  };
+
+  const html = `
+<!DOCTYPE html>
+<html>
+<body style="font-family: Arial, sans-serif; background: #1c1917; padding: 20px;">
+  <div style="max-width: 600px; margin: 0 auto; background: #292524; border-radius: 8px; overflow: hidden; border: 1px solid #44403c;">
+
+    <div style="background: #b91c1c; padding: 20px 24px;">
+      <p style="margin: 0; color: rgba(255,255,255,0.7); font-size: 11px; letter-spacing: 2px;">SUMMER CAMP</p>
+      <h2 style="margin: 4px 0 0; color: #fff; font-size: 20px; font-weight: 600;">New Registration</h2>
+    </div>
+
+    <div style="padding: 24px;">
+
+      <table style="width: 100%; border-collapse: collapse; font-size: 14px; color: #fafaf9;">
+        <tr style="background: #1c1917;">
+          <td style="padding: 10px 12px; color: #a8a29e; width: 35%;">Confirmation</td>
+          <td style="padding: 10px 12px; font-family: monospace; font-weight: 700;">
+            ${registration.confirmation_code}
+          </td>
+        </tr>
+        <tr>
+          <td style="padding: 10px 12px; color: #a8a29e;">Camper</td>
+          <td style="padding: 10px 12px; font-weight: 600;">${camperName}</td>
+        </tr>
+        <tr style="background: #1c1917;">
+          <td style="padding: 10px 12px; color: #a8a29e;">DOB</td>
+          <td style="padding: 10px 12px;">${registration.camper_dob}</td>
+        </tr>
+        <tr>
+          <td style="padding: 10px 12px; color: #a8a29e;">Program</td>
+          <td style="padding: 10px 12px;">${tierLabel}</td>
+        </tr>
+        <tr style="background: #1c1917;">
+          <td style="padding: 10px 12px; color: #a8a29e;">Session(s)</td>
+          <td style="padding: 10px 12px;">
+            ${registration.session_1}${registration.session_2 ? `, ${registration.session_2}` : ''}
+          </td>
+        </tr>
+        <tr>
+          <td style="padding: 10px 12px; color: #a8a29e;">T-Shirt Size</td>
+          <td style="padding: 10px 12px;">${registration.tshirt_size}</td>
+        </tr>
+        <tr style="background: #1c1917;">
+          <td style="padding: 10px 12px; color: #a8a29e;">Horse Experience</td>
+          <td style="padding: 10px 12px;">${registration.horse_experience || 'Not specified'}</td>
+        </tr>
+        ${registration.referral_source ? `
+        <tr>
+          <td style="padding: 10px 12px; color: #a8a29e;">How They Found Us</td>
+          <td style="padding: 10px 12px;">${registration.referral_source}</td>
+        </tr>` : ''}
+        ${registration.is_sibling ? `
+        <tr style="background: #1c1917;">
+          <td style="padding: 10px 12px; color: #a8a29e;">Sibling Code</td>
+          <td style="padding: 10px 12px;">${registration.sibling_confirmation_code || 'Not provided'}</td>
+        </tr>` : ''}
+
+        <tr><td colspan="2" style="padding: 8px 0;"><div style="border-top: 2px solid #44403c;"></div></td></tr>
+
+        <tr style="background: #1c1917;">
+          <td style="padding: 10px 12px; color: #a8a29e;">Parent/Guardian</td>
+          <td style="padding: 10px 12px; font-weight: 600;">${registration.parent_name}</td>
+        </tr>
+        <tr>
+          <td style="padding: 10px 12px; color: #a8a29e;">Email</td>
+          <td style="padding: 10px 12px;">
+            <a href="mailto:${registration.parent_email}" style="color: #f87171;">${registration.parent_email}</a>
+          </td>
+        </tr>
+        <tr style="background: #1c1917;">
+          <td style="padding: 10px 12px; color: #a8a29e;">Phone</td>
+          <td style="padding: 10px 12px;">${registration.parent_phone}</td>
+        </tr>
+
+        <tr><td colspan="2" style="padding: 8px 0;"><div style="border-top: 2px solid #44403c;"></div></td></tr>
+
+        <tr>
+          <td style="padding: 10px 12px; color: #a8a29e;">Emergency Contact</td>
+          <td style="padding: 10px 12px;">${registration.emergency_name} (${registration.emergency_relationship})</td>
+        </tr>
+        <tr style="background: #1c1917;">
+          <td style="padding: 10px 12px; color: #a8a29e;">Emergency Phone</td>
+          <td style="padding: 10px 12px;">${registration.emergency_phone}</td>
+        </tr>
+
+        <tr><td colspan="2" style="padding: 8px 0;"><div style="border-top: 2px solid #44403c;"></div></td></tr>
+
+        <tr>
+          <td style="padding: 10px 12px; color: #a8a29e;">Allergies</td>
+          <td style="padding: 10px 12px;">${registration.allergies || 'None'}</td>
+        </tr>
+        ${registration.medical_conditions ? `
+        <tr style="background: #1c1917;">
+          <td style="padding: 10px 12px; color: #a8a29e;">Medical</td>
+          <td style="padding: 10px 12px;">${registration.medical_conditions}</td>
+        </tr>` : ''}
+        ${registration.needs_accommodations ? `
+        <tr>
+          <td style="padding: 10px 12px; color: #a8a29e;">Accommodations</td>
+          <td style="padding: 10px 12px;">${registration.accommodations_details || 'Needs accommodations'}</td>
+        </tr>` : ''}
+        <tr style="background: #1c1917;">
+          <td style="padding: 10px 12px; color: #a8a29e;">Photo Release</td>
+          <td style="padding: 10px 12px;">${registration.photo_release ? 'Yes' : 'No'}</td>
+        </tr>
+
+        <tr><td colspan="2" style="padding: 8px 0;"><div style="border-top: 2px solid #44403c;"></div></td></tr>
+
+        <tr>
+          <td style="padding: 10px 12px; color: #a8a29e;">Deposit Paid</td>
+          <td style="padding: 10px 12px; font-weight: 600; color: #4ade80;">
+            ${formatCurrency(registration.deposit_paid)}
+          </td>
+        </tr>
+        <tr style="background: #1c1917;">
+          <td style="padding: 10px 12px; color: #a8a29e;">Balance Due</td>
+          <td style="padding: 10px 12px; color: #fbbf24;">
+            ${formatCurrency(registration.balance_due)}
+          </td>
+        </tr>
+        ${registration.discount_type ? `
+        <tr>
+          <td style="padding: 10px 12px; color: #a8a29e;">Discount</td>
+          <td style="padding: 10px 12px; color: #4ade80;">${discountLabels[registration.discount_type] || registration.discount_type}</td>
+        </tr>` : ''}
+      </table>
+
+    </div>
+
+    <div style="background: #1c1917; padding: 16px 24px; text-align: center; font-size: 12px; color: #78716c;">
+      View all registrations in your Supabase dashboard
+    </div>
+
+  </div>
+</body>
+</html>`;
+
+  await getResend().emails.send({
+    from: SUMMER_CAMP_FROM_EMAIL,
+    to: OWNER_EMAIL,
+    replyTo: registration.parent_email,
+    subject: `New Summer Camp registration — ${camperName} (${registration.confirmation_code})`,
+    html,
+  });
+}

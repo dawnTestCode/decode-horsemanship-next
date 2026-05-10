@@ -98,20 +98,23 @@ function PayBalanceContent() {
     setError(null);
 
     try {
-      const response = await supabase.functions.invoke('summer-camp-balance-checkout', {
-        body: {
+      const response = await fetch('/api/summer-camp-balance-checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
           registrationId: registration.id,
           confirmationCode: registration.confirmation_code,
-        },
+        }),
       });
 
-      if (response.error) {
-        throw new Error(response.error.message || 'Failed to create checkout session');
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to create checkout session');
       }
 
-      const { url } = response.data;
-      if (url) {
-        window.location.href = url;
+      if (data.url) {
+        window.location.href = data.url;
       } else {
         throw new Error('No checkout URL returned');
       }
