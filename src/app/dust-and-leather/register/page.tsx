@@ -574,8 +574,7 @@ function DustLeatherRegisterForm() {
       <Checkbox
         label={
           <span>
-            I understand this is a private booking for my group. Payment is due in full today.
-            The horseman will reach out to confirm details.
+            I understand payment is due in full today and the horseman will reach out to confirm details.
           </span>
         }
         checked={form.agreeTerms}

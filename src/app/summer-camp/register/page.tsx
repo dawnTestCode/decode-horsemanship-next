@@ -304,7 +304,7 @@ function RadioGroup({
 
 function StepIndicator({ current, steps }: { current: number; steps: string[] }) {
   return (
-    <div className="flex items-center gap-2 mb-8 overflow-x-auto pb-2">
+    <div className="flex items-center gap-2 mb-8 overflow-x-auto pb-2 pl-1">
       {steps.map((step, i) => (
         <React.Fragment key={i}>
           <div

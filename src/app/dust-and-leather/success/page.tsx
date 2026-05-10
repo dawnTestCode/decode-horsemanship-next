@@ -88,24 +88,24 @@ export default function DustAndLeatherSuccessPage({
             <span className="w-2 h-2 rounded-full bg-sage/60" />
           </div>
 
-          <div className="max-w-md mx-auto space-y-6">
-            <p className="font-body text-bone text-lg leading-relaxed">
+          <div className="max-w-lg mx-auto space-y-6">
+            <p className="font-body text-bone text-xl leading-relaxed">
               Check your email for confirmation details. The horseman will reach
               out within 48 hours to lock down the date.
             </p>
 
             <div className="bg-char border border-tobacco/30 p-6">
-              <p className="font-mono-old uppercase tracking-[0.3em] text-sage text-xs mb-2">
+              <p className="font-mono-old uppercase tracking-[0.3em] text-sage text-sm mb-3">
                 What to expect
               </p>
-              <ul className="font-body text-dust text-sm space-y-2 text-left">
+              <ul className="font-body text-dust text-base space-y-2 text-left">
                 <li>• Confirmation email with details</li>
                 <li>• Call or text to coordinate the date</li>
                 <li>• Packing list and directions before your day</li>
               </ul>
             </div>
 
-            <p className="font-voice italic text-dust text-sm">
+            <p className="font-voice italic text-dust text-base">
               Questions? Text the horseman: (919) 244-2647
             </p>
           </div>
