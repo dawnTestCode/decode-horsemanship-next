@@ -304,7 +304,7 @@ function RadioGroup({
 
 function StepIndicator({ current, steps }: { current: number; steps: string[] }) {
   return (
-    <div className="flex items-center gap-2 mb-8 overflow-x-auto pb-2 pl-1">
+    <div className="flex items-center gap-2 mb-8 overflow-x-auto py-1 px-1">
       {steps.map((step, i) => (
         <React.Fragment key={i}>
           <div
@@ -914,7 +914,10 @@ export default function SummerCampRegisterPage() {
           <div className="flex items-center gap-3 mt-8 pt-6 border-t border-stone-800">
             {step > 0 && (
               <button
-                onClick={() => setStep((s) => s - 1)}
+                onClick={() => {
+                  setStep((s) => s - 1);
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
                 disabled={submitting}
                 className="flex items-center gap-2 px-4 py-2.5 border border-stone-700
                   hover:border-stone-500 text-stone-400 hover:text-stone-200
@@ -948,7 +951,10 @@ export default function SummerCampRegisterPage() {
               </button>
             ) : (
               <button
-                onClick={() => setStep((s) => s + 1)}
+                onClick={() => {
+                  setStep((s) => s + 1);
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
                 disabled={!canProceed()}
                 className="flex-1 flex items-center justify-center gap-2
                   px-6 py-3 bg-red-700 hover:bg-red-600
