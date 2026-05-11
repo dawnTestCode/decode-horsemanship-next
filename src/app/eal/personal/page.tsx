@@ -50,8 +50,28 @@ export default function PersonalPage() {
 
       {/* Women's Retreats */}
       <section className="py-16 px-4 bg-stone-900/30">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-6xl mx-auto">
+          {/* Full-width Infographic */}
+          <div className="w-full mb-12">
+            <div className="aspect-[21/9] bg-stone-800 rounded-2xl overflow-hidden">
+              {getImageUrl('retreat_photo') ? (
+                <img
+                  src={getImageUrl('retreat_photo')!}
+                  alt="Women's Retreat"
+                  className="w-full h-full object-cover"
+                  style={getImageStyle('retreat_photo')}
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-stone-600">
+                  <span className="text-sm">Retreat Infographic</span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Two Column Layout */}
           <div className="grid md:grid-cols-2 gap-12 items-start">
+            {/* Left Column - Info & Description */}
             <div>
               <div className="inline-flex items-center gap-2 px-4 py-2 bg-red-900/30 rounded-full text-red-400 text-sm mb-4">
                 <Sun size={16} />
@@ -69,7 +89,7 @@ export default function PersonalPage() {
                 boundaries — guided by horses who only respond to who you actually are.
                 No performance. No pretending. Just you.
               </p>
-              <div className="space-y-3 mb-6">
+              <div className="space-y-3">
                 <div className="flex items-center gap-3 text-stone-300">
                   <Calendar size={18} className="text-red-500" />
                   <span>Half-day experience (approx. 4 hours)</span>
@@ -83,70 +103,68 @@ export default function PersonalPage() {
                   <span>{womensRetreat?.price_label || '$225'} per participant</span>
                 </div>
               </div>
+            </div>
 
-              {/* Upcoming Dates */}
-              {!loading && womensRetreat?.dates && womensRetreat.dates.length > 0 && (
-                <div className="mb-6">
-                  <h4 className="font-semibold text-stone-200 mb-3">Upcoming Dates:</h4>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {womensRetreat.dates.map((date) => {
-                      const spotsRemaining = getSpotsRemaining(date, womensRetreat);
-                      const isFull = spotsRemaining <= 0;
-                      return (
-                        <div
-                          key={date.id}
-                          className="bg-stone-800/50 p-4 rounded-lg border border-stone-700 flex flex-col gap-2"
-                        >
-                          <div className="font-medium text-stone-200">{formatDate(date.start_date)}</div>
-                          {date.start_time && (
-                            <div className="text-sm text-stone-400 flex items-center gap-1">
-                              <Clock size={14} />
-                              {formatTime(date.start_time)} - {formatTime(date.end_time)}
-                            </div>
-                          )}
-                          <div className={`text-sm ${isFull ? 'text-red-400' : 'text-green-400'}`}>
-                            {isFull ? 'Sold Out' : `${spotsRemaining} spot${spotsRemaining !== 1 ? 's' : ''} remaining`}
+            {/* Right Column - Next 3 Workshops */}
+            <div>
+              <h3 className="text-xl font-bold text-stone-200 mb-4">Upcoming Workshops</h3>
+              {!loading && womensRetreat?.dates && womensRetreat.dates.length > 0 ? (
+                <div className="space-y-4">
+                  {womensRetreat.dates.slice(0, 3).map((date) => {
+                    const spotsRemaining = getSpotsRemaining(date, womensRetreat);
+                    const isFull = spotsRemaining <= 0;
+                    return (
+                      <div
+                        key={date.id}
+                        className="bg-stone-800/50 p-5 rounded-xl border border-stone-700"
+                      >
+                        <div className="flex justify-between items-start mb-3">
+                          <div>
+                            <div className="font-semibold text-lg text-stone-200">{formatDate(date.start_date)}</div>
+                            {date.start_time && (
+                              <div className="text-sm text-stone-400 flex items-center gap-1 mt-1">
+                                <Clock size={14} />
+                                {formatTime(date.start_time)} - {formatTime(date.end_time)}
+                              </div>
+                            )}
                           </div>
-                          {!isFull && (
-                            <Link
-                              href={`/eal/womens-retreat/register?date=${date.start_date}`}
-                              className="mt-2 px-4 py-2 bg-red-700 hover:bg-red-600 text-white font-semibold rounded-lg transition-colors text-sm w-full text-center"
-                            >
-                              Reserve Your Spot
-                            </Link>
-                          )}
+                          <div className={`text-sm px-3 py-1 rounded-full ${isFull ? 'bg-red-900/30 text-red-400' : 'bg-green-900/30 text-green-400'}`}>
+                            {isFull ? 'Sold Out' : `${spotsRemaining} spots`}
+                          </div>
                         </div>
-                      );
-                    })}
-                  </div>
+                        {!isFull && (
+                          <Link
+                            href={`/eal/womens-retreat/register?date=${date.start_date}`}
+                            className="block w-full px-4 py-2.5 bg-red-700 hover:bg-red-600 text-white font-semibold rounded-lg transition-colors text-center"
+                          >
+                            Reserve Your Spot
+                          </Link>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : !loading ? (
+                <div className="bg-stone-800/50 p-6 rounded-xl border border-stone-700 text-center">
+                  <p className="text-stone-400 mb-4">No upcoming dates scheduled yet.</p>
+                  <Link
+                    href="/eal/womens-retreat/register"
+                    className="px-6 py-3 bg-red-700 hover:bg-red-600 text-white font-semibold rounded-lg transition-colors inline-flex items-center gap-2"
+                  >
+                    Join the Waitlist
+                    <ArrowRight size={18} />
+                  </Link>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="bg-stone-800/50 p-5 rounded-xl border border-stone-700 animate-pulse">
+                      <div className="h-6 bg-stone-700 rounded w-1/2 mb-2"></div>
+                      <div className="h-4 bg-stone-700 rounded w-1/3"></div>
+                    </div>
+                  ))}
                 </div>
               )}
-
-              {(!womensRetreat?.dates || womensRetreat.dates.length === 0) && !loading && (
-                <Link
-                  href="/eal/womens-retreat/register"
-                  className="px-6 py-3 bg-red-700 hover:bg-red-600 text-white font-semibold rounded-lg transition-colors inline-flex items-center gap-2"
-                >
-                  Join the Waitlist
-                  <ArrowRight size={18} />
-                </Link>
-              )}
-            </div>
-            <div>
-              <div className="aspect-[4/3] bg-stone-800 rounded-2xl overflow-hidden">
-                {getImageUrl('retreat_photo') ? (
-                  <img
-                    src={getImageUrl('retreat_photo')!}
-                    alt="Women's Retreat"
-                    className="w-full h-full object-cover"
-                    style={getImageStyle('retreat_photo')}
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-stone-600">
-                    <span className="text-sm">Retreat Photo</span>
-                  </div>
-                )}
-              </div>
             </div>
           </div>
         </div>
