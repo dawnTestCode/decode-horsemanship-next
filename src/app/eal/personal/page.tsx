@@ -109,7 +109,7 @@ export default function PersonalPage() {
                           </div>
                           {!isFull && (
                             <Link
-                              href="/eal/contact"
+                              href={`/eal/womens-retreat/register?date=${date.start_date}`}
                               className="mt-2 px-4 py-2 bg-red-700 hover:bg-red-600 text-white font-semibold rounded-lg transition-colors text-sm w-full text-center"
                             >
                               Reserve Your Spot
@@ -124,7 +124,7 @@ export default function PersonalPage() {
 
               {(!womensRetreat?.dates || womensRetreat.dates.length === 0) && !loading && (
                 <Link
-                  href="/eal/contact"
+                  href="/eal/womens-retreat/register"
                   className="px-6 py-3 bg-red-700 hover:bg-red-600 text-white font-semibold rounded-lg transition-colors inline-flex items-center gap-2"
                 >
                   Join the Waitlist

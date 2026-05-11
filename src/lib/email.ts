@@ -887,3 +887,243 @@ export async function sendSummerCampOwnerNotification({
     html,
   });
 }
+
+// ─── Women's Retreat Confirmation Email ───────────────────────────────────────
+
+const WOMENS_RETREAT_FROM_EMAIL = 'Decode Horsemanship <hello@decodehorsemanship.com>';
+
+export async function sendWomensRetreatConfirmation({
+  registration,
+  confirmationCode,
+}: {
+  registration: {
+    first_name: string;
+    last_name: string;
+    email: string;
+    session_date: string;
+    amount_paid: number;
+  };
+  confirmationCode: string;
+}) {
+  const firstName = registration.first_name;
+  const sessionDate = new Date(registration.session_date + 'T12:00:00').toLocaleDateString('en-US', {
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric',
+  });
+
+  const html = `
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width"></head>
+<body style="margin: 0; padding: 0; background: #1c1917; font-family: Arial, sans-serif;">
+  <div style="max-width: 560px; margin: 0 auto; background: #1c1917;">
+
+    <!-- Header -->
+    <div style="background: #b91c1c; padding: 40px; text-align: center;">
+      <p style="margin: 0 0 8px; color: rgba(255,255,255,0.7); font-size: 11px; letter-spacing: 2px; text-transform: uppercase;">
+        Decode Horsemanship
+      </p>
+      <h1 style="margin: 0; color: #fff; font-size: 24px; font-weight: 700;">
+        What the Horse Knows
+      </h1>
+      <p style="margin: 8px 0 0; color: rgba(255,255,255,0.8); font-size: 14px; font-style: italic;">
+        A Retreat for Women
+      </p>
+    </div>
+
+    <!-- Body -->
+    <div style="padding: 40px; background: #292524;">
+      <p style="color: #fafaf9; font-size: 18px; line-height: 1.6; margin: 0 0 24px;">
+        ${firstName},<br><br>
+        You're in. We can't wait to see you.
+      </p>
+
+      <!-- Confirmation details -->
+      <div style="background: #1c1917; border: 1px solid #44403c; border-radius: 12px; padding: 24px; margin-bottom: 24px;">
+        <table style="width: 100%; border-collapse: collapse;">
+          <tr>
+            <td style="padding: 8px 0; color: #a8a29e; font-size: 12px; text-transform: uppercase; letter-spacing: 1px;">Confirmation</td>
+            <td style="padding: 8px 0; font-size: 18px; font-weight: 700; color: #fafaf9; font-family: monospace; text-align: right;">
+              ${confirmationCode}
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; color: #a8a29e; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; border-top: 1px solid #44403c;">Date</td>
+            <td style="padding: 8px 0; font-size: 14px; color: #fafaf9; text-align: right; border-top: 1px solid #44403c;">
+              ${sessionDate}
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; color: #a8a29e; font-size: 12px; text-transform: uppercase; letter-spacing: 1px;">Paid</td>
+            <td style="padding: 8px 0; font-size: 14px; color: #4ade80; text-align: right;">
+              ${formatCurrency(registration.amount_paid)}
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- What to bring -->
+      <div style="margin-bottom: 24px;">
+        <p style="color: #fafaf9; font-size: 14px; font-weight: 600; margin: 0 0 12px;">What to Bring</p>
+        <ul style="color: #d6d3d1; font-size: 14px; line-height: 1.8; padding-left: 20px; margin: 0;">
+          <li>Closed-toe shoes you can move in</li>
+          <li>Comfortable clothes (layers recommended)</li>
+          <li>Water bottle</li>
+          <li>An open heart</li>
+        </ul>
+      </div>
+
+      <!-- What to expect -->
+      <div style="margin-bottom: 24px;">
+        <p style="color: #fafaf9; font-size: 14px; font-weight: 600; margin: 0 0 12px;">What to Expect</p>
+        <p style="color: #d6d3d1; font-size: 14px; line-height: 1.6; margin: 0;">
+          This is a half-day experience (approximately 4 hours). No prior horse experience needed.
+          You'll be partnered with horses in groundwork exercises designed to reveal patterns,
+          build presence, and reconnect you with your authentic self.
+        </p>
+      </div>
+
+      <!-- Questions -->
+      <div style="border-top: 1px solid #44403c; padding-top: 20px;">
+        <p style="color: #a8a29e; font-size: 14px; margin: 0;">
+          Questions? Reply to this email or reach us at
+          <a href="mailto:dawn@decodehorsemanship.com" style="color: #f87171;">dawn@decodehorsemanship.com</a>
+        </p>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div style="background: #1c1917; padding: 20px; text-align: center; border-top: 1px solid #44403c;">
+      <p style="color: #78716c; font-size: 12px; margin: 0;">
+        Decode Horsemanship · Chapel Hill, NC
+      </p>
+    </div>
+
+  </div>
+</body>
+</html>`;
+
+  await getResend().emails.send({
+    from: WOMENS_RETREAT_FROM_EMAIL,
+    to: registration.email,
+    subject: `You're in! (${confirmationCode})`,
+    html,
+  });
+}
+
+// ─── Women's Retreat Owner Notification ───────────────────────────────────────
+
+export async function sendWomensRetreatOwnerNotification({
+  registration,
+}: {
+  registration: {
+    confirmation_code: string;
+    first_name: string;
+    last_name: string;
+    email: string;
+    phone: string;
+    session_date: string;
+    age_range: string | null;
+    referral_source: string | null;
+    horse_experience: string | null;
+    anything_to_know: string | null;
+    what_brought_you: string | null;
+    amount_paid: number;
+  };
+}) {
+  const participantName = `${registration.first_name} ${registration.last_name}`;
+  const sessionDate = new Date(registration.session_date + 'T12:00:00').toLocaleDateString('en-US', {
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric',
+  });
+
+  const html = `
+<!DOCTYPE html>
+<html>
+<body style="font-family: Arial, sans-serif; background: #1c1917; padding: 20px;">
+  <div style="max-width: 560px; margin: 0 auto; background: #292524; border-radius: 8px; overflow: hidden; border: 1px solid #44403c;">
+
+    <div style="background: #b91c1c; padding: 20px 24px;">
+      <p style="margin: 0; color: rgba(255,255,255,0.7); font-size: 11px; letter-spacing: 2px;">WOMEN'S RETREAT</p>
+      <h2 style="margin: 4px 0 0; color: #fff; font-size: 20px; font-weight: 600;">New Registration</h2>
+    </div>
+
+    <div style="padding: 24px;">
+
+      <table style="width: 100%; border-collapse: collapse; font-size: 14px; color: #fafaf9;">
+        <tr style="background: #1c1917;">
+          <td style="padding: 10px 12px; color: #a8a29e; width: 35%;">Confirmation</td>
+          <td style="padding: 10px 12px; font-family: monospace; font-weight: 700;">
+            ${registration.confirmation_code}
+          </td>
+        </tr>
+        <tr>
+          <td style="padding: 10px 12px; color: #a8a29e;">Name</td>
+          <td style="padding: 10px 12px; font-weight: 600;">${participantName}</td>
+        </tr>
+        <tr style="background: #1c1917;">
+          <td style="padding: 10px 12px; color: #a8a29e;">Date</td>
+          <td style="padding: 10px 12px;">${sessionDate}</td>
+        </tr>
+        <tr>
+          <td style="padding: 10px 12px; color: #a8a29e;">Email</td>
+          <td style="padding: 10px 12px;">
+            <a href="mailto:${registration.email}" style="color: #f87171;">${registration.email}</a>
+          </td>
+        </tr>
+        <tr style="background: #1c1917;">
+          <td style="padding: 10px 12px; color: #a8a29e;">Phone</td>
+          <td style="padding: 10px 12px;">${registration.phone}</td>
+        </tr>
+        ${registration.age_range ? `
+        <tr>
+          <td style="padding: 10px 12px; color: #a8a29e;">Age Range</td>
+          <td style="padding: 10px 12px;">${registration.age_range}</td>
+        </tr>` : ''}
+        <tr style="background: #1c1917;">
+          <td style="padding: 10px 12px; color: #a8a29e;">Horse Experience</td>
+          <td style="padding: 10px 12px;">${registration.horse_experience || 'Not specified'}</td>
+        </tr>
+        ${registration.referral_source ? `
+        <tr>
+          <td style="padding: 10px 12px; color: #a8a29e;">How They Found Us</td>
+          <td style="padding: 10px 12px;">${registration.referral_source}</td>
+        </tr>` : ''}
+        <tr style="background: #1c1917;">
+          <td style="padding: 10px 12px; color: #a8a29e;">Paid</td>
+          <td style="padding: 10px 12px; font-weight: 600; color: #4ade80;">
+            ${formatCurrency(registration.amount_paid)}
+          </td>
+        </tr>
+        ${registration.anything_to_know ? `
+        <tr>
+          <td style="padding: 10px 12px; color: #a8a29e; vertical-align: top; border-top: 2px solid #44403c;">Anything to Know</td>
+          <td style="padding: 10px 12px; border-top: 2px solid #44403c;">${registration.anything_to_know}</td>
+        </tr>` : ''}
+        ${registration.what_brought_you ? `
+        <tr style="background: #1c1917;">
+          <td style="padding: 10px 12px; color: #a8a29e; vertical-align: top;">What Brought Them</td>
+          <td style="padding: 10px 12px; font-style: italic;">${registration.what_brought_you}</td>
+        </tr>` : ''}
+      </table>
+
+    </div>
+
+    <div style="background: #1c1917; padding: 16px 24px; text-align: center; font-size: 12px; color: #78716c;">
+      View all registrations in your Supabase dashboard
+    </div>
+
+  </div>
+</body>
+</html>`;
+
+  await getResend().emails.send({
+    from: WOMENS_RETREAT_FROM_EMAIL,
+    to: OWNER_EMAIL,
+    replyTo: registration.email,
+    subject: `New Women's Retreat registration — ${participantName} (${registration.confirmation_code})`,
+    html,
+  });
+}

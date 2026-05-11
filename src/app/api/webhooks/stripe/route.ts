@@ -8,6 +8,8 @@ import {
   sendDustLeatherOwnerNotification,
   sendSummerCampConfirmation,
   sendSummerCampOwnerNotification,
+  sendWomensRetreatConfirmation,
+  sendWomensRetreatOwnerNotification,
 } from '@/lib/email';
 
 export async function POST(request: Request) {
@@ -292,6 +294,75 @@ export async function POST(request: Request) {
 
       } catch (err: unknown) {
         console.error('Summer Camp balance webhook error:', err);
+      }
+
+      return NextResponse.json({ received: true });
+    }
+
+    // ─── Women's Retreat Registration ─────────────────────────────────────────
+    if (meta.program === 'womens-retreat') {
+      try {
+        // Write to womens_retreat_registrations table
+        const { data: registration, error: regError } = await supabase
+          .from('womens_retreat_registrations')
+          .insert({
+            confirmation_code: meta.confirmationCode,
+            program_date_id: meta.programDateId,
+            session_date: meta.sessionDate,
+            first_name: meta.firstName,
+            last_name: meta.lastName,
+            email: meta.email,
+            phone: meta.phone,
+            age_range: meta.ageRange || null,
+            referral_source: meta.referralSource || null,
+            horse_experience: meta.horseExperience || null,
+            anything_to_know: meta.anythingToKnow || null,
+            what_brought_you: meta.whatBroughtYou || null,
+            digital_signature: meta.digitalSignature,
+            amount_paid: parseInt(meta.amount),
+            status: 'paid',
+            stripe_session_id: session.id,
+            stripe_payment_intent_id: session.payment_intent as string,
+          })
+          .select()
+          .single();
+
+        if (regError) {
+          console.error('Failed to create Women\'s Retreat registration:', regError);
+          throw regError;
+        }
+
+        // Increment enrolled count on program_dates
+        const { error: enrollError } = await supabase.rpc('increment_program_date_enrolled', {
+          p_date_id: meta.programDateId,
+        });
+
+        if (enrollError) {
+          console.error('Failed to increment enrolled count:', enrollError);
+          // Don't throw - registration was created successfully
+        }
+
+        // Send confirmation email
+        await sendWomensRetreatConfirmation({
+          registration,
+          confirmationCode: meta.confirmationCode,
+        });
+
+        // Send owner notification
+        await sendWomensRetreatOwnerNotification({
+          registration,
+        });
+
+        // Mark confirmation sent
+        await supabase
+          .from('womens_retreat_registrations')
+          .update({ confirmation_sent: true })
+          .eq('id', registration.id);
+
+        console.log(`Women's Retreat registration confirmed: ${meta.confirmationCode}`);
+
+      } catch (err: unknown) {
+        console.error('Women\'s Retreat webhook error:', err);
       }
 
       return NextResponse.json({ received: true });
