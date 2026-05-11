@@ -217,8 +217,8 @@ export default function NoReinsPage() {
               </p>
             </section>
 
-            {/* Section 11 — Other programs at Decode */}
-            <section>
+            {/* Section 11 — Other programs at Decode (hidden on mobile, shown below dates) */}
+            <section className="hidden lg:block">
               <h2 className="text-xs font-semibold tracking-[0.2em] text-amber-600 mb-6">OTHER PROGRAMS AT DECODE</h2>
               <div className="space-y-4">
                 <Link href="/eal/groundwork" className="block p-4 bg-stone-900/50 rounded-lg border border-stone-800 hover:border-amber-900/50 transition-colors">
@@ -312,6 +312,25 @@ export default function NoReinsPage() {
                   <ArrowRight size={14} />
                 </Link>
               </div>
+
+              {/* Section 11 — Other programs at Decode (mobile only, after dates) */}
+              <section className="lg:hidden mt-12 pt-8 border-t border-stone-800">
+                <h2 className="text-xs font-semibold tracking-[0.2em] text-amber-600 mb-6">OTHER PROGRAMS AT DECODE</h2>
+                <div className="space-y-4">
+                  <Link href="/eal/groundwork" className="block p-4 bg-stone-900/50 rounded-lg border border-stone-800 hover:border-amber-900/50 transition-colors">
+                    <p className="font-semibold text-[#f5f0e8]">Groundwork</p>
+                    <p className="text-stone-500 text-sm">A day for men, second Saturday of the month.</p>
+                  </Link>
+                  <Link href="/eal/dust-and-leather" className="block p-4 bg-stone-900/50 rounded-lg border border-stone-800 hover:border-amber-900/50 transition-colors">
+                    <p className="font-semibold text-[#f5f0e8]">Dust & Leather</p>
+                    <p className="text-stone-500 text-sm">A working ranch day for men, first Saturday of the month.</p>
+                  </Link>
+                  <Link href="/mustangs" className="block p-4 bg-stone-900/50 rounded-lg border border-stone-800 hover:border-amber-900/50 transition-colors">
+                    <p className="font-semibold text-[#f5f0e8]">Mustang Immersion</p>
+                    <p className="text-stone-500 text-sm">Three days with a mustang, a few times a year.</p>
+                  </Link>
+                </div>
+              </section>
             </div>
           </div>
 
