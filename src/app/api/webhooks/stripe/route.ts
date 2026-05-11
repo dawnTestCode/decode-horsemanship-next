@@ -212,6 +212,7 @@ export async function POST(request: Request) {
             tshirt_size: meta.tshirtSize,
             horse_experience: meta.horseExperience || null,
             referral_source: meta.referralSource || null,
+            is_sibling: meta.isSibling === 'true',
             sibling_confirmation_code: meta.siblingConfirmationCode || null,
             parent_name: meta.parentName,
             parent_relationship: meta.parentRelationship,
