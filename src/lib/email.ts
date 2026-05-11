@@ -716,7 +716,6 @@ export async function sendSummerCampOwnerNotification({
     tshirt_size: string;
     horse_experience: string | null;
     referral_source: string | null;
-    is_sibling: boolean;
     sibling_confirmation_code: string | null;
     parent_name: string;
     parent_email: string;
@@ -794,10 +793,10 @@ export async function sendSummerCampOwnerNotification({
           <td style="padding: 10px 12px; color: #a8a29e;">How They Found Us</td>
           <td style="padding: 10px 12px;">${registration.referral_source}</td>
         </tr>` : ''}
-        ${registration.is_sibling ? `
+        ${registration.sibling_confirmation_code ? `
         <tr style="background: #1c1917;">
           <td style="padding: 10px 12px; color: #a8a29e;">Sibling Code</td>
-          <td style="padding: 10px 12px;">${registration.sibling_confirmation_code || 'Not provided'}</td>
+          <td style="padding: 10px 12px;">${registration.sibling_confirmation_code}</td>
         </tr>` : ''}
 
         <tr><td colspan="2" style="padding: 8px 0;"><div style="border-top: 2px solid #44403c;"></div></td></tr>
