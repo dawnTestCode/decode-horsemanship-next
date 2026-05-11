@@ -26,8 +26,8 @@ export default function NoReinsPage() {
             priority
           />
         </div>
-        {/* Mobile hero - taller aspect ratio */}
-        <div className="md:hidden relative w-full" style={{ aspectRatio: '3/4' }}>
+        {/* Mobile hero - 9:16 aspect ratio to match image */}
+        <div className="md:hidden relative w-full" style={{ aspectRatio: '9/16' }}>
           <Image
             src="/no-reins/no-reins-hero-mobile.png"
             alt="No Reins — A half-day retreat for women at Decode Horsemanship"
