@@ -26,7 +26,7 @@ const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {
     { href: '/eal/about', label: 'About Dawn' },
     { href: '/eal/mustang', label: 'Mustangs' },
     { href: '/eal/corporate', label: 'Corporate' },
-    { href: '/eal/personal', label: 'Personal' },
+    { href: '/eal/no-reins', label: 'Women' },
     { href: '/eal/youth', label: 'Youth' },
     { href: '/summer-camp', label: 'Summer Camp' },
     { href: '/eal/contact', label: 'Contact' },
@@ -137,8 +137,8 @@ const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {
                   </Link>
                 </li>
                 <li>
-                  <Link href="/eal/personal" className="text-stone-500 hover:text-red-500 transition-colors text-sm">
-                    Personal Development
+                  <Link href="/eal/no-reins" className="text-stone-500 hover:text-red-500 transition-colors text-sm">
+                    No Reins (Women)
                   </Link>
                 </li>
                 <li>

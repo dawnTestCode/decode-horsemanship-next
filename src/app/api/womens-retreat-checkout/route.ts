@@ -59,7 +59,7 @@ export async function POST(request: Request) {
           price_data: {
             currency: 'usd',
             product_data: {
-              name: 'What the Horse Knows — Women\'s Retreat',
+              name: 'No Reins — A Half-Day Retreat for Women',
               description: `${dateDisplay} · Half-day retreat for women`,
             },
             unit_amount: amount,

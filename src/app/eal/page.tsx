@@ -240,19 +240,19 @@ export default function EALOverviewPage() {
             </Link>
 
             <Link
-              href="/eal/personal"
+              href="/eal/no-reins"
               className="group bg-stone-900/50 p-8 rounded-xl border border-stone-800 hover:border-red-700 transition-colors"
             >
               <h3 className="text-xl font-bold text-stone-100 mb-3 flex items-center justify-between">
-                Personal Development
+                No Reins
                 <ArrowRight
                   size={20}
                   className="text-stone-600 group-hover:text-red-500 transition-colors"
                 />
               </h3>
               <p className="text-stone-400">
-                What the Horse Knows — a retreat for women — and personal growth
-                intensives for individual transformation.
+                A half-day retreat for women. No riding. No agenda. Just you and
+                a horse who can&apos;t be fooled.
               </p>
             </Link>
 

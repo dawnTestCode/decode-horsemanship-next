@@ -925,10 +925,10 @@ export async function sendWomensRetreatConfirmation({
         Decode Horsemanship
       </p>
       <h1 style="margin: 0; color: #fff; font-size: 24px; font-weight: 700;">
-        What the Horse Knows
+        No Reins
       </h1>
       <p style="margin: 8px 0 0; color: rgba(255,255,255,0.8); font-size: 14px; font-style: italic;">
-        A Retreat for Women
+        A Half-Day Retreat for Women
       </p>
     </div>
 

@@ -283,7 +283,7 @@ function WomensRetreatRegisterForm() {
   const [loading, setLoading] = useState(true);
 
   const steps = ['Date', 'About You', 'Questions', 'Payment'];
-  const price = program?.full_price || 22500; // $225 default
+  const price = program?.full_price || 37500; // $375 default
 
   // Fetch available dates
   useEffect(() => {
@@ -658,19 +658,19 @@ function WomensRetreatRegisterForm() {
         {/* Header */}
         <div className="mb-8">
           <Link
-            href="/eal/personal"
-            className="inline-flex items-center gap-2 text-stone-500 hover:text-stone-300 text-sm mb-4 transition-colors"
+            href="/eal/no-reins"
+            className="inline-flex items-center gap-2 text-stone-500 hover:text-amber-500 text-sm mb-4 transition-colors"
           >
             <ArrowLeft size={16} />
-            Back to Personal Development
+            Back to No Reins
           </Link>
           <div className="flex items-center gap-3 mb-2">
-            <Heart className="text-red-500" size={28} />
+            <Heart className="text-amber-500" size={28} />
             <h1 className="text-2xl md:text-3xl font-bold text-white">
-              Women&apos;s Retreat
+              No Reins
             </h1>
           </div>
-          <p className="text-stone-400">What the Horse Knows</p>
+          <p className="text-stone-400">A Half-Day Retreat for Women</p>
         </div>
 
         {/* Progress */}

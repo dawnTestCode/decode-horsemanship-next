@@ -21,7 +21,7 @@ export default function WomensRetreatSuccessPage() {
     <section className="py-20 px-4 bg-gradient-to-b from-stone-900 to-black min-h-screen">
       <div className="max-w-lg mx-auto text-center">
         {/* Success icon */}
-        <div className="w-16 h-16 bg-red-700 rounded-full flex items-center justify-center mx-auto mb-8">
+        <div className="w-16 h-16 bg-amber-700 rounded-full flex items-center justify-center mx-auto mb-8">
           <Check className="text-white" size={32} strokeWidth={3} />
         </div>
 
@@ -36,8 +36,8 @@ export default function WomensRetreatSuccessPage() {
         {/* Confirmation card */}
         <div className="bg-stone-900/80 border border-stone-800 rounded-2xl p-8 mb-10 text-left">
           <div className="flex items-center gap-4 mb-6 pb-6 border-b border-stone-800">
-            <div className="w-12 h-12 bg-red-900/30 rounded-full flex items-center justify-center">
-              <Heart className="text-red-500" size={20} />
+            <div className="w-12 h-12 bg-amber-900/30 rounded-full flex items-center justify-center">
+              <Heart className="text-amber-500" size={20} />
             </div>
             <div>
               <p className="text-stone-500 text-xs uppercase tracking-wide mb-1">
@@ -69,20 +69,22 @@ export default function WomensRetreatSuccessPage() {
         <div className="bg-stone-900/50 border border-stone-800 rounded-xl p-6 mb-10 text-left">
           <h3 className="text-lg font-semibold text-white mb-4">What to Bring</h3>
           <ul className="text-stone-400 text-sm space-y-2">
-            <li>• Closed-toe shoes you can move in</li>
-            <li>• Comfortable clothes (layers recommended)</li>
-            <li>• Water bottle</li>
-            <li>• An open heart</li>
+            <li>• Boots or closed-toe shoes</li>
+            <li>• Long pants</li>
+            <li>• A jacket in the cooler months</li>
           </ul>
+          <p className="text-stone-500 text-sm mt-4 italic">
+            Lunch is included.
+          </p>
         </div>
 
         {/* Actions */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
           <Link
-            href="/eal/personal"
-            className="px-6 py-3 bg-red-700 hover:bg-red-600 text-white font-semibold rounded-lg transition-colors inline-flex items-center justify-center gap-2"
+            href="/eal/no-reins"
+            className="px-6 py-3 bg-amber-700 hover:bg-amber-600 text-white font-semibold rounded-lg transition-colors inline-flex items-center justify-center gap-2"
           >
-            Back to Personal Development
+            Back to No Reins
             <ArrowRight size={18} />
           </Link>
           <Link
@@ -96,7 +98,7 @@ export default function WomensRetreatSuccessPage() {
         {/* Questions */}
         <p className="text-stone-600 text-sm">
           Questions? Email us at{' '}
-          <a href="mailto:dawn@decodehorsemanship.com" className="text-red-500 hover:text-red-400">
+          <a href="mailto:dawn@decodehorsemanship.com" className="text-amber-500 hover:text-amber-400">
             dawn@decodehorsemanship.com
           </a>
         </p>

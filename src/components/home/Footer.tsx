@@ -57,8 +57,8 @@ export default function Footer({ onSectionClick }: FooterProps) {
                 </Link>
               </li>
               <li>
-                <Link href="/eal/personal" className="text-stone-500 hover:text-red-500 transition-colors text-sm">
-                  Personal Development
+                <Link href="/eal/no-reins" className="text-stone-500 hover:text-red-500 transition-colors text-sm">
+                  No Reins (Women)
                 </Link>
               </li>
               <li>
