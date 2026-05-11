@@ -16,12 +16,23 @@ export default function NoReinsPage() {
     <div className="bg-[#1a1d24]">
       {/* Hero - Full Width Infographic */}
       <section className="w-full">
-        <div className="relative w-full" style={{ aspectRatio: '21/9' }}>
+        {/* Desktop hero - 21:9 aspect ratio */}
+        <div className="hidden md:block relative w-full" style={{ aspectRatio: '21/9' }}>
           <Image
             src="/no-reins/no-reins-hero.png"
             alt="No Reins — A half-day retreat for women at Decode Horsemanship"
             fill
             className="object-cover object-left"
+            priority
+          />
+        </div>
+        {/* Mobile hero - taller aspect ratio */}
+        <div className="md:hidden relative w-full" style={{ aspectRatio: '3/4' }}>
+          <Image
+            src="/no-reins/no-reins-hero-mobile.png"
+            alt="No Reins — A half-day retreat for women at Decode Horsemanship"
+            fill
+            className="object-cover"
             priority
           />
         </div>
