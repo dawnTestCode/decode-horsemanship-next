@@ -64,3 +64,52 @@ CREATE POLICY "Service role has full access to sessions" ON groundwork_sessions
 
 CREATE POLICY "Service role has full access to registrations" ON groundwork_registrations
   FOR ALL USING (auth.role() = 'service_role');
+
+-- ─── Add Groundwork and Dust & Leather to programs table ─────────────────────
+-- These entries allow pricing to be managed via Admin → Programs → Programs & Pricing
+
+INSERT INTO programs (slug, name, category, description, deposit_only, deposit_amount, full_price, price_label, active, scheduling)
+VALUES
+  ('groundwork', 'Groundwork', 'mens', 'A day with horses for men', true, 20000, 85000, '$850 per person', true, 'preset'),
+  ('dust-and-leather', 'Dust & Leather', 'mens', 'A day at Decode Horsemanship for men', false, NULL, 72500, 'From $725', true, 'preset')
+ON CONFLICT (slug) DO UPDATE SET
+  deposit_only = EXCLUDED.deposit_only,
+  deposit_amount = EXCLUDED.deposit_amount,
+  full_price = EXCLUDED.full_price,
+  price_label = EXCLUDED.price_label;
+
+-- ─── Dust & Leather Packages table ───────────────────────────────────────────
+-- Allows package pricing to be managed via admin
+
+CREATE TABLE IF NOT EXISTS dust_leather_packages (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  slug TEXT NOT NULL UNIQUE,
+  name TEXT NOT NULL,
+  description TEXT,
+  price INTEGER NOT NULL,  -- in cents, per person
+  sort_order INTEGER DEFAULT 0,
+  active BOOLEAN DEFAULT true,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- Insert default packages
+INSERT INTO dust_leather_packages (slug, name, description, price, sort_order)
+VALUES
+  ('day-pass', 'Day Pass', 'From sunup to four-thirty', 72500, 1),
+  ('stay-for-fire', 'Stay for the Fire', 'Until the cards are done', 89500, 2)
+ON CONFLICT (slug) DO UPDATE SET
+  price = EXCLUDED.price,
+  name = EXCLUDED.name,
+  description = EXCLUDED.description;
+
+-- Enable RLS
+ALTER TABLE dust_leather_packages ENABLE ROW LEVEL SECURITY;
+
+-- Public read for active packages
+CREATE POLICY "Public can read active packages" ON dust_leather_packages
+  FOR SELECT USING (active = true);
+
+-- Service role full access
+CREATE POLICY "Service role has full access to packages" ON dust_leather_packages
+  FOR ALL USING (auth.role() = 'service_role');

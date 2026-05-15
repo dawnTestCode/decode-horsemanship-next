@@ -64,6 +64,11 @@ const experienceLevels = [
 
 // Sessions will be fetched from database
 
+// Format cents to dollars
+function formatPrice(cents: number): string {
+  return `$${(cents / 100).toFixed(0)}`;
+}
+
 // ─── Form Components ─────────────────────────────────────────────────────────
 
 function Input({
@@ -265,6 +270,11 @@ interface GroundworkSession {
   status: string;
 }
 
+interface Pricing {
+  depositAmount: number;
+  fullPrice: number;
+}
+
 function GroundworkRegisterForm() {
   const searchParams = useSearchParams();
   const [step, setStep] = useState(0);
@@ -273,8 +283,29 @@ function GroundworkRegisterForm() {
   const [error, setError] = useState<string | null>(null);
   const [sessions, setSessions] = useState<GroundworkSession[]>([]);
   const [loadingSessions, setLoadingSessions] = useState(true);
+  const [pricing, setPricing] = useState<Pricing>({ depositAmount: 20000, fullPrice: 85000 });
 
   const steps = ['Session', 'About You', 'Questions', 'Agreement'];
+
+  // Fetch pricing from programs table
+  useEffect(() => {
+    const fetchPricing = async () => {
+      const { data } = await supabase
+        .from('programs')
+        .select('deposit_amount, full_price')
+        .eq('slug', 'groundwork')
+        .single();
+
+      if (data) {
+        setPricing({
+          depositAmount: data.deposit_amount || 20000,
+          fullPrice: data.full_price || 85000,
+        });
+      }
+    };
+
+    fetchPricing();
+  }, []);
 
   // Fetch available sessions and pre-select from URL param
   useEffect(() => {
@@ -355,8 +386,8 @@ function GroundworkRegisterForm() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...form,
-          depositAmount: 20000,
-          totalPrice: 85000,
+          depositAmount: pricing.depositAmount,
+          totalPrice: pricing.fullPrice,
         }),
       });
 
@@ -525,7 +556,7 @@ function GroundworkRegisterForm() {
         />
 
         <Checkbox
-          label="I understand the $200 deposit is non-refundable, and the balance is due 14 days before the session"
+          label={`I understand the ${formatPrice(pricing.depositAmount)} deposit is non-refundable, and the balance is due 14 days before the session`}
           checked={form.agreeDeposit}
           onChange={(v) => updateForm('agreeDeposit', v)}
         />
@@ -548,19 +579,19 @@ function GroundworkRegisterForm() {
         <div className="space-y-3 font-sans text-sm">
           <div className="flex justify-between">
             <span className="text-groundwork-muted">Session fee</span>
-            <span className="text-groundwork-dark">$850</span>
+            <span className="text-groundwork-dark">{formatPrice(pricing.fullPrice)}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-groundwork-muted">Deposit due today</span>
-            <span className="text-groundwork-dark font-medium text-lg">$200</span>
+            <span className="text-groundwork-dark font-medium text-lg">{formatPrice(pricing.depositAmount)}</span>
           </div>
           <div className="flex justify-between text-groundwork-label">
             <span>Balance due later</span>
-            <span>$650</span>
+            <span>{formatPrice(pricing.fullPrice - pricing.depositAmount)}</span>
           </div>
         </div>
         <p className="font-sans text-xs text-groundwork-label mt-4 pt-4 border-t border-groundwork-border-light">
-          You&apos;ll only be charged $200 today to hold your spot.
+          You&apos;ll only be charged {formatPrice(pricing.depositAmount)} today to hold your spot.
         </p>
       </div>
 
@@ -631,7 +662,7 @@ function GroundworkRegisterForm() {
                     </>
                   ) : (
                     <>
-                      Pay $200 Deposit
+                      Pay {formatPrice(pricing.depositAmount)} Deposit
                       <ArrowRight size={18} />
                     </>
                   )}

@@ -1,9 +1,14 @@
 'use client';
 
-import { Suspense } from 'react';
+import { Suspense, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { Check, Calendar, ArrowRight, Mail, Phone } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
+
+function formatPrice(cents: number): string {
+  return `$${(cents / 100).toFixed(0)}`;
+}
 
 function ConfirmationCode() {
   const searchParams = useSearchParams();
@@ -17,6 +22,26 @@ function ConfirmationCode() {
 }
 
 export default function GroundworkSuccessPage() {
+  const [pricing, setPricing] = useState({ depositAmount: 20000, fullPrice: 85000 });
+
+  useEffect(() => {
+    const fetchPricing = async () => {
+      const { data } = await supabase
+        .from('programs')
+        .select('deposit_amount, full_price')
+        .eq('slug', 'groundwork')
+        .single();
+
+      if (data) {
+        setPricing({
+          depositAmount: data.deposit_amount || 20000,
+          fullPrice: data.full_price || 85000,
+        });
+      }
+    };
+
+    fetchPricing();
+  }, []);
   return (
     <div className="min-h-screen bg-groundwork-cream font-serif">
       <section className="py-20 px-4 min-h-screen">
@@ -60,13 +85,13 @@ export default function GroundworkSuccessPage() {
               <div className="flex items-start gap-3">
                 <Check size={16} className="text-groundwork-dark flex-shrink-0 mt-0.5" />
                 <p className="text-groundwork-dark/80">
-                  Your $200 deposit has been processed.
+                  Your {formatPrice(pricing.depositAmount)} deposit has been processed.
                 </p>
               </div>
               <div className="flex items-start gap-3">
                 <Calendar size={16} className="text-groundwork-muted flex-shrink-0 mt-0.5" />
                 <p className="text-groundwork-muted">
-                  The remaining $650 will be invoiced 14 days before your session.
+                  The remaining {formatPrice(pricing.fullPrice - pricing.depositAmount)} will be invoiced 14 days before your session.
                 </p>
               </div>
             </div>

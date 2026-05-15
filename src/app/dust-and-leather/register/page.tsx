@@ -40,6 +40,11 @@ interface DustLeatherSession {
   status: string;
 }
 
+interface PackagePricing {
+  'day-pass': number;
+  'stay-for-fire': number;
+}
+
 // ─── Styled Form Components ──────────────────────────────────────────────────
 
 function Input({
@@ -286,8 +291,36 @@ function DustLeatherRegisterForm() {
   const [error, setError] = useState<string | null>(null);
   const [sessions, setSessions] = useState<DustLeatherSession[]>([]);
   const [loadingSessions, setLoadingSessions] = useState(true);
+  const [packagePricing, setPackagePricing] = useState<PackagePricing>({
+    'day-pass': 72500,
+    'stay-for-fire': 89500,
+  });
 
   const steps = ['Date', 'Details', 'Confirm'];
+
+  // Fetch package pricing
+  useEffect(() => {
+    const fetchPricing = async () => {
+      const { data } = await supabase
+        .from('dust_leather_packages')
+        .select('slug, price')
+        .eq('active', true);
+
+      if (data && data.length > 0) {
+        const newPricing: PackagePricing = { 'day-pass': 72500, 'stay-for-fire': 89500 };
+        data.forEach((pkg) => {
+          if (pkg.slug === 'day-pass') {
+            newPricing['day-pass'] = pkg.price;
+          } else if (pkg.slug === 'stay-for-fire') {
+            newPricing['stay-for-fire'] = pkg.price;
+          }
+        });
+        setPackagePricing(newPricing);
+      }
+    };
+
+    fetchPricing();
+  }, []);
 
   // Fetch available sessions
   useEffect(() => {
@@ -362,10 +395,12 @@ function DustLeatherRegisterForm() {
 
   const getPrice = () => {
     const partySize = parseInt(form.partySize) || 1;
-    if (form.packageType === 'day-pass') return 72500 * partySize;
-    if (form.packageType === 'stay-for-fire') return 89500 * partySize;
+    if (form.packageType === 'day-pass') return packagePricing['day-pass'] * partySize;
+    if (form.packageType === 'stay-for-fire') return packagePricing['stay-for-fire'] * partySize;
     return 0;
   };
+
+  const formatPrice = (cents: number): string => `$${(cents / 100).toFixed(0)}`;
 
   const canProceed = (): boolean => {
     switch (step) {
@@ -470,7 +505,7 @@ function DustLeatherRegisterForm() {
           <RadioOption
             label="Day Pass"
             description="From sunup to four-thirty. Lunch and belt included."
-            price="$725/person"
+            price={`${formatPrice(packagePricing['day-pass'])}/person`}
             value="day-pass"
             checked={form.packageType === 'day-pass'}
             onChange={(v) => updateForm('packageType', v as 'day-pass')}
@@ -478,7 +513,7 @@ function DustLeatherRegisterForm() {
           <RadioOption
             label="Stay for the Fire"
             description="Day Pass plus Dutch oven supper, whiskey, and cards."
-            price="$895/person"
+            price={`${formatPrice(packagePricing['stay-for-fire'])}/person`}
             value="stay-for-fire"
             checked={form.packageType === 'stay-for-fire'}
             onChange={(v) => updateForm('packageType', v as 'stay-for-fire')}

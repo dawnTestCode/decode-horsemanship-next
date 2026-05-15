@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
+import { createClient } from '@supabase/supabase-js';
 
 function generateConfirmationCode(): string {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -8,18 +9,23 @@ function generateConfirmationCode(): string {
   ).join('');
 }
 
-const PRICING = {
-  'day-pass': 72500,      // $725 in cents
-  'stay-for-fire': 89500, // $895 in cents
-} as const;
+// Fallback pricing if database is unavailable
+const FALLBACK_PRICING: Record<string, number> = {
+  'day-pass': 72500,
+  'stay-for-fire': 89500,
+};
 
-const PACKAGE_NAMES = {
+const FALLBACK_NAMES: Record<string, string> = {
   'day-pass': 'Day Pass — From sunup to four-thirty',
   'stay-for-fire': 'Stay for the Fire — Until the cards are done',
-} as const;
+};
 
 export async function POST(request: Request) {
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
 
   try {
     const body = await request.json();
@@ -42,14 +48,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // Validate package type
-    if (packageType !== 'day-pass' && packageType !== 'stay-for-fire') {
-      return NextResponse.json(
-        { error: 'Invalid package type' },
-        { status: 400 }
-      );
-    }
-
     // Validate party size
     const partySizeNum = parseInt(partySize);
     if (isNaN(partySizeNum) || partySizeNum < 1 || partySizeNum > 4) {
@@ -59,11 +57,27 @@ export async function POST(request: Request) {
       );
     }
 
+    // Fetch package pricing from database
+    const { data: pkg } = await supabase
+      .from('dust_leather_packages')
+      .select('price, name, description')
+      .eq('slug', packageType)
+      .eq('active', true)
+      .single();
+
+    // Use database price or fallback
+    const pricePerPerson = pkg?.price || FALLBACK_PRICING[packageType];
+    const packageName = pkg ? `${pkg.name} — ${pkg.description}` : FALLBACK_NAMES[packageType];
+
+    if (!pricePerPerson) {
+      return NextResponse.json(
+        { error: 'Invalid package type' },
+        { status: 400 }
+      );
+    }
+
     const confirmationCode = generateConfirmationCode();
-    const validPackageType = packageType as keyof typeof PRICING;
-    const pricePerPerson = PRICING[validPackageType];
     const amount = pricePerPerson * partySizeNum;
-    const packageName = PACKAGE_NAMES[validPackageType];
 
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.decodehorsemanship.com';
 

@@ -1,5 +1,36 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { createClient } from "@supabase/supabase-js";
+
+// Fetch package pricing from database
+async function getPackagePricing() {
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+
+  const { data } = await supabase
+    .from("dust_leather_packages")
+    .select("slug, price")
+    .eq("active", true);
+
+  const pricing: Record<string, number> = {
+    "day-pass": 72500,
+    "stay-for-fire": 89500,
+  };
+
+  if (data) {
+    data.forEach((pkg) => {
+      pricing[pkg.slug] = pkg.price;
+    });
+  }
+
+  return pricing;
+}
+
+function formatPrice(cents: number): string {
+  return `$${(cents / 100).toFixed(0)}`;
+}
 
 export const metadata: Metadata = {
   title: "Dust & Leather — A man's day at Decode Horsemanship",
@@ -246,7 +277,8 @@ function EmberDot() {
   );
 }
 
-export default function DustAndLeatherPage() {
+export default async function DustAndLeatherPage() {
+  const pricing = await getPackagePricing();
   return (
     <main className="font-body text-ink antialiased">
       {/* ============================================
@@ -532,12 +564,12 @@ export default function DustAndLeatherPage() {
           <div className="grid sm:grid-cols-2 gap-8 sm:gap-12 max-w-3xl mx-auto">
             <PricingCard
               label="Day Pass · From sunup to four-thirty"
-              price="$725"
+              price={formatPrice(pricing["day-pass"])}
               description="Lunch included. Belt included. Home for dinner."
             />
             <PricingCard
               label="Stay for the Fire · Until the cards are done"
-              price="$895"
+              price={formatPrice(pricing["stay-for-fire"])}
               description="Day Pass plus Dutch oven supper, whiskey, and cards."
             />
           </div>

@@ -1,8 +1,34 @@
 import Link from 'next/link';
 import { ChevronDown, Mail, Phone, MapPin } from 'lucide-react';
 import { UpcomingSessions } from './UpcomingSessions';
+import { createClient } from '@supabase/supabase-js';
 
-export default function GroundworkPage() {
+// Fetch pricing from database
+async function getPricing() {
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+
+  const { data } = await supabase
+    .from('programs')
+    .select('full_price, deposit_amount, price_label')
+    .eq('slug', 'groundwork')
+    .single();
+
+  return {
+    fullPrice: data?.full_price || 85000,
+    depositAmount: data?.deposit_amount || 20000,
+    priceLabel: data?.price_label || '$850 per person',
+  };
+}
+
+function formatPrice(cents: number): string {
+  return `$${(cents / 100).toFixed(0)}`;
+}
+
+export default async function GroundworkPage() {
+  const pricing = await getPricing();
   return (
     <div className="min-h-screen bg-groundwork-cream text-groundwork-dark font-serif">
       {/* ─── Hero ─────────────────────────────────────────────────────────────── */}
@@ -138,7 +164,7 @@ export default function GroundworkPage() {
 
           <div className="space-y-2 text-lg md:text-xl leading-relaxed mb-10">
             <p>One day, 8:30 AM to 4:00 PM. Group of 4–6 men. Lunch included.</p>
-            <p className="font-medium">$850 per person.</p>
+            <p className="font-medium">{pricing.priceLabel}.</p>
           </div>
 
           <Link
@@ -201,7 +227,7 @@ export default function GroundworkPage() {
             <div>
               <p className="text-lg md:text-xl font-serif mb-3">What&apos;s your cancellation policy?</p>
               <p className="font-sans text-base text-groundwork-muted">
-                $200 deposit non-refundable. Balance refundable up to 14 days before the session.
+                {formatPrice(pricing.depositAmount)} deposit non-refundable. Balance refundable up to 14 days before the session.
               </p>
             </div>
           </div>
