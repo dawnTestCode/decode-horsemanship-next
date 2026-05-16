@@ -101,7 +101,7 @@ export default function EALOverviewPage() {
               Meet <span className="text-red-500">Glitch & Dub</span>
             </h2>
             <p className="text-stone-400">
-              The mustangs at the heart of our EAL program
+              The mustangs at the heart of our workshops
             </p>
           </div>
 

@@ -1,7 +1,7 @@
 'use client';
 
 // src/components/ProgramsEditor.tsx
-// Admin UI for managing EAL programs (pricing, descriptions, settings)
+// Admin UI for managing workshops (pricing, descriptions, settings)
 
 import React, { useState, useEffect } from 'react';
 import { X, Plus, Edit2, Trash2, Loader2, DollarSign, Users, Clock, AlertCircle, Check, Eye, EyeOff } from 'lucide-react';

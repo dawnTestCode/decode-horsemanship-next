@@ -47,7 +47,7 @@ export default function Navigation({ activeSection, onSectionClick }: Navigation
               href="/eal"
               className="text-sm font-medium transition-colors hover:text-red-500 text-stone-300"
             >
-              EAL Programs
+              Workshops
             </Link>
             <Link
               href="/summer-camp"
@@ -165,7 +165,7 @@ export default function Navigation({ activeSection, onSectionClick }: Navigation
               onClick={() => setMobileMenuOpen(false)}
               className="block w-full text-left py-2 text-stone-300 hover:text-red-500"
             >
-              EAL Programs
+              Workshops
             </Link>
             <Link
               href="/summer-camp"

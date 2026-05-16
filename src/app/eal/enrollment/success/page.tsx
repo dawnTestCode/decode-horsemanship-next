@@ -66,7 +66,7 @@ function SuccessContent() {
               className="px-6 py-3 border border-stone-700 hover:border-stone-500
                 text-stone-300 hover:text-white rounded-lg text-sm transition-colors"
             >
-              Back to EAL Programs
+              Back to Workshops
             </Link>
             <Link
               href="/"

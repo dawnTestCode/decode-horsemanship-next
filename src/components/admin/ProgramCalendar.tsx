@@ -106,7 +106,7 @@ const typeColors: Record<string, { bg: string; border: string; text: string; dot
   },
 };
 
-// Category colors for EAL programs
+// Category colors for Workshops
 const categoryColors: Record<string, string> = {
   youth: 'bg-purple-500',
   personal: 'bg-pink-500',
@@ -128,7 +128,7 @@ const ProgramCalendar: React.FC = () => {
   const fetchAllData = async () => {
     setLoading(true);
     try {
-      // Fetch EAL programs
+      // Fetch Workshops
       const { data: programsData } = await supabase
         .from('programs')
         .select('id, name, slug, category, max_capacity')
@@ -136,7 +136,7 @@ const ProgramCalendar: React.FC = () => {
 
       setPrograms(programsData || []);
 
-      // Fetch EAL program dates
+      // Fetch Workshop dates
       const { data: programDates } = await supabase
         .from('program_dates')
         .select('*')
@@ -163,7 +163,7 @@ const ProgramCalendar: React.FC = () => {
       // Convert all to unified CalendarEvent format
       const allEvents: CalendarEvent[] = [];
 
-      // EAL program dates
+      // Workshop dates
       if (programDates && programsData) {
         programDates.forEach((pd: ProgramDate) => {
           const program = programsData.find((p: Program) => p.id === pd.program_id);
@@ -376,7 +376,7 @@ const ProgramCalendar: React.FC = () => {
       <div className="flex flex-wrap gap-4 mb-4 text-sm">
         <div className="flex items-center gap-2">
           <span className="w-3 h-3 rounded-full bg-blue-500" />
-          <span className="text-stone-400">EAL Programs</span>
+          <span className="text-stone-400">Workshops</span>
         </div>
         <div className="flex items-center gap-2">
           <span className="w-3 h-3 rounded-full bg-amber-500" />

@@ -52,7 +52,7 @@
 | `summer_camp_registrations` | Summer camp registrations |
 | `horses` | Horse catalog |
 | `gallery` | Gallery images |
-| `programs` | EAL program definitions |
+| `programs` | Workshop definitions |
 | `enrollments` | Program enrollments |
 | `inquiries` | Contact form submissions |
 
@@ -61,8 +61,8 @@
 | Function | Trigger | Purpose |
 |----------|---------|---------|
 | `admin-auth` | HTTP | Admin authentication |
-| `enrollment-checkout` | HTTP | EAL program enrollment checkout |
-| `enrollment-programs` | HTTP | Fetch EAL program data |
+| `enrollment-checkout` | HTTP | Workshop enrollment checkout |
+| `enrollment-programs` | HTTP | Fetch Workshop data |
 | `enrollment-webhook` | Stripe webhook | Handle EAL enrollment payments |
 | `groundwork-reminder` | pg_cron (daily 14:00 UTC) | Send reminder emails 7 days before session |
 | `summer-camp-balance-checkout` | HTTP | Create Stripe checkout for camp balance |
@@ -148,7 +148,7 @@ decode-next/
 │   │   │   ├── groundwork-checkout/
 │   │   │   ├── groundwork-balance-checkout/
 │   │   │   └── webhooks/stripe/
-│   │   ├── eal/                # EAL program pages
+│   │   ├── eal/                # Workshop pages
 │   │   ├── groundwork/         # Groundwork program pages
 │   │   ├── horses/[id]/        # Horse detail pages
 │   │   ├── summer-camp/        # Summer camp pages
@@ -204,7 +204,7 @@ decode-next/
 | `/summer-camp` | Summer camp info |
 | `/summer-camp/register` | Summer camp registration |
 | `/summer-camp/pay-balance` | Summer camp balance payment |
-| `/eal` | EAL program overview |
+| `/eal` | Workshop overview |
 | `/eal/corporate` | Corporate programs |
 | `/eal/personal` | Personal development |
 | `/eal/youth` | Youth programs |

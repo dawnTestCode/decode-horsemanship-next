@@ -73,7 +73,7 @@ const UnifiedProgramsTab: React.FC = () => {
           }`}
         >
           <Sparkles size={16} />
-          EAL Programs
+          Workshops
         </button>
       </div>
 
@@ -87,7 +87,7 @@ const UnifiedProgramsTab: React.FC = () => {
         <DustLeatherSessionsEditor embedded />
       )}
 
-      {/* EAL Programs content with sub-tabs */}
+      {/* Workshops content with sub-tabs */}
       {programTab === 'eal' && (
         <div>
           <div className="flex gap-2 mb-6">
