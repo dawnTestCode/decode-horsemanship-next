@@ -61,11 +61,6 @@ export default function Footer({ onSectionClick }: FooterProps) {
                   No Reins (Women)
                 </Link>
               </li>
-              <li>
-                <Link href="/eal/youth" className="text-stone-500 hover:text-red-500 transition-colors text-sm">
-                  Youth Programs
-                </Link>
-              </li>
             </ul>
           </div>
           <div>
