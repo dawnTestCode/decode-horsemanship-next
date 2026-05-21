@@ -26,6 +26,8 @@ export async function POST(request: Request) {
       referralSource,
       isSibling,
       siblingConfirmationCode,
+      extendedDay,
+      extendedDayTotal,
       parentName,
       parentRelationship,
       parentEmail,
@@ -63,6 +65,9 @@ export async function POST(request: Request) {
 
     // Build session description
     let sessionDesc = `${sessionCount} session${sessionCount > 1 ? 's' : ''}`;
+    if (extendedDay) {
+      sessionDesc += ' with extended day (until 6 PM)';
+    }
     if (discountType) {
       const discountLabels: Record<string, string> = {
         early_bird: 'Early bird discount applied',
@@ -106,6 +111,8 @@ export async function POST(request: Request) {
         referralSource: referralSource || '',
         isSibling: String(isSibling),
         siblingConfirmationCode: siblingConfirmationCode || '',
+        extendedDay: String(extendedDay || false),
+        extendedDayTotal: String(extendedDayTotal || 0),
         parentName,
         parentRelationship,
         parentEmail,

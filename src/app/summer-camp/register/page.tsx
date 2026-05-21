@@ -56,6 +56,7 @@ interface FormData {
   referralSource: string;
   isSibling: boolean;
   siblingConfirmationCode: string;
+  extendedDay: boolean;
   parentName: string;
   parentRelationship: string;
   parentEmail: string;
@@ -87,6 +88,7 @@ const initialFormData: FormData = {
   referralSource: '',
   isSibling: false,
   siblingConfirmationCode: '',
+  extendedDay: false,
   parentName: '',
   parentRelationship: 'Parent',
   parentEmail: '',
@@ -357,13 +359,15 @@ export default function SummerCampRegisterPage() {
   const today = new Date().toISOString().split('T')[0];
   const isEarlyBird = selectedSession?.early_bird_deadline && today <= selectedSession.early_bird_deadline;
 
-  const basePrice = 475;
+  const basePrice = 375;
+  const extendedDayPrice = 100;
   const discountPerType = 50;
   let totalDiscount = 0;
   if (isEarlyBird) totalDiscount += discountPerType;
   if (form.isSibling) totalDiscount += discountPerType;
+  const extendedDayTotal = form.extendedDay ? extendedDayPrice * sessionCount : 0;
   const pricePerSession = basePrice - totalDiscount;
-  const totalPrice = pricePerSession * sessionCount;
+  const totalPrice = (pricePerSession * sessionCount) + extendedDayTotal;
   const balanceAmount = totalPrice - depositAmount;
 
   const canProceed = (): boolean => {
@@ -414,6 +418,7 @@ export default function SummerCampRegisterPage() {
           sessionCount,
           depositAmount: depositAmount * 100,
           totalPrice: totalPrice * 100,
+          extendedDayTotal: extendedDayTotal * 100,
           isEarlyBird,
           discountType:
             isEarlyBird && form.isSibling
@@ -499,6 +504,22 @@ export default function SummerCampRegisterPage() {
                 }))}
             />
           )}
+
+          <div className="border-t border-stone-800 pt-6 mt-2">
+            <Checkbox
+              label={
+                <span>
+                  <span className="font-medium">Extended Day</span> — Stay until 6 PM
+                  <span className="text-amber-400 ml-1">(+$100/week)</span>
+                </span>
+              }
+              checked={form.extendedDay}
+              onChange={(v) => updateForm('extendedDay', v)}
+            />
+            <p className="text-stone-500 text-xs mt-2 ml-7">
+              Standard pickup is 3:30 PM. Extended day lets your camper stay until 6 PM — great for working parents.
+            </p>
+          </div>
         </>
       )}
     </div>
@@ -844,6 +865,12 @@ export default function SummerCampRegisterPage() {
               <div className="flex justify-between text-amber-400 text-sm">
                 <span>Sibling discount</span>
                 <span>-${discountPerType * sessionCount}</span>
+              </div>
+            )}
+            {form.extendedDay && (
+              <div className="flex justify-between text-stone-300 text-sm">
+                <span>Extended day (until 6 PM)</span>
+                <span>+${extendedDayTotal}</span>
               </div>
             )}
             <div className="flex justify-between text-stone-300">

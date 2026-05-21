@@ -119,7 +119,7 @@ export default function SummerCampPage() {
             <ArrowRight size={20} />
           </Link>
           <p className="text-stone-500 text-sm mt-4">
-            9am – 1pm · Ages 6–14 · Chapel Hill, NC corridor
+            9am – 1pm (extended day until 6pm available) · Ages 6–14 · Chapel Hill, NC corridor
           </p>
         </div>
       </section>
@@ -162,10 +162,13 @@ export default function SummerCampPage() {
                 </div>
                 <div className="border-t border-stone-800 pt-4">
                   <p className="text-stone-200 font-semibold">
-                    $475/week{' '}
+                    $375/week{' '}
                     <span className="text-stone-500 font-normal">
-                      · $425 Early Bird
+                      · $325 Early Bird
                     </span>
+                  </p>
+                  <p className="text-stone-500 text-sm mt-1">
+                    +$100/week for extended day (until 6 PM)
                   </p>
                 </div>
               </div>
@@ -207,10 +210,13 @@ export default function SummerCampPage() {
                 </div>
                 <div className="border-t border-stone-800 pt-4">
                   <p className="text-stone-200 font-semibold">
-                    $475/week{' '}
+                    $375/week{' '}
                     <span className="text-stone-500 font-normal">
-                      · $425 Early Bird
+                      · $325 Early Bird
                     </span>
+                  </p>
+                  <p className="text-stone-500 text-sm mt-1">
+                    +$100/week for extended day (until 6 PM)
                   </p>
                 </div>
               </div>
@@ -260,8 +266,11 @@ export default function SummerCampPage() {
           <h2 className="text-3xl font-bold text-center mb-4">
             A Day at <span className="text-red-500">Camp</span>
           </h2>
-          <p className="text-stone-400 text-center mb-12">
+          <p className="text-stone-400 text-center mb-8">
             Here&apos;s what a typical day looks like
+          </p>
+          <p className="text-stone-500 text-sm text-center mb-8">
+            Standard pick-up: 1 PM · Extended day available until 6 PM (+$100/week)
           </p>
 
           <div className="bg-stone-900/50 rounded-2xl border border-stone-800 overflow-hidden">
@@ -361,7 +370,7 @@ export default function SummerCampPage() {
                 <div className="flex justify-between items-center pb-4 border-b border-stone-800">
                   <span className="text-stone-400">Standard Rate</span>
                   <span className="text-white font-semibold text-lg">
-                    $475/week
+                    $375/week
                   </span>
                 </div>
                 <div className="flex justify-between items-center pb-4 border-b border-stone-800">
@@ -372,15 +381,22 @@ export default function SummerCampPage() {
                     </p>
                   </div>
                   <span className="text-green-400 font-semibold text-lg">
-                    $425/week
+                    $325/week
                   </span>
                 </div>
-                <div className="flex justify-between items-center">
+                <div className="flex justify-between items-center pb-4 border-b border-stone-800">
                   <div>
                     <span className="text-stone-400">Sibling Discount</span>
                     <p className="text-stone-600 text-xs">Second child</p>
                   </div>
                   <span className="text-amber-400 font-semibold">$50 off</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <div>
+                    <span className="text-stone-400">Extended Day</span>
+                    <p className="text-stone-600 text-xs">Until 6 PM (vs 1 PM standard)</p>
+                  </div>
+                  <span className="text-blue-400 font-semibold">+$100/week</span>
                 </div>
               </div>
             </div>

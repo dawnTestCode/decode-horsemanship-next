@@ -64,7 +64,7 @@ function SuccessContent() {
             <li>• Weather-appropriate layers</li>
           </ul>
           <p className="text-stone-500 text-xs mt-4">
-            Camp runs 9am – 1pm daily. Arrive by 8:50am for check-in.
+            Standard camp: 9am – 1pm · Extended day: until 6pm · Arrive by 8:50am for check-in.
           </p>
         </div>
 
