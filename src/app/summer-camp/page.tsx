@@ -377,7 +377,7 @@ export default function SummerCampPage() {
                   <div>
                     <span className="text-stone-400">Early Bird</span>
                     <p className="text-stone-600 text-xs">
-                      Register 60+ days out
+                      Register 30+ days out
                     </p>
                   </div>
                   <span className="text-green-400 font-semibold text-lg">
