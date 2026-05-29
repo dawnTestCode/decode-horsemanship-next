@@ -11,31 +11,32 @@ import {
   AlertCircle,
   Edit2,
   X,
-  Flame,
+  Heart,
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
-interface DustLeatherSession {
+interface NoReinsSession {
   id: string;
-  session_date: string;
-  capacity: number;
+  start_date: string;
+  end_date: string | null;
+  max_capacity: number;
   enrolled: number;
   status: 'open' | 'full' | 'closed' | 'cancelled';
   notes: string | null;
-  created_at: string;
 }
 
-interface DustLeatherBooking {
+interface NoReinsRegistration {
   id: string;
-  session_id: string | null;
-  session_date: string;
   confirmation_code: string;
-  name: string;
+  program_date_id: string | null;
+  session_date: string;
+  first_name: string;
+  last_name: string;
   email: string;
   phone: string | null;
-  party_size: number;
-  package_type: 'day-pass' | 'stay-for-fire';
-  message: string | null;
+  age_range: string | null;
+  horse_experience: string | null;
+  referral_source: string | null;
   amount_paid: number;
   status: string;
   created_at: string;
@@ -43,14 +44,14 @@ interface DustLeatherBooking {
 
 const emptyNewSession = {
   session_date: '',
-  capacity: 4,
+  capacity: 12,
   status: 'open' as const,
   notes: '',
 };
 
-const DustLeatherSessionsEditor: React.FC<{ embedded?: boolean }> = ({ embedded }) => {
-  const [sessions, setSessions] = useState<DustLeatherSession[]>([]);
-  const [bookings, setRegistrations] = useState<DustLeatherBooking[]>([]);
+const NoReinsSessionsEditor: React.FC<{ embedded?: boolean }> = ({ embedded }) => {
+  const [sessions, setSessions] = useState<NoReinsSession[]>([]);
+  const [registrations, setRegistrations] = useState<NoReinsRegistration[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -60,35 +61,52 @@ const DustLeatherSessionsEditor: React.FC<{ embedded?: boolean }> = ({ embedded 
   const [showAddForm, setShowAddForm] = useState(false);
   const [newSession, setNewSession] = useState(emptyNewSession);
 
-  // Fetch sessions and bookings
+  // Get the womens-retreat program ID for querying program_dates
+  const [womensRetreatProgramId, setWomensRetreatProgramId] = useState<string | null>(null);
+
+  // Fetch sessions and registrations
   const fetchData = async () => {
     setLoading(true);
     try {
-      // Fetch sessions
-      const { data: sessionsData, error: sessionsError } = await supabase
-        .from('dust_and_leather_sessions')
-        .select('*')
-        .order('session_date', { ascending: true });
+      // First, get the womens-retreat program ID
+      const { data: programData } = await supabase
+        .from('programs')
+        .select('id')
+        .eq('slug', 'womens-retreat')
+        .single();
 
-      if (sessionsError) {
-        console.log('Sessions table may not exist yet:', sessionsError);
-        setSessions([]);
+      if (programData) {
+        setWomensRetreatProgramId(programData.id);
+
+        // Fetch sessions from program_dates for womens-retreat
+        const { data: sessionsData, error: sessionsError } = await supabase
+          .from('program_dates')
+          .select('*')
+          .eq('program_id', programData.id)
+          .order('start_date', { ascending: true });
+
+        if (sessionsError) {
+          console.log('Sessions error:', sessionsError);
+          setSessions([]);
+        } else {
+          setSessions(sessionsData || []);
+        }
       } else {
-        setSessions(sessionsData || []);
+        setSessions([]);
       }
 
-      // Fetch bookings
-      const { data: bookingsData, error: bookingsError } = await supabase
-        .from('dust_and_leather_bookings')
+      // Fetch registrations
+      const { data: registrationsData, error: registrationsError } = await supabase
+        .from('womens_retreat_registrations')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (bookingsError) {
-        console.log('Registrations error:', bookingsError);
+      if (registrationsError) {
+        console.log('Registrations error:', registrationsError);
       }
-      setRegistrations(bookingsData || []);
+      setRegistrations(registrationsData || []);
     } catch (err) {
-      console.error('Error fetching Dust & Leather data:', err);
+      console.error('Error fetching No Reins data:', err);
     } finally {
       setLoading(false);
     }
@@ -100,7 +118,7 @@ const DustLeatherSessionsEditor: React.FC<{ embedded?: boolean }> = ({ embedded 
 
   // Add a new session
   const addSession = async () => {
-    if (!newSession.session_date) {
+    if (!newSession.session_date || !womensRetreatProgramId) {
       setError('Please select a date');
       return;
     }
@@ -109,10 +127,12 @@ const DustLeatherSessionsEditor: React.FC<{ embedded?: boolean }> = ({ embedded 
     setError(null);
     try {
       const { error } = await supabase
-        .from('dust_and_leather_sessions')
+        .from('program_dates')
         .insert({
-          session_date: newSession.session_date,
-          capacity: newSession.capacity,
+          program_id: womensRetreatProgramId,
+          start_date: newSession.session_date,
+          end_date: newSession.session_date,
+          max_capacity: newSession.capacity,
           enrolled: 0,
           status: newSession.status,
           notes: newSession.notes || null,
@@ -131,15 +151,16 @@ const DustLeatherSessionsEditor: React.FC<{ embedded?: boolean }> = ({ embedded 
   };
 
   // Update a session
-  const updateSession = async (session: DustLeatherSession) => {
+  const updateSession = async (session: NoReinsSession) => {
     setSaving(true);
     setError(null);
     try {
       const { error } = await supabase
-        .from('dust_and_leather_sessions')
+        .from('program_dates')
         .update({
-          session_date: session.session_date,
-          capacity: session.capacity,
+          start_date: session.start_date,
+          end_date: session.start_date,
+          max_capacity: session.max_capacity,
           status: session.status,
           notes: session.notes,
         })
@@ -163,7 +184,7 @@ const DustLeatherSessionsEditor: React.FC<{ embedded?: boolean }> = ({ embedded 
     setSaving(true);
     try {
       const { error } = await supabase
-        .from('dust_and_leather_sessions')
+        .from('program_dates')
         .delete()
         .eq('id', id);
 
@@ -209,7 +230,7 @@ const DustLeatherSessionsEditor: React.FC<{ embedded?: boolean }> = ({ embedded 
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <Loader2 className="animate-spin text-amber-600" size={32} />
+        <Loader2 className="animate-spin text-pink-600" size={32} />
       </div>
     );
   }
@@ -222,7 +243,7 @@ const DustLeatherSessionsEditor: React.FC<{ embedded?: boolean }> = ({ embedded 
           onClick={() => setSubTab('sessions')}
           className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
             subTab === 'sessions'
-              ? 'bg-amber-700 text-white'
+              ? 'bg-pink-700 text-white'
               : 'bg-stone-800 text-stone-400 hover:bg-stone-700'
           }`}
         >
@@ -233,15 +254,15 @@ const DustLeatherSessionsEditor: React.FC<{ embedded?: boolean }> = ({ embedded 
           onClick={() => setSubTab('registrations')}
           className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
             subTab === 'registrations'
-              ? 'bg-amber-700 text-white'
+              ? 'bg-pink-700 text-white'
               : 'bg-stone-800 text-stone-400 hover:bg-stone-700'
           }`}
         >
           <Users size={16} />
           Registrations
-          {bookings.length > 0 && (
+          {registrations.length > 0 && (
             <span className="px-2 py-0.5 bg-black/20 rounded text-xs">
-              {bookings.length}
+              {registrations.length}
             </span>
           )}
         </button>
@@ -271,10 +292,10 @@ const DustLeatherSessionsEditor: React.FC<{ embedded?: boolean }> = ({ embedded 
           <div className="flex justify-end mb-4">
             <button
               onClick={() => setShowAddForm(true)}
-              className="px-4 py-2 bg-amber-700 hover:bg-amber-600 text-white font-medium rounded-lg transition-colors flex items-center gap-2"
+              className="px-4 py-2 bg-pink-700 hover:bg-pink-600 text-white font-medium rounded-lg transition-colors flex items-center gap-2"
             >
               <Plus size={18} />
-              Add Available Date
+              Add Workshop Date
             </button>
           </div>
 
@@ -282,8 +303,8 @@ const DustLeatherSessionsEditor: React.FC<{ embedded?: boolean }> = ({ embedded 
           {showAddForm && (
             <div className="mb-6 p-4 bg-stone-800/50 border border-stone-700 rounded-lg space-y-4">
               <h4 className="font-semibold text-white flex items-center gap-2">
-                <Plus size={18} className="text-amber-500" />
-                Add New Dust & Leather Date
+                <Plus size={18} className="text-pink-500" />
+                Add New No Reins Workshop Date
               </h4>
 
               <div className="grid grid-cols-2 gap-4">
@@ -302,19 +323,18 @@ const DustLeatherSessionsEditor: React.FC<{ embedded?: boolean }> = ({ embedded 
                 </div>
                 <div>
                   <label className="block text-sm text-stone-400 mb-1">
-                    Capacity (2-4 men)
+                    Capacity
                   </label>
-                  <select
+                  <input
+                    type="number"
+                    min={1}
+                    max={20}
                     value={newSession.capacity}
                     onChange={(e) =>
-                      setNewSession((prev) => ({ ...prev, capacity: parseInt(e.target.value) }))
+                      setNewSession((prev) => ({ ...prev, capacity: parseInt(e.target.value) || 12 }))
                     }
                     className="w-full bg-stone-800 border border-stone-700 rounded-lg px-3 py-2 text-stone-200"
-                  >
-                    <option value={2}>2</option>
-                    <option value={3}>3</option>
-                    <option value={4}>4</option>
-                  </select>
+                  />
                 </div>
               </div>
 
@@ -324,7 +344,7 @@ const DustLeatherSessionsEditor: React.FC<{ embedded?: boolean }> = ({ embedded 
                 </label>
                 <input
                   type="text"
-                  placeholder="e.g., Special session, private group"
+                  placeholder="e.g., Special workshop, private group"
                   value={newSession.notes}
                   onChange={(e) =>
                     setNewSession((prev) => ({ ...prev, notes: e.target.value }))
@@ -337,7 +357,7 @@ const DustLeatherSessionsEditor: React.FC<{ embedded?: boolean }> = ({ embedded 
                 <button
                   onClick={addSession}
                   disabled={saving}
-                  className="px-4 py-2 bg-amber-700 hover:bg-amber-600 text-white rounded-lg transition-colors flex items-center gap-2"
+                  className="px-4 py-2 bg-pink-700 hover:bg-pink-600 text-white rounded-lg transition-colors flex items-center gap-2"
                 >
                   {saving ? (
                     <Loader2 size={16} className="animate-spin" />
@@ -361,16 +381,16 @@ const DustLeatherSessionsEditor: React.FC<{ embedded?: boolean }> = ({ embedded 
 
           {sessions.length === 0 && !showAddForm ? (
             <div className="text-center py-12 bg-stone-900/50 rounded-xl border border-stone-800">
-              <Flame className="mx-auto mb-4 text-amber-600" size={48} />
+              <Heart className="mx-auto mb-4 text-pink-600" size={48} />
               <h3 className="text-lg font-semibold text-white mb-2">
-                No Dates Available
+                No Workshop Dates
               </h3>
               <p className="text-stone-400 mb-6">
-                Add dates for Dust & Leather that participants can book.
+                Add dates for No Reins workshops that participants can register for.
               </p>
               <button
                 onClick={() => setShowAddForm(true)}
-                className="px-6 py-3 bg-amber-700 hover:bg-amber-600 text-white font-semibold rounded-lg transition-colors inline-flex items-center gap-2"
+                className="px-6 py-3 bg-pink-700 hover:bg-pink-600 text-white font-semibold rounded-lg transition-colors inline-flex items-center gap-2"
               >
                 <Plus size={18} />
                 Add First Date
@@ -379,8 +399,8 @@ const DustLeatherSessionsEditor: React.FC<{ embedded?: boolean }> = ({ embedded 
           ) : (
             <div className="space-y-3">
               {sessions.map((session) => {
-                const spotsLeft = session.capacity - session.enrolled;
-                const isPast = new Date(session.session_date) < new Date(new Date().toDateString());
+                const spotsLeft = session.max_capacity - session.enrolled;
+                const isPast = new Date(session.start_date) < new Date(new Date().toDateString());
 
                 return (
                   <div
@@ -399,12 +419,12 @@ const DustLeatherSessionsEditor: React.FC<{ embedded?: boolean }> = ({ embedded 
                             </label>
                             <input
                               type="date"
-                              value={session.session_date}
+                              value={session.start_date}
                               onChange={(e) =>
                                 setSessions((prev) =>
                                   prev.map((s) =>
                                     s.id === session.id
-                                      ? { ...s, session_date: e.target.value }
+                                      ? { ...s, start_date: e.target.value }
                                       : s
                                   )
                                 )
@@ -416,23 +436,22 @@ const DustLeatherSessionsEditor: React.FC<{ embedded?: boolean }> = ({ embedded 
                             <label className="block text-sm text-stone-400 mb-1">
                               Capacity
                             </label>
-                            <select
-                              value={session.capacity}
+                            <input
+                              type="number"
+                              min={1}
+                              max={20}
+                              value={session.max_capacity}
                               onChange={(e) =>
                                 setSessions((prev) =>
                                   prev.map((s) =>
                                     s.id === session.id
-                                      ? { ...s, capacity: parseInt(e.target.value) }
+                                      ? { ...s, max_capacity: parseInt(e.target.value) || 12 }
                                       : s
                                   )
                                 )
                               }
                               className="w-full bg-stone-800 border border-stone-700 rounded-lg px-3 py-2 text-stone-200"
-                            >
-                              <option value={2}>2</option>
-                              <option value={3}>3</option>
-                              <option value={4}>4</option>
-                            </select>
+                            />
                           </div>
                           <div>
                             <label className="block text-sm text-stone-400 mb-1">
@@ -512,20 +531,20 @@ const DustLeatherSessionsEditor: React.FC<{ embedded?: boolean }> = ({ embedded 
                               session.status === 'open'
                                 ? 'bg-green-900/30 text-green-400'
                                 : session.status === 'full'
-                                ? 'bg-amber-900/30 text-amber-400'
+                                ? 'bg-pink-900/30 text-pink-400'
                                 : session.status === 'cancelled'
                                 ? 'bg-red-900/30 text-red-400'
                                 : 'bg-stone-800 text-stone-500'
                             }`}
                           >
-                            <Flame size={24} />
+                            <Heart size={24} />
                           </div>
                           <div>
                             <h4 className="font-semibold text-white">
-                              {formatDate(session.session_date)}
+                              {formatDate(session.start_date)}
                             </h4>
                             <p className="text-stone-400 text-sm">
-                              8:00 AM – 4:30 PM (or later with Fire option)
+                              No Reins Workshop
                             </p>
                             {session.notes && (
                               <p className="text-stone-500 text-xs mt-1">{session.notes}</p>
@@ -537,11 +556,11 @@ const DustLeatherSessionsEditor: React.FC<{ embedded?: boolean }> = ({ embedded 
                           <div className="text-center">
                             <p className={`font-medium ${
                               spotsLeft <= 0 ? 'text-red-400' :
-                              spotsLeft <= 1 ? 'text-amber-400' : 'text-stone-200'
+                              spotsLeft <= 2 ? 'text-pink-400' : 'text-stone-200'
                             }`}>
-                              {session.enrolled} / {session.capacity}
+                              {session.enrolled} / {session.max_capacity}
                             </p>
-                            <p className="text-stone-500 text-xs">Booked</p>
+                            <p className="text-stone-500 text-xs">Registered</p>
                           </div>
 
                           <span
@@ -549,7 +568,7 @@ const DustLeatherSessionsEditor: React.FC<{ embedded?: boolean }> = ({ embedded 
                               session.status === 'open'
                                 ? 'bg-green-900/30 text-green-400'
                                 : session.status === 'full'
-                                ? 'bg-amber-900/30 text-amber-400'
+                                ? 'bg-pink-900/30 text-pink-400'
                                 : session.status === 'cancelled'
                                 ? 'bg-red-900/30 text-red-400'
                                 : 'bg-stone-800 text-stone-500'
@@ -588,7 +607,7 @@ const DustLeatherSessionsEditor: React.FC<{ embedded?: boolean }> = ({ embedded 
       {/* Registrations Tab */}
       {subTab === 'registrations' && (
         <div>
-          {bookings.length === 0 ? (
+          {registrations.length === 0 ? (
             <div className="text-center py-12 bg-stone-900/50 rounded-xl border border-stone-800">
               <Users className="mx-auto mb-4 text-stone-600" size={48} />
               <h3 className="text-lg font-semibold text-white mb-2">
@@ -600,72 +619,67 @@ const DustLeatherSessionsEditor: React.FC<{ embedded?: boolean }> = ({ embedded 
             </div>
           ) : (
             <div className="space-y-3">
-              {bookings.map((booking) => (
+              {registrations.map((reg) => (
                 <div
-                  key={booking.id}
+                  key={reg.id}
                   className="bg-stone-900/50 rounded-xl border border-stone-800 p-4"
                 >
                   <div className="flex items-start justify-between">
                     <div>
                       <div className="flex items-center gap-3">
                         <h4 className="font-semibold text-white">
-                          {booking.name}
+                          {reg.first_name} {reg.last_name}
                         </h4>
                         <span className="text-xs font-mono text-stone-400 bg-stone-800 px-2 py-0.5 rounded">
-                          {booking.confirmation_code}
+                          {reg.confirmation_code}
                         </span>
                         <span
                           className={`text-xs px-2 py-0.5 rounded ${
-                            booking.status === 'paid'
+                            reg.status === 'paid'
                               ? 'bg-green-900/30 text-green-400'
-                              : booking.status === 'completed'
+                              : reg.status === 'completed'
                               ? 'bg-blue-900/30 text-blue-400'
-                              : booking.status === 'cancelled'
+                              : reg.status === 'cancelled'
                               ? 'bg-red-900/30 text-red-400'
                               : 'bg-stone-800 text-stone-400'
                           }`}
                         >
-                          {booking.status}
+                          {reg.status}
                         </span>
                       </div>
                       <p className="text-stone-400 text-sm mt-1">
-                        {formatDate(booking.session_date)}
+                        {formatDate(reg.session_date)}
                       </p>
                       <div className="flex items-center gap-4 mt-1">
                         <span className="text-stone-500 text-xs">
-                          {booking.email}
+                          {reg.email}
                         </span>
-                        {booking.phone && (
+                        {reg.phone && (
                           <span className="text-stone-500 text-xs">
-                            {booking.phone}
+                            {reg.phone}
                           </span>
                         )}
                       </div>
                       <div className="flex items-center gap-3 mt-2">
-                        <span className="text-xs bg-stone-800 px-2 py-1 rounded text-stone-300">
-                          {booking.party_size} men
-                        </span>
-                        <span className={`text-xs px-2 py-1 rounded ${
-                          booking.package_type === 'stay-for-fire'
-                            ? 'bg-amber-900/30 text-amber-400'
-                            : 'bg-stone-800 text-stone-300'
-                        }`}>
-                          {booking.package_type === 'stay-for-fire' ? 'Stay for the Fire' : 'Day Pass'}
-                        </span>
+                        {reg.age_range && (
+                          <span className="text-xs bg-stone-800 px-2 py-1 rounded text-stone-300">
+                            {reg.age_range}
+                          </span>
+                        )}
+                        {reg.horse_experience && (
+                          <span className="text-xs bg-stone-800 px-2 py-1 rounded text-stone-300">
+                            {reg.horse_experience} horse experience
+                          </span>
+                        )}
                       </div>
-                      {booking.message && (
-                        <p className="text-stone-500 text-xs mt-2 italic">
-                          "{booking.message}"
-                        </p>
-                      )}
                     </div>
 
                     <div className="text-right">
                       <p className="text-green-400 font-medium">
-                        {formatCurrency(booking.amount_paid)}
+                        {formatCurrency(reg.amount_paid)}
                       </p>
                       <p className="text-stone-600 text-xs mt-1">
-                        {new Date(booking.created_at).toLocaleDateString()}
+                        {new Date(reg.created_at).toLocaleDateString()}
                       </p>
                     </div>
                   </div>
@@ -679,4 +693,4 @@ const DustLeatherSessionsEditor: React.FC<{ embedded?: boolean }> = ({ embedded 
   );
 };
 
-export default DustLeatherSessionsEditor;
+export default NoReinsSessionsEditor;
