@@ -70,7 +70,12 @@ const ProgramEnrollmentsEditor: React.FC<{ embedded?: boolean }> = ({ embedded }
         .order('name');
 
       if (programsError) throw programsError;
-      setPrograms(programsData || []);
+      // Add a virtual "Women's Retreat" program for filtering
+      const allPrograms = [
+        ...(programsData || []),
+        { id: 'womens-retreat', name: "Women's Retreat (No Reins)", slug: 'womens-retreat' }
+      ];
+      setPrograms(allPrograms);
 
       // Fetch enrollments with program and date info
       const { data: enrollmentsData, error: enrollmentsError } = await supabase
@@ -93,7 +98,54 @@ const ProgramEnrollmentsEditor: React.FC<{ embedded?: boolean }> = ({ embedded }
         date_end: e.program_dates?.end_date,
       }));
 
-      setEnrollments(flattenedEnrollments);
+      // Also fetch Women's Retreat registrations
+      const { data: womensRetreatData, error: womensRetreatError } = await supabase
+        .from('womens_retreat_registrations')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (womensRetreatError) {
+        console.error('Error fetching womens retreat:', womensRetreatError);
+      }
+
+      // Map Women's Retreat registrations to the enrollment format
+      const womensRetreatEnrollments = (womensRetreatData || []).map((wr: any) => ({
+        id: wr.id,
+        program_id: 'womens-retreat',
+        program_date_id: wr.program_date_id,
+        participant_name: `${wr.first_name} ${wr.last_name}`,
+        participant_email: wr.email,
+        participant_phone: wr.phone,
+        participant_age: null,
+        guardian_name: null,
+        guardian_email: null,
+        guardian_phone: null,
+        guardian_relationship: null,
+        referral_source: wr.referral_source,
+        notes: wr.dietary_restrictions || wr.special_requests,
+        payment_type: 'full',
+        amount_paid: wr.amount_paid || 22500, // Default to $225
+        balance_due: 0,
+        balance_due_date: null,
+        status: wr.status || 'confirmed',
+        confirmation_code: wr.confirmation_code,
+        confirmed_at: wr.confirmed_at,
+        created_at: wr.created_at,
+        program_name: "Women's Retreat (No Reins)",
+        program_slug: 'womens-retreat',
+        date_start: wr.session_date,
+        date_end: wr.session_date,
+        // Keep original data for reference
+        _source: 'womens_retreat',
+        _original: wr,
+      }));
+
+      // Combine both sets of enrollments
+      const allEnrollments = [...flattenedEnrollments, ...womensRetreatEnrollments];
+      // Sort by created_at descending
+      allEnrollments.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+
+      setEnrollments(allEnrollments);
     } catch (err: any) {
       console.error('Error fetching enrollments:', err);
       setError('Failed to load enrollments');
@@ -109,13 +161,19 @@ const ProgramEnrollmentsEditor: React.FC<{ embedded?: boolean }> = ({ embedded }
   // Update enrollment status
   const updateStatus = async (id: string, newStatus: string) => {
     try {
+      const enrollment = enrollments.find(e => e.id === id);
       const updates: any = { status: newStatus };
-      if (newStatus === 'confirmed' && !enrollments.find(e => e.id === id)?.confirmed_at) {
+      if (newStatus === 'confirmed' && !enrollment?.confirmed_at) {
         updates.confirmed_at = new Date().toISOString();
       }
 
+      // Determine which table to update
+      const table = (enrollment as any)?._source === 'womens_retreat'
+        ? 'womens_retreat_registrations'
+        : 'enrollments';
+
       const { error } = await supabase
-        .from('enrollments')
+        .from(table)
         .update(updates)
         .eq('id', id);
 
