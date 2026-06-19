@@ -47,6 +47,11 @@ export default function Footer({ onSectionClick }: FooterProps) {
                 </Link>
               </li>
               <li>
+                <Link href="/dust-and-leather" className="text-stone-500 hover:text-red-500 transition-colors text-sm">
+                  Dust and Leather
+                </Link>
+              </li>
+              <li>
                 <Link href="/groundwork" className="text-stone-500 hover:text-red-500 transition-colors text-sm">
                   Groundwork
                 </Link>
