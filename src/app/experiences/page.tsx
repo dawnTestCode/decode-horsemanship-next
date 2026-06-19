@@ -18,7 +18,7 @@ const programs = [
   {
     slug: 'summer-camp',
     title: 'Summer Camp',
-    tagline: 'For kids ages 8–14',
+    tagline: 'For kids ages 6–14',
     description: 'A week of real horsemanship. Grooming, groundwork, and time with the herd. No screens, no shortcuts.',
     href: '/summer-camp',
     icon: Tent,
