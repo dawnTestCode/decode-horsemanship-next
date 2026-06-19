@@ -363,30 +363,14 @@ export default function HorsesSection({
                       />
                     </button>
                     <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs bg-blue-700 px-2 py-1 rounded">{horse.training_status}</span>
-                        {horse.videos && horse.videos.length > 0 && (
-                          <span className="text-xs bg-stone-700 px-2 py-1 rounded flex items-center gap-1">
-                            <Video size={12} />
-                            {horse.videos.length}
-                          </span>
-                        )}
-                      </div>
+                      <span className="text-xs bg-blue-700/80 px-2 py-1 rounded">{horse.temperament}</span>
                     </div>
                   </div>
                   <div className="p-4">
                     <h3 className="text-xl font-bold text-stone-100 mb-2">{horse.name}</h3>
-                    <p className="text-stone-400 text-sm mb-3">
+                    <p className="text-stone-400 text-sm">
                       {horse.age} yr old {horse.gender} &bull; {horse.breed}
                     </p>
-                    <div className="flex gap-2 flex-wrap">
-                      <span className="text-xs bg-stone-800 px-2 py-1 rounded text-stone-300">
-                        {horse.temperament}
-                      </span>
-                      <span className="text-xs bg-stone-800 px-2 py-1 rounded text-stone-300">
-                        {horse.experience_level} Riders
-                      </span>
-                    </div>
                   </div>
                 </Link>
               ))}
