@@ -31,6 +31,13 @@ interface HorseFormProps {
 }
 
 const HorseForm: React.FC<HorseFormProps> = ({ horse, onSave, onCancel }) => {
+  // Determine initial horse type based on status
+  const getInitialHorseType = () => {
+    if (horse?.status === 'not_for_sale') return 'ours';
+    return 'sale';
+  };
+
+  const [horseType, setHorseType] = useState<'sale' | 'ours'>(horse?.id ? getInitialHorseType() : 'sale');
   const [formData, setFormData] = useState<HorseData>({
     name: horse?.name || '',
     age: horse?.age || 5,
@@ -49,6 +56,23 @@ const HorseForm: React.FC<HorseFormProps> = ({ horse, onSave, onCancel }) => {
     featured: horse?.featured ?? false,
     ...(horse?.id && { id: horse.id })
   });
+
+  // Update form when horse type changes
+  const handleHorseTypeChange = (type: 'sale' | 'ours') => {
+    setHorseType(type);
+    if (type === 'ours') {
+      setFormData(prev => ({
+        ...prev,
+        status: 'not_for_sale',
+        price: '',
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        status: 'available',
+      }));
+    }
+  };
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [uploadingImages, setUploadingImages] = useState(false);
@@ -270,6 +294,39 @@ const HorseForm: React.FC<HorseFormProps> = ({ horse, onSave, onCancel }) => {
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
+          {/* Horse Type Selector - only show for new horses */}
+          {!horse?.id && (
+            <div className="bg-stone-800/50 p-4 rounded-lg">
+              <label className="block text-sm text-stone-400 mb-3">What type of horse is this?</label>
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => handleHorseTypeChange('sale')}
+                  className={`p-4 rounded-lg border-2 text-left transition-all ${
+                    horseType === 'sale'
+                      ? 'border-red-500 bg-red-900/20'
+                      : 'border-stone-700 hover:border-stone-600'
+                  }`}
+                >
+                  <div className="font-semibold text-stone-200">For Sale / Adoption</div>
+                  <div className="text-sm text-stone-500 mt-1">Horse available to new homes</div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleHorseTypeChange('ours')}
+                  className={`p-4 rounded-lg border-2 text-left transition-all ${
+                    horseType === 'ours'
+                      ? 'border-green-500 bg-green-900/20'
+                      : 'border-stone-700 hover:border-stone-600'
+                  }`}
+                >
+                  <div className="font-semibold text-stone-200">Our Horse</div>
+                  <div className="text-sm text-stone-500 mt-1">Part of the Decode herd, not for sale</div>
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* Basic Info */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
@@ -332,17 +389,19 @@ const HorseForm: React.FC<HorseFormProps> = ({ horse, onSave, onCancel }) => {
                 placeholder="15.2 hh"
               />
             </div>
-            <div>
-              <label className="block text-sm text-stone-400 mb-2">Price *</label>
-              <input
-                type="text"
-                required
-                value={formData.price}
-                onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                className="w-full bg-stone-800 border border-stone-700 rounded-lg px-4 py-3 text-stone-200 focus:border-red-500 focus:outline-none"
-                placeholder="e.g. $4,500 or mid-fours"
-              />
-            </div>
+            {horseType === 'sale' && (
+              <div>
+                <label className="block text-sm text-stone-400 mb-2">Price *</label>
+                <input
+                  type="text"
+                  required={horseType === 'sale'}
+                  value={formData.price}
+                  onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                  className="w-full bg-stone-800 border border-stone-700 rounded-lg px-4 py-3 text-stone-200 focus:border-red-500 focus:outline-none"
+                  placeholder="e.g. $4,500 or mid-fours"
+                />
+              </div>
+            )}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -389,19 +448,26 @@ const HorseForm: React.FC<HorseFormProps> = ({ horse, onSave, onCancel }) => {
           <div className="bg-stone-800/50 p-4 rounded-lg space-y-4">
             <h3 className="font-semibold text-stone-200">Status & Visibility</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <label className="block text-sm text-stone-400 mb-2">Status</label>
-                <select
-                  value={formData.status}
-                  onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
-                  className="w-full bg-stone-800 border border-stone-700 rounded-lg px-4 py-3 text-stone-200 focus:border-red-500 focus:outline-none"
-                >
-                  <option value="available">Available</option>
-                  <option value="pending">Pending</option>
-                  <option value="sold">Sold</option>
-                  <option value="not_for_sale">Not For Sale</option>
-                </select>
-              </div>
+              {horseType === 'sale' ? (
+                <div>
+                  <label className="block text-sm text-stone-400 mb-2">Status</label>
+                  <select
+                    value={formData.status}
+                    onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
+                    className="w-full bg-stone-800 border border-stone-700 rounded-lg px-4 py-3 text-stone-200 focus:border-red-500 focus:outline-none"
+                  >
+                    <option value="available">Available</option>
+                    <option value="pending">Pending</option>
+                    <option value="sold">Sold</option>
+                  </select>
+                </div>
+              ) : (
+                <div className="flex items-center gap-3 pt-6">
+                  <div className="px-3 py-1.5 bg-green-900/30 text-green-400 rounded-lg text-sm">
+                    Not For Sale
+                  </div>
+                </div>
+              )}
               <div className="flex items-center gap-3 pt-6">
                 <input
                   type="checkbox"
