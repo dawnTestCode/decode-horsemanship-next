@@ -272,7 +272,7 @@ interface Program {
   max_capacity: number;
 }
 
-function WomensRetreatRegisterForm() {
+function NoReinsRegisterForm() {
   const searchParams = useSearchParams();
   const [step, setStep] = useState(0);
   const [form, setForm] = useState<FormData>(initialFormData);
@@ -451,7 +451,7 @@ function WomensRetreatRegisterForm() {
         <div className="bg-stone-800/50 border border-stone-700 rounded-xl p-6 text-center">
           <p className="text-stone-300 mb-2">No dates currently available.</p>
           <p className="text-stone-500 text-sm">
-            <Link href="/eal/contact" className="text-red-500 hover:text-red-400">
+            <Link href="/contact" className="text-red-500 hover:text-red-400">
               Contact us
             </Link>{' '}
             to join the waitlist.
@@ -658,7 +658,7 @@ function WomensRetreatRegisterForm() {
         {/* Header */}
         <div className="mb-8">
           <Link
-            href="/eal/no-reins"
+            href="/no-reins"
             className="inline-flex items-center gap-2 text-stone-500 hover:text-amber-500 text-sm mb-4 transition-colors"
           >
             <ArrowLeft size={16} />
@@ -742,7 +742,7 @@ function WomensRetreatRegisterForm() {
   );
 }
 
-export default function WomensRetreatRegisterPage() {
+export default function NoReinsRegisterPage() {
   return (
     <Suspense
       fallback={
@@ -751,7 +751,7 @@ export default function WomensRetreatRegisterPage() {
         </div>
       }
     >
-      <WomensRetreatRegisterForm />
+      <NoReinsRegisterForm />
     </Suspense>
   );
 }

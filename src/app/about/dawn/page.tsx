@@ -2,10 +2,10 @@
 
 import Link from 'next/link';
 import { Award, Heart, Briefcase, GraduationCap, ArrowRight } from 'lucide-react';
-import { useEALImages } from '@/hooks/useEALImages';
+import { useProgramImages } from '@/hooks/useProgramImages';
 
-export default function AboutPage() {
-  const { getImageUrl, getImageStyle } = useEALImages();
+export default function AboutDawnPage() {
+  const { getImageUrl, getImageStyle } = useProgramImages();
 
   return (
     <>
@@ -103,10 +103,10 @@ export default function AboutPage() {
             </div>
           </div>
 
-          {/* Why EAL Section */}
+          {/* Why This Work Section */}
           <div className="bg-gradient-to-r from-red-900/20 to-stone-900/50 p-8 md:p-12 rounded-2xl border border-red-900/30 mb-16">
             <h2 className="text-3xl font-bold mb-6">
-              Why Equine Assisted Learning?
+              Why Horses?
             </h2>
             <div className="space-y-4 text-stone-300">
               <p>
@@ -140,7 +140,7 @@ export default function AboutPage() {
                   <GraduationCap className="text-red-500" size={24} />
                 </div>
                 <h4 className="font-semibold text-stone-200 mb-2">
-                  EAL Certification
+                  Equine-Assisted Certification
                 </h4>
                 <p className="text-sm text-stone-500">In Progress</p>
               </div>
@@ -176,14 +176,14 @@ export default function AboutPage() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
-                href="/eal"
+                href="/experiences"
                 className="px-8 py-4 bg-red-700 hover:bg-red-600 text-white font-semibold rounded-lg transition-colors inline-flex items-center justify-center gap-2"
               >
                 Explore Our Programs
                 <ArrowRight size={20} />
               </Link>
               <Link
-                href="/eal/contact"
+                href="/contact"
                 className="px-8 py-4 border-2 border-stone-600 hover:border-red-500 text-stone-200 hover:text-red-500 font-semibold rounded-lg transition-colors"
               >
                 Get In Touch

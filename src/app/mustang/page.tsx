@@ -2,11 +2,11 @@
 
 import Link from 'next/link';
 import { Wind, Heart, Eye, ArrowRight, Clock, Sparkles } from 'lucide-react';
-import { useEALImages } from '@/hooks/useEALImages';
+import { useProgramImages } from '@/hooks/useProgramImages';
 import { usePrograms } from '@/hooks/usePrograms';
 
 export default function MustangPage() {
-  const { getImageUrl, getImageStyle } = useEALImages();
+  const { getImageUrl, getImageStyle } = useProgramImages();
   const { getProgram, formatPrice, loading } = usePrograms([
     'mustang-half-day',
     'mustang-full-day',
@@ -241,7 +241,7 @@ export default function MustangPage() {
               )}
 
               <Link
-                href="/eal/contact"
+                href="/contact"
                 className="w-full px-6 py-3 border-2 border-stone-600 hover:border-red-500 text-stone-200 hover:text-red-500 font-semibold rounded-lg transition-colors inline-flex items-center justify-center gap-2"
               >
                 Inquire Now
@@ -283,7 +283,7 @@ export default function MustangPage() {
               )}
 
               <Link
-                href="/eal/contact"
+                href="/contact"
                 className="w-full px-6 py-3 bg-red-700 hover:bg-red-600 text-white font-semibold rounded-lg transition-colors inline-flex items-center justify-center gap-2"
               >
                 Schedule Your Day
@@ -308,7 +308,7 @@ export default function MustangPage() {
             something in you is drawn to this work, let&apos;s talk.
           </p>
           <Link
-            href="/eal/contact"
+            href="/contact"
             className="px-8 py-4 bg-red-700 hover:bg-red-600 text-white font-semibold rounded-lg transition-colors inline-flex items-center gap-2"
           >
             Start the Conversation

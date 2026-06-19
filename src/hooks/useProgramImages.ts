@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 
-export interface EALImage {
+export interface ProgramImage {
   id: string;
   image_key: string;
   title: string;
@@ -12,21 +12,22 @@ export interface EALImage {
   is_visible: boolean;
 }
 
-interface UseEALImagesResult {
-  images: Record<string, EALImage>;
+interface UseProgramImagesResult {
+  images: Record<string, ProgramImage>;
   loading: boolean;
-  getImage: (key: string) => EALImage | null;
+  getImage: (key: string) => ProgramImage | null;
   getImageUrl: (key: string) => string | null;
   getImageStyle: (key: string) => React.CSSProperties;
 }
 
-export function useEALImages(): UseEALImagesResult {
-  const [images, setImages] = useState<Record<string, EALImage>>({});
+export function useProgramImages(): UseProgramImagesResult {
+  const [images, setImages] = useState<Record<string, ProgramImage>>({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchImages() {
       try {
+        // Table is still named eal_images in database
         const { data, error } = await supabase
           .from('eal_images')
           .select('*')
@@ -34,13 +35,13 @@ export function useEALImages(): UseEALImagesResult {
 
         if (error) throw error;
 
-        const imageMap: Record<string, EALImage> = {};
+        const imageMap: Record<string, ProgramImage> = {};
         data?.forEach((img) => {
           imageMap[img.image_key] = img;
         });
         setImages(imageMap);
       } catch (err) {
-        console.error('Error fetching EAL images:', err);
+        console.error('Error fetching program images:', err);
       } finally {
         setLoading(false);
       }
@@ -49,7 +50,7 @@ export function useEALImages(): UseEALImagesResult {
     fetchImages();
   }, []);
 
-  const getImage = (key: string): EALImage | null => {
+  const getImage = (key: string): ProgramImage | null => {
     return images[key] || null;
   };
 

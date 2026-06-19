@@ -16,7 +16,7 @@ function ConfirmationCode() {
   );
 }
 
-export default function WomensRetreatSuccessPage() {
+export default function NoReinsSuccessPage() {
   return (
     <section className="py-20 px-4 bg-gradient-to-b from-stone-900 to-black min-h-screen">
       <div className="max-w-lg mx-auto text-center">
@@ -81,7 +81,7 @@ export default function WomensRetreatSuccessPage() {
         {/* Actions */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
           <Link
-            href="/eal/no-reins"
+            href="/no-reins"
             className="px-6 py-3 bg-amber-700 hover:bg-amber-600 text-white font-semibold rounded-lg transition-colors inline-flex items-center justify-center gap-2"
           >
             Back to No Reins

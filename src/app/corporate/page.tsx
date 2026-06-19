@@ -21,7 +21,7 @@ export default function CorporatePage() {
       title: 'Half-Day Experience',
       duration: halfDay?.duration || '4 hours',
       participants: `Up to ${halfDay?.max_capacity || 12} participants`,
-      description: 'An introduction to equine-assisted learning, perfect for team outings or a first taste of EAL.',
+      description: 'An introduction to experiential learning with horses, perfect for team outings or a first experience.',
       includes: [
         'Welcome and orientation',
         'Introduction to horse communication',
@@ -29,7 +29,7 @@ export default function CorporatePage() {
         'Group debrief and integration',
         'Light refreshments'
       ],
-      ideal: 'Teams seeking a unique bonding experience or organizations exploring EAL for the first time.'
+      ideal: 'Teams seeking a unique bonding experience or organizations exploring equine-assisted development for the first time.'
     },
     {
       slug: 'corporate-full-day',
@@ -79,7 +79,7 @@ export default function CorporatePage() {
         </div>
       </section>
 
-      {/* Why Corporate EAL */}
+      {/* Why Corporate Programs */}
       <section className="py-16 px-4">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
@@ -193,7 +193,7 @@ export default function CorporatePage() {
               that meets your goals and budget. Request a conversation to discuss your needs.
             </p>
             <Link
-              href="/eal/contact"
+              href="/contact"
               className="px-8 py-4 bg-red-700 hover:bg-red-600 text-white font-semibold rounded-lg transition-colors inline-flex items-center gap-2"
             >
               Request a Quote
@@ -275,14 +275,14 @@ export default function CorporatePage() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
-              href="/eal/contact"
+              href="/contact"
               className="px-8 py-4 bg-red-700 hover:bg-red-600 text-white font-semibold rounded-lg transition-colors inline-flex items-center justify-center gap-2"
             >
               <Calendar size={20} />
               Book a Discovery Call
             </Link>
             <Link
-              href="/eal/about"
+              href="/about/dawn"
               className="px-8 py-4 border-2 border-stone-600 hover:border-red-500 text-stone-200 hover:text-red-500 font-semibold rounded-lg transition-colors"
             >
               Learn About Our Approach

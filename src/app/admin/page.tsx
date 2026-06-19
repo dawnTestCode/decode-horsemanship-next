@@ -10,7 +10,7 @@ import AdminLogin from '@/components/admin/AdminLogin';
 import PasswordChangeForm from '@/components/admin/PasswordChangeForm';
 import InquiriesPanel from '@/components/admin/InquiriesPanel';
 import VolunteerContentForm from '@/components/admin/VolunteerContentForm';
-import EALImageForm, { EALImage } from '@/components/admin/EALImageForm';
+import ProgramImageForm, { ProgramImage } from '@/components/admin/ProgramImageForm';
 import FieldAssignmentsEditor from '@/components/admin/FieldAssignmentsEditor';
 import ProgramDatesEditor from '@/components/admin/ProgramDatesEditor';
 import ProgramsEditor from '@/components/admin/ProgramsEditor';
@@ -190,11 +190,11 @@ export default function AdminPage() {
   const [savingVolunteer, setSavingVolunteer] = useState(false);
   const [showFieldAssignments, setShowFieldAssignments] = useState(false);
 
-  // EAL Images state
-  const [ealImages, setEalImages] = useState<EALImage[]>([]);
-  const [loadingEal, setLoadingEal] = useState(true);
-  const [showEalForm, setShowEalForm] = useState(false);
-  const [editingEalImage, setEditingEalImage] = useState<EALImage | null>(null);
+  // Program Images state
+  const [programImages, setProgramImages] = useState<ProgramImage[]>([]);
+  const [loadingProgramImages, setLoadingProgramImages] = useState(true);
+  const [showProgramImageForm, setShowProgramImageForm] = useState(false);
+  const [editingProgramImage, setEditingProgramImage] = useState<ProgramImage | null>(null);
 
   // Check for existing session on mount
   useEffect(() => {
@@ -355,21 +355,22 @@ export default function AdminPage() {
     }
   };
 
-  // Fetch EAL images
-  const fetchEalImages = async () => {
-    setLoadingEal(true);
+  // Fetch program images
+  const fetchProgramImages = async () => {
+    setLoadingProgramImages(true);
     try {
+      // Table is still named eal_images in database
       const { data, error } = await supabase
         .from('eal_images')
         .select('*')
         .order('title', { ascending: true });
 
       if (error) throw error;
-      setEalImages(data || []);
+      setProgramImages(data || []);
     } catch (err: any) {
-      console.error('Error fetching EAL images:', err);
+      console.error('Error fetching program images:', err);
     } finally {
-      setLoadingEal(false);
+      setLoadingProgramImages(false);
     }
   };
 
@@ -378,7 +379,7 @@ export default function AdminPage() {
     fetchGallery();
     fetchUnreadCount();
     fetchVolunteerContent();
-    fetchEalImages();
+    fetchProgramImages();
   }, []);
 
 
@@ -814,8 +815,8 @@ export default function AdminPage() {
             }`}
           >
             <Sparkles size={18} />
-            <span>EAL Images</span>
-            <span className="px-2 py-0.5 bg-black/20 rounded text-sm">{ealImages.filter(i => i.image_url).length}/{ealImages.length}</span>
+            <span>Program Images</span>
+            <span className="px-2 py-0.5 bg-black/20 rounded text-sm">{programImages.filter(i => i.image_url).length}/{programImages.length}</span>
           </button>
           <button
             onClick={() => setActiveTab('programs')}
@@ -1308,24 +1309,24 @@ export default function AdminPage() {
           </>
         )}
 
-        {/* EAL Images Tab Content */}
+        {/* Program Images Tab Content */}
         {activeTab === 'eal' && (
           <>
-            {/* EAL Stats */}
+            {/* Program Images Stats */}
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
               <div className="bg-stone-900/50 border border-stone-800 rounded-lg p-4">
-                <div className="text-2xl font-bold text-stone-100">{ealImages.length}</div>
+                <div className="text-2xl font-bold text-stone-100">{programImages.length}</div>
                 <div className="text-stone-500 text-sm">Total Slots</div>
               </div>
               <div className="bg-stone-900/50 border border-stone-800 rounded-lg p-4">
                 <div className="text-2xl font-bold text-green-500">
-                  {ealImages.filter(i => i.image_url).length}
+                  {programImages.filter(i => i.image_url).length}
                 </div>
                 <div className="text-stone-500 text-sm">Uploaded</div>
               </div>
               <div className="bg-stone-900/50 border border-stone-800 rounded-lg p-4">
                 <div className="text-2xl font-bold text-yellow-500">
-                  {ealImages.filter(i => !i.image_url).length}
+                  {programImages.filter(i => !i.image_url).length}
                 </div>
                 <div className="text-stone-500 text-sm">Missing</div>
               </div>
@@ -1335,12 +1336,12 @@ export default function AdminPage() {
             <div className="flex flex-col sm:flex-row gap-4 mb-6">
               <div className="flex-1 bg-purple-900/20 border border-purple-800/50 rounded-lg p-4">
                 <p className="text-purple-400 text-sm">
-                  <strong>EAL Images:</strong> These images are used throughout the EAL section pages (About, Mustangs, Programs, etc.). Upload images to replace the placeholder content.
+                  <strong>Program Images:</strong> These images are used throughout the experience pages (About, Mustangs, Corporate, etc.). Upload images to replace the placeholder content.
                 </p>
               </div>
               <button
                 onClick={() => {
-                  setEditingEalImage({
+                  setEditingProgramImage({
                     id: '',
                     image_key: '',
                     title: '',
@@ -1352,7 +1353,7 @@ export default function AdminPage() {
                     created_at: '',
                     updated_at: '',
                   });
-                  setShowEalForm(true);
+                  setShowProgramImageForm(true);
                 }}
                 className="px-4 py-3 bg-purple-700 hover:bg-purple-600 text-white rounded-lg font-medium flex items-center gap-2 whitespace-nowrap"
               >
@@ -1361,14 +1362,14 @@ export default function AdminPage() {
               </button>
             </div>
 
-            {/* EAL Images Grid */}
-            {loadingEal ? (
+            {/* Program Images Grid */}
+            {loadingProgramImages ? (
               <div className="flex items-center justify-center py-20">
                 <Loader2 className="animate-spin text-purple-500" size={40} />
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {ealImages.map((item) => (
+                {programImages.map((item) => (
                   <div
                     key={item.id}
                     className="bg-stone-900/50 border border-stone-800 rounded-lg overflow-hidden"
@@ -1403,8 +1404,8 @@ export default function AdminPage() {
                       )}
                       <button
                         onClick={() => {
-                          setEditingEalImage(item);
-                          setShowEalForm(true);
+                          setEditingProgramImage(item);
+                          setShowProgramImageForm(true);
                         }}
                         className="w-full px-4 py-2 bg-stone-800 hover:bg-stone-700 text-stone-300 rounded-lg transition-colors flex items-center justify-center gap-2"
                       >
@@ -1419,7 +1420,7 @@ export default function AdminPage() {
           </>
         )}
 
-        {/* Programs Tab Content (unified: Groundwork, Dust & Leather, EAL) */}
+        {/* Programs Tab Content (unified: Groundwork, Dust & Leather, Workshops) */}
         {activeTab === 'programs' && (
           <UnifiedProgramsTab />
         )}
@@ -1530,12 +1531,12 @@ export default function AdminPage() {
         <FieldAssignmentsEditor onClose={() => setShowFieldAssignments(false)} />
       )}
 
-      {/* EAL Image Form Modal */}
-      {showEalForm && editingEalImage && (
-        <EALImageForm
-          image={editingEalImage}
-          onClose={() => { setShowEalForm(false); setEditingEalImage(null); }}
-          onSave={fetchEalImages}
+      {/* Program Image Form Modal */}
+      {showProgramImageForm && editingProgramImage && (
+        <ProgramImageForm
+          image={editingProgramImage}
+          onClose={() => { setShowProgramImageForm(false); setEditingProgramImage(null); }}
+          onSave={fetchProgramImages}
         />
       )}
     </div>

@@ -132,10 +132,12 @@ export default function ContactPage() {
                       className="w-full bg-stone-800 border border-stone-700 rounded-lg px-4 py-3 text-stone-200 focus:border-red-500 focus:outline-none transition-colors"
                     >
                       <option value="">Select a program (optional)</option>
+                      <option value="groundwork">Groundwork</option>
+                      <option value="no-reins">No Reins (Women)</option>
+                      <option value="dust-and-leather">Dust & Leather</option>
                       <option value="corporate">Corporate Programs</option>
-                      <option value="personal">Personal Development</option>
                       <option value="mustang">Mustang Immersion</option>
-                      <option value="youth">Youth Programs</option>
+                      <option value="summer-camp">Summer Camp</option>
                       <option value="adoption">Horse Adoption</option>
                       <option value="boarding">Boarding Inquiry</option>
                       <option value="general">General Question</option>
@@ -235,8 +237,8 @@ export default function ContactPage() {
                   <div>
                     <h4 className="font-semibold text-stone-300 mb-1">Do I need horse experience?</h4>
                     <p className="text-stone-500 text-sm">
-                      No! All our EAL activities are on the ground and designed for participants
-                      of all experience levels.
+                      No! All our programs are designed for participants of all experience levels.
+                      Many activities are on the ground and don&apos;t require any prior horse knowledge.
                     </p>
                   </div>
                   <div>

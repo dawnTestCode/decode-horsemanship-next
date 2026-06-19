@@ -166,18 +166,6 @@ export default function NoReinsPage() {
               </ul>
             </section>
 
-            {/* Section 8 — Pull quote (placeholder) */}
-            {/* TODO: Replace with real participant testimonial when available */}
-            {/*
-            <section className="py-8 border-y border-stone-800">
-              <blockquote className="text-xl md:text-2xl font-serif italic text-stone-400">
-                "I came in thinking I needed a break. I left realizing I'd been holding my breath for about a year."
-              </blockquote>
-              <p className="text-stone-600 mt-4">— A participant, fall 2026</p>
-              <p className="text-xs text-stone-700 italic mt-2">Placeholder — to be replaced with a real participant quote.</p>
-            </section>
-            */}
-
             {/* Section 9 — The practical part */}
             <section>
               <h2 className="text-xs font-semibold tracking-[0.2em] text-amber-600 mb-6">THE PRACTICAL PART</h2>
@@ -229,7 +217,7 @@ export default function NoReinsPage() {
                   <p className="font-semibold text-[#f5f0e8]">Dust & Leather</p>
                   <p className="text-stone-500 text-sm">A working ranch day for men, first Saturday of the month.</p>
                 </Link>
-                <Link href="/mustangs" className="block p-4 bg-stone-900/50 rounded-lg border border-stone-800 hover:border-amber-900/50 transition-colors">
+                <Link href="/mustang" className="block p-4 bg-stone-900/50 rounded-lg border border-stone-800 hover:border-amber-900/50 transition-colors">
                   <p className="font-semibold text-[#f5f0e8]">Mustang Immersion</p>
                   <p className="text-stone-500 text-sm">Three days with a mustang, a few times a year.</p>
                 </Link>
@@ -269,7 +257,7 @@ export default function NoReinsPage() {
                         </div>
                         {!isFull && (
                           <Link
-                            href={`/eal/womens-retreat/register?date=${date.start_date}`}
+                            href={`/no-reins/register?date=${date.start_date}`}
                             className="block w-full px-4 py-2.5 bg-amber-700 hover:bg-amber-600 text-white font-medium rounded-lg transition-colors text-center text-sm"
                           >
                             Reserve Your Spot
@@ -283,7 +271,7 @@ export default function NoReinsPage() {
                 <div className="bg-stone-900/50 p-6 rounded-xl border border-stone-800 text-center">
                   <p className="text-stone-500 text-sm mb-4">No upcoming dates scheduled yet.</p>
                   <Link
-                    href="/eal/contact"
+                    href="/contact"
                     className="text-amber-600 hover:text-amber-500 font-medium text-sm inline-flex items-center gap-1"
                   >
                     Get notified
@@ -305,7 +293,7 @@ export default function NoReinsPage() {
               <div className="mt-8 pt-6 border-t border-stone-800">
                 <p className="text-stone-600 text-sm mb-2">Questions?</p>
                 <Link
-                  href="/eal/contact"
+                  href="/contact"
                   className="text-amber-600 hover:text-amber-500 font-medium text-sm inline-flex items-center gap-1"
                 >
                   Get in touch
@@ -325,7 +313,7 @@ export default function NoReinsPage() {
                     <p className="font-semibold text-[#f5f0e8]">Dust & Leather</p>
                     <p className="text-stone-500 text-sm">A working ranch day for men, first Saturday of the month.</p>
                   </Link>
-                  <Link href="/mustangs" className="block p-4 bg-stone-900/50 rounded-lg border border-stone-800 hover:border-amber-900/50 transition-colors">
+                  <Link href="/mustang" className="block p-4 bg-stone-900/50 rounded-lg border border-stone-800 hover:border-amber-900/50 transition-colors">
                     <p className="font-semibold text-[#f5f0e8]">Mustang Immersion</p>
                     <p className="text-stone-500 text-sm">Three days with a mustang, a few times a year.</p>
                   </Link>

@@ -22,13 +22,13 @@ const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {
   const isActive = (path: string) => pathname === path;
 
   const navLinks = [
-    { href: '/eal', label: 'Overview' },
-    { href: '/eal/about', label: 'About Dawn' },
-    { href: '/eal/mustang', label: 'Mustangs' },
-    { href: '/eal/corporate', label: 'Corporate' },
-    { href: '/eal/no-reins', label: 'Women' },
+    { href: '/experiences', label: 'All Experiences' },
+    { href: '/about/dawn', label: 'About Dawn' },
+    { href: '/mustang', label: 'Mustangs' },
+    { href: '/corporate', label: 'Corporate' },
+    { href: '/no-reins', label: 'No Reins' },
     { href: '/summer-camp', label: 'Summer Camp' },
-    { href: '/eal/contact', label: 'Contact' },
+    { href: '/contact', label: 'Contact' },
   ];
 
   return (
@@ -37,11 +37,11 @@ const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {
       <nav className="fixed top-0 left-0 right-0 z-50 bg-black/95 backdrop-blur-sm border-b border-stone-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">
-            <Link href="/eal" className="flex items-center gap-3">
+            <Link href="/experiences" className="flex items-center gap-3">
               <img src={siteConfig.branding.logoUrl} alt="Decode Horsemanship" className="h-12 w-auto" />
               <div className="hidden sm:block">
                 <span className="text-lg font-bold text-stone-100">Decode</span>
-                <span className="block text-xs text-red-500 -mt-1">Equine Assisted Learning</span>
+                <span className="block text-xs text-red-500 -mt-1">Experiences</span>
               </div>
             </Link>
 
@@ -120,7 +120,7 @@ const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {
                 <img src={siteConfig.branding.logoUrl} alt="Decode Horsemanship" className="h-12" />
                 <div>
                   <span className="text-lg font-bold text-stone-100">Decode</span>
-                  <span className="block text-xs text-red-500 -mt-1">Equine Assisted Learning</span>
+                  <span className="block text-xs text-red-500 -mt-1">Experiences</span>
                 </div>
               </div>
               <p className="text-stone-500 text-sm">
@@ -128,20 +128,30 @@ const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {
               </p>
             </div>
             <div>
-              <h4 className="font-semibold text-stone-200 mb-4">Programs</h4>
+              <h4 className="font-semibold text-stone-200 mb-4">Experiences</h4>
               <ul className="space-y-2">
                 <li>
-                  <Link href="/eal/corporate" className="text-stone-500 hover:text-red-500 transition-colors text-sm">
-                    Corporate Programs
+                  <Link href="/experiences" className="text-stone-500 hover:text-red-500 transition-colors text-sm">
+                    All Experiences
                   </Link>
                 </li>
                 <li>
-                  <Link href="/eal/no-reins" className="text-stone-500 hover:text-red-500 transition-colors text-sm">
+                  <Link href="/groundwork" className="text-stone-500 hover:text-red-500 transition-colors text-sm">
+                    Groundwork
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/no-reins" className="text-stone-500 hover:text-red-500 transition-colors text-sm">
                     No Reins (Women)
                   </Link>
                 </li>
                 <li>
-                  <Link href="/eal/mustang" className="text-stone-500 hover:text-red-500 transition-colors text-sm">
+                  <Link href="/corporate" className="text-stone-500 hover:text-red-500 transition-colors text-sm">
+                    Corporate Programs
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/mustang" className="text-stone-500 hover:text-red-500 transition-colors text-sm">
                     Mustang Immersion
                   </Link>
                 </li>
@@ -151,17 +161,12 @@ const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {
               <h4 className="font-semibold text-stone-200 mb-4">Quick Links</h4>
               <ul className="space-y-2">
                 <li>
-                  <Link href="/eal" className="text-stone-500 hover:text-red-500 transition-colors text-sm">
-                    What is EAL?
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/eal/about" className="text-stone-500 hover:text-red-500 transition-colors text-sm">
+                  <Link href="/about/dawn" className="text-stone-500 hover:text-red-500 transition-colors text-sm">
                     About Dawn
                   </Link>
                 </li>
                 <li>
-                  <Link href="/eal/contact" className="text-stone-500 hover:text-red-500 transition-colors text-sm">
+                  <Link href="/contact" className="text-stone-500 hover:text-red-500 transition-colors text-sm">
                     Contact Us
                   </Link>
                 </li>
@@ -179,11 +184,6 @@ const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {
                   >
                     Liability Waiver
                   </a>
-                </li>
-                <li>
-                  <Link href="/groundwork" className="text-stone-500 hover:text-red-500 transition-colors text-sm">
-                    Groundwork
-                  </Link>
                 </li>
               </ul>
             </div>

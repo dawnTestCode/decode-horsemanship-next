@@ -5,7 +5,7 @@ import { X, Loader2 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import ImageDropzone from './ImageDropzone';
 
-export interface EALImage {
+export interface ProgramImage {
   id: string;
   image_key: string;
   title: string;
@@ -18,13 +18,13 @@ export interface EALImage {
   updated_at: string;
 }
 
-interface EALImageFormProps {
-  image: EALImage;
+interface ProgramImageFormProps {
+  image: ProgramImage;
   onClose: () => void;
   onSave: () => void;
 }
 
-const EALImageForm: React.FC<EALImageFormProps> = ({ image, onClose, onSave }) => {
+const ProgramImageForm: React.FC<ProgramImageFormProps> = ({ image, onClose, onSave }) => {
   const isNew = !image.id;
   const [formData, setFormData] = useState({
     image_key: image.image_key,
@@ -100,7 +100,7 @@ const EALImageForm: React.FC<EALImageFormProps> = ({ image, onClose, onSave }) =
         <div className="sticky top-0 bg-stone-900 border-b border-stone-700 p-4 flex items-center justify-between">
           <div>
             <h2 className="text-xl font-bold text-stone-100">
-              {isNew ? 'Add New EAL Image' : 'Edit EAL Image'}
+              {isNew ? 'Add New Program Image' : 'Edit Program Image'}
             </h2>
             {!isNew && <p className="text-sm text-stone-500">{image.image_key}</p>}
           </div>
@@ -227,4 +227,4 @@ const EALImageForm: React.FC<EALImageFormProps> = ({ image, onClose, onSave }) =
   );
 };
 
-export default EALImageForm;
+export default ProgramImageForm;

@@ -39,26 +39,31 @@ export default function Footer({ onSectionClick }: FooterProps) {
             </ul>
           </div>
           <div>
-            <h4 className="font-semibold text-stone-200 mb-4">Programs</h4>
+            <h4 className="font-semibold text-stone-200 mb-4">Experiences</h4>
             <ul className="space-y-2">
+              <li>
+                <Link href="/experiences" className="text-stone-500 hover:text-red-500 transition-colors text-sm">
+                  All Experiences
+                </Link>
+              </li>
               <li>
                 <Link href="/groundwork" className="text-stone-500 hover:text-red-500 transition-colors text-sm">
                   Groundwork
                 </Link>
               </li>
               <li>
-                <Link href="/eal" className="text-stone-500 hover:text-red-500 transition-colors text-sm">
-                  What is EAL?
+                <Link href="/no-reins" className="text-stone-500 hover:text-red-500 transition-colors text-sm">
+                  No Reins (Women)
                 </Link>
               </li>
               <li>
-                <Link href="/eal/corporate" className="text-stone-500 hover:text-red-500 transition-colors text-sm">
+                <Link href="/corporate" className="text-stone-500 hover:text-red-500 transition-colors text-sm">
                   Corporate Programs
                 </Link>
               </li>
               <li>
-                <Link href="/eal/no-reins" className="text-stone-500 hover:text-red-500 transition-colors text-sm">
-                  No Reins (Women)
+                <Link href="/mustang" className="text-stone-500 hover:text-red-500 transition-colors text-sm">
+                  Mustang Immersion
                 </Link>
               </li>
             </ul>

@@ -334,7 +334,7 @@ const ProgramCalendar: React.FC = () => {
             }`}
           >
             <span className="w-2 h-2 rounded-full bg-blue-500" />
-            EAL
+            Workshops
           </button>
           <button
             onClick={() => setFilterType('groundwork')}
@@ -494,7 +494,7 @@ const ProgramCalendar: React.FC = () => {
                   />
                   <span className="text-xs uppercase tracking-wider text-stone-500">
                     {selectedEvent.type === 'eal'
-                      ? `EAL - ${selectedEvent.category}`
+                      ? `Workshop - ${selectedEvent.category}`
                       : selectedEvent.type === 'groundwork'
                       ? 'Groundwork'
                       : selectedEvent.type === 'dustleather'
