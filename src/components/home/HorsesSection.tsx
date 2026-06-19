@@ -349,7 +349,6 @@ export default function HorsesSection({
                         No Photo
                       </div>
                     )}
-                    {getStatusBadge(horse.status)}
                     <button
                       onClick={(e) => {
                         e.preventDefault();
