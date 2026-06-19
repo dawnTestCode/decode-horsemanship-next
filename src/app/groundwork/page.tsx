@@ -61,7 +61,7 @@ export default async function GroundworkPage() {
           </p>
           <div className="space-y-6 text-lg md:text-xl leading-relaxed">
             <p>One day at a working horse farm in Chapel Hill, North Carolina.</p>
-            <p>A small group of men. Four horses. Real food at midday. Home by four.</p>
+            <p>A small group of men. One to four horses. Real food at midday. Home by four.</p>
             <p>No sharing circle. No journaling. No exercises designed to make you cry.</p>
             <p>The horses show you things. Your only job is to notice.</p>
           </div>
