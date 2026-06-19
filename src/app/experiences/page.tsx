@@ -6,16 +6,6 @@ import { useProgramImages } from '@/hooks/useProgramImages';
 
 const programs = [
   {
-    slug: 'groundwork',
-    title: 'Groundwork',
-    tagline: 'For men who want something else',
-    description: 'A day with horses. No riding. No sharing circle. The horses show you things. Your only job is to notice.',
-    href: '/groundwork',
-    icon: Compass,
-    color: 'stone',
-    schedule: 'Second Saturday of each month',
-  },
-  {
     slug: 'no-reins',
     title: 'No Reins',
     tagline: 'A half-day retreat for women',
@@ -24,16 +14,6 @@ const programs = [
     icon: Heart,
     color: 'amber',
     schedule: 'Third Saturday of each month',
-  },
-  {
-    slug: 'dust-and-leather',
-    title: 'Dust & Leather',
-    tagline: 'A working ranch day for men',
-    description: 'Real ranch work alongside the horses. No agenda, no exercises—just a day doing honest work.',
-    href: '/dust-and-leather',
-    icon: Users,
-    color: 'amber',
-    schedule: 'First Saturday of each month',
   },
   {
     slug: 'summer-camp',
@@ -46,16 +26,6 @@ const programs = [
     schedule: 'Weekly sessions, June–August',
   },
   {
-    slug: 'corporate',
-    title: 'Corporate Programs',
-    tagline: 'Team development with horses',
-    description: 'Leadership workshops, team building, and organizational development. Horses respond to the real you—not your title.',
-    href: '/corporate',
-    icon: Building2,
-    color: 'blue',
-    schedule: 'By arrangement',
-  },
-  {
     slug: 'mustang',
     title: 'Mustang Immersion',
     tagline: 'Three days with a wild horse',
@@ -64,6 +34,36 @@ const programs = [
     icon: HelpCircle,
     color: 'red',
     schedule: 'Limited availability',
+  },
+  {
+    slug: 'dust-and-leather',
+    title: 'Dust & Leather',
+    tagline: 'A working ranch day for men',
+    description: 'Real ranch work alongside the horses. No agenda, no exercises—just a day doing honest work.',
+    href: '/dust-and-leather',
+    icon: Users,
+    color: 'amber',
+    schedule: 'First Saturday of each month',
+  },
+  {
+    slug: 'groundwork',
+    title: 'Groundwork',
+    tagline: 'For men who want something else',
+    description: 'A day with horses. No riding. No sharing circle. The horses show you things. Your only job is to notice.',
+    href: '/groundwork',
+    icon: Compass,
+    color: 'stone',
+    schedule: 'Second Saturday of each month',
+  },
+  {
+    slug: 'corporate',
+    title: 'Corporate Programs',
+    tagline: 'Team development with horses',
+    description: 'Leadership workshops, team building, and organizational development. Horses respond to the real you—not your title.',
+    href: '/corporate',
+    icon: Building2,
+    color: 'blue',
+    schedule: 'By arrangement',
   },
 ];
 
