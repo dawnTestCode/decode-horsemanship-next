@@ -109,14 +109,28 @@ async function sendReminderEmail({
           <tr>
             <td style="padding: 8px 0; color: #78716c; font-size: 14px;">Location</td>
             <td style="padding: 8px 0; font-size: 14px; color: #1c1917;">
-              Decode Horsemanship<br>
-              Chapel Hill, NC
+              <a href="https://maps.google.com/?q=1120+Whippoorwill+Ln,+Chapel+Hill,+NC+27517" style="color: #1c1917; text-decoration: underline;">
+                1120 Whippoorwill Ln<br>Chapel Hill, NC 27517
+              </a>
             </td>
           </tr>
         </table>
+        <p style="color: #78716c; font-size: 13px; font-style: italic; margin: 12px 0 0; text-align: center; font-family: Arial, sans-serif;">
+          If you're driving along power lines on the driveway, you're in the right place!
+        </p>
       </div>
 
       ${balanceSection}
+
+      <!-- Before you arrive -->
+      <div style="margin: 32px 0;">
+        <p style="color: #1c1917; font-weight: 600; margin: 0 0 12px; font-family: Arial, sans-serif; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;">
+          Before You Arrive
+        </p>
+        <p style="color: #57534e; font-size: 15px; line-height: 1.6; margin: 0; font-family: Arial, sans-serif;">
+          Please fill out our <a href="https://forms.gle/DszFyex1HKBbLDw6A" style="color: #1c1917; text-decoration: underline;">liability waiver</a> before the first day. It only takes a minute and helps us get started right away!
+        </p>
+      </div>
 
       <!-- What to bring -->
       <div style="margin: 32px 0;">
@@ -134,13 +148,23 @@ async function sendReminderEmail({
         </p>
       </div>
 
-      <!-- Directions -->
-      <div style="background: #fff; border: 1px solid #e7e5e4; border-radius: 8px; padding: 20px; margin: 24px 0;">
-        <p style="margin: 0 0 8px; color: #1c1917; font-weight: 600; font-family: Arial, sans-serif; font-size: 14px;">
-          Getting Here
+      <!-- Getting Through the Gate -->
+      <div style="margin: 32px 0;">
+        <p style="color: #1c1917; font-weight: 600; margin: 0 0 12px; font-family: Arial, sans-serif; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;">
+          Getting Through the Gate
         </p>
-        <p style="margin: 0; color: #57534e; font-size: 14px; font-family: Arial, sans-serif; line-height: 1.6;">
-          Detailed directions will be sent separately. If you have any questions about finding us, just reply to this email.
+        <p style="color: #57534e; font-size: 15px; line-height: 1.6; margin: 0; font-family: Arial, sans-serif;">
+          There's an automatic gate at the entrance. As you approach, you'll see an orange stick on the left side of the driveway. Drive slowly and move over to the left to hit the sensor—the gate will open slowly and close automatically behind you.
+        </p>
+      </div>
+
+      <!-- Finding the Barn -->
+      <div style="margin: 32px 0;">
+        <p style="color: #1c1917; font-weight: 600; margin: 0 0 12px; font-family: Arial, sans-serif; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;">
+          Finding the Barn
+        </p>
+        <p style="color: #57534e; font-size: 15px; line-height: 1.6; margin: 0; font-family: Arial, sans-serif;">
+          Once through the gate, the barn is the first building on your left (big metal building). Park anywhere in the gravel lot, then walk around the right side of the building and come in through the big barn aisle doors.
         </p>
       </div>
 
