@@ -55,15 +55,30 @@ ALTER TABLE groundwork_sessions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE groundwork_registrations ENABLE ROW LEVEL SECURITY;
 
 -- Allow public read of open sessions (for registration form)
-CREATE POLICY "Public can read open sessions" ON groundwork_sessions
-  FOR SELECT USING (status = 'open' AND session_date >= CURRENT_DATE);
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Public can read open sessions' AND tablename = 'groundwork_sessions') THEN
+    CREATE POLICY "Public can read open sessions" ON groundwork_sessions
+      FOR SELECT USING (status = 'open' AND session_date >= CURRENT_DATE);
+  END IF;
+END $$;
 
 -- Allow service role full access
-CREATE POLICY "Service role has full access to sessions" ON groundwork_sessions
-  FOR ALL USING (auth.role() = 'service_role');
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Service role has full access to sessions' AND tablename = 'groundwork_sessions') THEN
+    CREATE POLICY "Service role has full access to sessions" ON groundwork_sessions
+      FOR ALL USING (auth.role() = 'service_role');
+  END IF;
+END $$;
 
-CREATE POLICY "Service role has full access to registrations" ON groundwork_registrations
-  FOR ALL USING (auth.role() = 'service_role');
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Service role has full access to registrations' AND tablename = 'groundwork_registrations') THEN
+    CREATE POLICY "Service role has full access to registrations" ON groundwork_registrations
+      FOR ALL USING (auth.role() = 'service_role');
+  END IF;
+END $$;
 
 -- ─── Add Groundwork and Dust & Leather to programs table ─────────────────────
 -- These entries allow pricing to be managed via Admin → Programs → Programs & Pricing
@@ -107,9 +122,19 @@ ON CONFLICT (slug) DO UPDATE SET
 ALTER TABLE dust_leather_packages ENABLE ROW LEVEL SECURITY;
 
 -- Public read for active packages
-CREATE POLICY "Public can read active packages" ON dust_leather_packages
-  FOR SELECT USING (active = true);
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Public can read active packages' AND tablename = 'dust_leather_packages') THEN
+    CREATE POLICY "Public can read active packages" ON dust_leather_packages
+      FOR SELECT USING (active = true);
+  END IF;
+END $$;
 
 -- Service role full access
-CREATE POLICY "Service role has full access to packages" ON dust_leather_packages
-  FOR ALL USING (auth.role() = 'service_role');
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Service role has full access to packages' AND tablename = 'dust_leather_packages') THEN
+    CREATE POLICY "Service role has full access to packages" ON dust_leather_packages
+      FOR ALL USING (auth.role() = 'service_role');
+  END IF;
+END $$;

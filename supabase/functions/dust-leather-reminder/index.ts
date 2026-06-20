@@ -28,7 +28,7 @@ async function sendReminderEmail({
   booking: {
     name: string;
     email: string;
-    session_date: string;
+    booked_date: string;
     package_type: string;
     party_size: number;
   };
@@ -71,7 +71,7 @@ async function sendReminderEmail({
         ${firstName},
       </p>
       <p style="color: #d6d3d1; font-size: 16px; line-height: 1.7; margin: 0 0 24px;">
-        ${partyNote} are booked for Dust & Leather this Saturday, ${formatDate(booking.session_date)}. Here's what you need to know.
+        ${partyNote} are booked for Dust & Leather this Saturday, ${formatDate(booking.booked_date)}. Here's what you need to know.
       </p>
 
       <!-- When & Where -->
@@ -228,8 +228,8 @@ serve(async (req) => {
     const { data: bookings, error: fetchError } = await supabase
       .from('dust_and_leather_bookings')
       .select('*')
-      .gte('session_date', twoDaysOut.toISOString().split('T')[0])
-      .lte('session_date', fourDaysOut.toISOString().split('T')[0])
+      .gte('booked_date', twoDaysOut.toISOString().split('T')[0])
+      .lte('booked_date', fourDaysOut.toISOString().split('T')[0])
       .eq('status', 'paid')
       .is('reminder_sent_at', null);
 
@@ -266,14 +266,14 @@ serve(async (req) => {
         results.push({
           confirmation_code: booking.confirmation_code,
           name: booking.name,
-          session_date: booking.session_date,
+          booked_date: booking.booked_date,
           status: 'sent',
         });
       } catch (err: any) {
         results.push({
           confirmation_code: booking.confirmation_code,
           name: booking.name,
-          session_date: booking.session_date,
+          booked_date: booking.booked_date,
           status: 'failed',
           error: err.message,
         });

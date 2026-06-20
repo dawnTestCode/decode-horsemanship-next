@@ -18,19 +18,29 @@ CREATE INDEX IF NOT EXISTS idx_dust_leather_sessions_status ON dust_and_leather_
 ALTER TABLE dust_and_leather_sessions ENABLE ROW LEVEL SECURITY;
 
 -- Allow service role full access to sessions
-CREATE POLICY "Service role has full access to dust and leather sessions" ON dust_and_leather_sessions
-  FOR ALL USING (auth.role() = 'service_role');
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Service role has full access to dust and leather sessions' AND tablename = 'dust_and_leather_sessions') THEN
+    CREATE POLICY "Service role has full access to dust and leather sessions" ON dust_and_leather_sessions
+      FOR ALL USING (auth.role() = 'service_role');
+  END IF;
+END $$;
 
 -- Allow anonymous read access to open sessions (for registration page)
-CREATE POLICY "Anyone can view open dust and leather sessions" ON dust_and_leather_sessions
-  FOR SELECT USING (status = 'open');
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Anyone can view open dust and leather sessions' AND tablename = 'dust_and_leather_sessions') THEN
+    CREATE POLICY "Anyone can view open dust and leather sessions" ON dust_and_leather_sessions
+      FOR SELECT USING (status = 'open');
+  END IF;
+END $$;
 
 
 -- Dust & Leather Bookings table (registrations)
 CREATE TABLE IF NOT EXISTS dust_and_leather_bookings (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   session_id UUID REFERENCES dust_and_leather_sessions(id) ON DELETE SET NULL,
-  session_date DATE NOT NULL,
+  booked_date DATE NOT NULL,
   confirmation_code TEXT NOT NULL UNIQUE,
   name TEXT NOT NULL,
   email TEXT NOT NULL,
@@ -54,14 +64,19 @@ CREATE INDEX IF NOT EXISTS idx_dust_leather_bookings_email ON dust_and_leather_b
 CREATE INDEX IF NOT EXISTS idx_dust_leather_bookings_confirmation ON dust_and_leather_bookings(confirmation_code);
 CREATE INDEX IF NOT EXISTS idx_dust_leather_bookings_status ON dust_and_leather_bookings(status);
 CREATE INDEX IF NOT EXISTS idx_dust_leather_bookings_session ON dust_and_leather_bookings(session_id);
-CREATE INDEX IF NOT EXISTS idx_dust_leather_bookings_date ON dust_and_leather_bookings(session_date);
+CREATE INDEX IF NOT EXISTS idx_dust_leather_bookings_date ON dust_and_leather_bookings(booked_date);
 
 -- Enable RLS for bookings
 ALTER TABLE dust_and_leather_bookings ENABLE ROW LEVEL SECURITY;
 
 -- Allow service role full access to bookings
-CREATE POLICY "Service role has full access to dust and leather bookings" ON dust_and_leather_bookings
-  FOR ALL USING (auth.role() = 'service_role');
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Service role has full access to dust and leather bookings' AND tablename = 'dust_and_leather_bookings') THEN
+    CREATE POLICY "Service role has full access to dust and leather bookings" ON dust_and_leather_bookings
+      FOR ALL USING (auth.role() = 'service_role');
+  END IF;
+END $$;
 
 
 -- Function to increment enrolled count and auto-update status
