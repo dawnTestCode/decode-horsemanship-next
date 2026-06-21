@@ -2,8 +2,12 @@
 CREATE EXTENSION IF NOT EXISTS pg_cron;
 CREATE EXTENSION IF NOT EXISTS pg_net;
 
--- Schedule reminder functions to run daily at 9am ET (13:00 UTC, or 14:00 UTC during DST)
--- Using 13:00 UTC which is 9am EDT / 8am EST
+-- Schedule reminder functions to run daily at 9am ET (13:00 UTC)
+-- These call edge functions which handle the actual email sending
+--
+-- SETUP REQUIRED: Add these secrets to Supabase Vault (Database → Vault → Secrets):
+--   1. supabase_url: Your project URL (e.g., https://xxxxx.supabase.co)
+--   2. service_role_key: Your service role key (from Project Settings → API)
 
 -- No Reins reminder (sends 2-4 days before Saturday workshops)
 SELECT cron.unschedule('no-reins-reminder') WHERE EXISTS (
