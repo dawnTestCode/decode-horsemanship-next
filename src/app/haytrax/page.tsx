@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
-import { ChevronLeft, Package, Minus, Plus, Check, X, Circle } from 'lucide-react';
+import { ChevronLeft, Package, Minus, Plus, Check, X, Circle, Calendar } from 'lucide-react';
 
 type View = 'main' | 'bought' | 'used';
 type BaleType = 'round' | 'square';
@@ -85,6 +85,34 @@ function getHayTypeLabel(hayType: HayType | null): string {
   return type ? type.label : hayType;
 }
 
+function getLastSevenDays(): { date: Date; label: string; value: string }[] {
+  const days = [];
+  const today = new Date();
+
+  for (let i = 0; i < 7; i++) {
+    const date = new Date(today);
+    date.setDate(today.getDate() - i);
+    date.setHours(12, 0, 0, 0); // Set to noon to avoid timezone issues
+
+    let label: string;
+    if (i === 0) {
+      label = 'Today';
+    } else if (i === 1) {
+      label = 'Yesterday';
+    } else {
+      label = date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+    }
+
+    days.push({
+      date,
+      label,
+      value: date.toISOString(),
+    });
+  }
+
+  return days;
+}
+
 export default function HayTraxPage() {
   const [view, setView] = useState<View>('main');
   const [inventory, setInventory] = useState<Inventory>({
@@ -101,11 +129,15 @@ export default function HayTraxPage() {
   const [buyBaleType, setBuyBaleType] = useState<BaleType | null>(null);
   const [buyHayType, setBuyHayType] = useState<HayType | null>(null);
   const [buyQuantity, setBuyQuantity] = useState(1);
+  const [buyDate, setBuyDate] = useState<string | null>(null); // null = today
+  const [showBuyDatePicker, setShowBuyDatePicker] = useState(false);
 
   // For using hay
   const [useBaleType, setUseBaleType] = useState<BaleType | null>(null);
   const [useHayType, setUseHayType] = useState<HayType | null>(null);
   const [useLocation, setUseLocation] = useState('');
+  const [useDate, setUseDate] = useState<string | null>(null); // null = today
+  const [showUseDatePicker, setShowUseDatePicker] = useState(false);
 
   const fetchData = useCallback(async () => {
     try {
@@ -164,9 +196,13 @@ export default function HayTraxPage() {
     setBuyBaleType(null);
     setBuyHayType(null);
     setBuyQuantity(1);
+    setBuyDate(null);
+    setShowBuyDatePicker(false);
     setUseBaleType(null);
     setUseHayType(null);
     setUseLocation('');
+    setUseDate(null);
+    setShowUseDatePicker(false);
     setError(null);
     setSuccess(null);
   };
@@ -188,6 +224,7 @@ export default function HayTraxPage() {
         p_bale_type: buyBaleType,
         p_quantity: buyQuantity,
         p_hay_type: buyBaleType === 'square' ? buyHayType : null,
+        p_transaction_date: buyDate,
       });
 
       if (error) throw error;
@@ -221,6 +258,7 @@ export default function HayTraxPage() {
         p_quantity: 1,
         p_usage_location: useLocation,
         p_hay_type: useBaleType === 'square' ? useHayType : null,
+        p_transaction_date: useDate,
       });
 
       if (error) throw error;
@@ -455,6 +493,45 @@ export default function HayTraxPage() {
               </div>
             )}
 
+            {/* Date picker */}
+            {buyBaleType && (buyBaleType === 'round' || buyHayType) && (
+              <div className="space-y-2">
+                <button
+                  onClick={() => setShowBuyDatePicker(!showBuyDatePicker)}
+                  className="flex items-center gap-2 text-sm text-amber-700 hover:text-amber-900 transition-colors"
+                >
+                  <Calendar size={16} />
+                  <span>
+                    {buyDate
+                      ? getLastSevenDays().find(d => d.value === buyDate)?.label || 'Selected date'
+                      : 'Today'}
+                  </span>
+                  <span className="text-amber-500">(tap to change)</span>
+                </button>
+
+                {showBuyDatePicker && (
+                  <div className="flex flex-wrap gap-2">
+                    {getLastSevenDays().map((day) => (
+                      <button
+                        key={day.value}
+                        onClick={() => {
+                          setBuyDate(day.label === 'Today' ? null : day.value);
+                          setShowBuyDatePicker(false);
+                        }}
+                        className={`px-3 py-1.5 text-sm rounded-lg border transition-all ${
+                          (buyDate === day.value || (buyDate === null && day.label === 'Today'))
+                            ? 'border-amber-700 bg-amber-100 text-amber-900'
+                            : 'border-amber-200 bg-white text-amber-700 hover:border-amber-400'
+                        }`}
+                      >
+                        {day.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* Submit button */}
             {buyBaleType && (buyBaleType === 'round' || buyHayType) && (
               <button
@@ -603,6 +680,45 @@ export default function HayTraxPage() {
                     </button>
                   ))}
                 </div>
+              </div>
+            )}
+
+            {/* Date picker */}
+            {useBaleType && useLocation && (useBaleType === 'round' || useHayType) && (
+              <div className="space-y-2">
+                <button
+                  onClick={() => setShowUseDatePicker(!showUseDatePicker)}
+                  className="flex items-center gap-2 text-sm text-amber-700 hover:text-amber-900 transition-colors"
+                >
+                  <Calendar size={16} />
+                  <span>
+                    {useDate
+                      ? getLastSevenDays().find(d => d.value === useDate)?.label || 'Selected date'
+                      : 'Today'}
+                  </span>
+                  <span className="text-amber-500">(tap to change)</span>
+                </button>
+
+                {showUseDatePicker && (
+                  <div className="flex flex-wrap gap-2">
+                    {getLastSevenDays().map((day) => (
+                      <button
+                        key={day.value}
+                        onClick={() => {
+                          setUseDate(day.label === 'Today' ? null : day.value);
+                          setShowUseDatePicker(false);
+                        }}
+                        className={`px-3 py-1.5 text-sm rounded-lg border transition-all ${
+                          (useDate === day.value || (useDate === null && day.label === 'Today'))
+                            ? 'border-amber-700 bg-amber-100 text-amber-900'
+                            : 'border-amber-200 bg-white text-amber-700 hover:border-amber-400'
+                        }`}
+                      >
+                        {day.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
 
