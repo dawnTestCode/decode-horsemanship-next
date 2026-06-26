@@ -155,8 +155,8 @@ export default function HayTraxPage() {
   return (
     <div className="min-h-screen bg-amber-50">
       {/* Header with inventory */}
-      <header className="bg-amber-900 text-amber-50 px-4 py-6">
-        <h1 className="text-2xl font-bold text-center mb-4">Hay Trax</h1>
+      <header className="bg-amber-900 text-amber-50 px-4 pb-6 pt-6" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 1.5rem)' }}>
+        <h1 className="text-2xl font-bold text-center mb-4">HayTrax</h1>
         <div className="flex justify-center gap-8">
           <div className="text-center">
             <div className="text-4xl font-bold">{inventory.round}</div>

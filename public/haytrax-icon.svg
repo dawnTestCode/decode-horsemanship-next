@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180">
+  <!-- Background -->
+  <rect width="180" height="180" rx="40" fill="#78350f"/>
+
+  <!-- Hay bale (round) - stylized -->
+  <ellipse cx="90" cy="100" rx="55" ry="45" fill="#fbbf24"/>
+  <ellipse cx="90" cy="100" rx="55" ry="45" fill="none" stroke="#92400e" stroke-width="3"/>
+
+  <!-- Hay texture lines -->
+  <path d="M45 85 Q90 75 135 85" stroke="#d97706" stroke-width="2" fill="none"/>
+  <path d="M40 100 Q90 90 140 100" stroke="#d97706" stroke-width="2" fill="none"/>
+  <path d="M45 115 Q90 105 135 115" stroke="#d97706" stroke-width="2" fill="none"/>
+
+  <!-- Binding straps -->
+  <rect x="55" y="60" width="8" height="80" rx="2" fill="#451a03"/>
+  <rect x="117" y="60" width="8" height="80" rx="2" fill="#451a03"/>
+
+  <!-- Small decorative hay wisps on top -->
+  <path d="M70 55 Q75 45 80 55" stroke="#fbbf24" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <path d="M95 50 Q100 38 105 50" stroke="#fbbf24" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <path d="M85 52 Q88 42 92 52" stroke="#d97706" stroke-width="2" fill="none" stroke-linecap="round"/>
+</svg>
