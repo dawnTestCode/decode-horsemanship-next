@@ -19,19 +19,31 @@ interface Inventory {
 }
 
 const ROUND_BALE_FIELDS = [
-  'Front Field',
-  'Back Field',
-  'Side Pasture',
-  'Barn Lot',
-  'Quarantine',
+  'Field 1',
+  'Field 2',
+  'Field 3',
+  'Field 4',
+  'Field 5',
+  'Field 6',
+  'Field 7',
+  'Field 8',
+  'Field 9',
+  'Field 10',
+  'Barn',
 ];
 
 const SQUARE_BALE_USES = [
   'Horse stalls',
-  'Goats',
-  'Chickens',
-  'Bedding',
-  'Other',
+  'Pregnant mare(s)',
+  'Field 2',
+  'Field 3',
+  'Field 4',
+  'Field 5',
+  'Field 6',
+  'Field 7',
+  'Field 8',
+  'Field 9',
+  'Field 10',
 ];
 
 const HAY_TYPES: { value: HayType; label: string }[] = [
