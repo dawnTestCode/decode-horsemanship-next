@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { supabase } from '@/lib/supabase';
-import { ChevronLeft, Package, Minus, Plus, Check, X, Circle, Calendar } from 'lucide-react';
+import { ChevronLeft, Package, Minus, Plus, Check, X, Circle, Calendar, BarChart3 } from 'lucide-react';
+import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip } from 'recharts';
 
-type View = 'main' | 'bought' | 'used';
+type View = 'main' | 'bought' | 'used' | 'stats';
 type BaleType = 'round' | 'square';
 type HayType = 'fescue' | 'fescue-free' | 'alfalfa';
 
@@ -120,6 +121,7 @@ export default function HayTraxPage() {
     square: { fescue: 0, 'fescue-free': 0, alfalfa: 0, total: 0 },
   });
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [allTransactions, setAllTransactions] = useState<Transaction[]>([]); // 3 months for stats
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -167,7 +169,7 @@ export default function HayTraxPage() {
 
       setInventory(inv);
 
-      // Fetch recent transactions (last 30 days)
+      // Fetch recent transactions (last 30 days for activity list)
       const thirtyDaysAgo = new Date();
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
@@ -180,6 +182,20 @@ export default function HayTraxPage() {
       if (txError) throw txError;
 
       setTransactions(txData as Transaction[] || []);
+
+      // Fetch 3 months of transactions for stats
+      const threeMonthsAgo = new Date();
+      threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+
+      const { data: allTxData, error: allTxError } = await supabase
+        .from('hay_transactions')
+        .select('id, bale_type, hay_type, transaction_type, quantity, usage_location, created_at')
+        .gte('created_at', threeMonthsAgo.toISOString())
+        .order('created_at', { ascending: true });
+
+      if (allTxError) throw allTxError;
+
+      setAllTransactions(allTxData as Transaction[] || []);
     } catch (err) {
       console.error('Error fetching data:', err);
       setError('Failed to load data');
@@ -283,6 +299,82 @@ export default function HayTraxPage() {
     }
   };
 
+  // Compute stats from 3 months of data
+  const stats = useMemo(() => {
+    const now = new Date();
+    const threeMonthsAgo = new Date();
+    threeMonthsAgo.setMonth(now.getMonth() - 3);
+
+    // Filter to only usage transactions
+    const usageTransactions = allTransactions.filter(tx => tx.transaction_type === 'used');
+
+    // Count usage by bale type
+    const roundUsed = usageTransactions
+      .filter(tx => tx.bale_type === 'round')
+      .reduce((sum, tx) => sum + tx.quantity, 0);
+
+    const squareUsed = usageTransactions
+      .filter(tx => tx.bale_type === 'square')
+      .reduce((sum, tx) => sum + tx.quantity, 0);
+
+    // Calculate days in the period
+    const oldestTx = allTransactions[0];
+    const daysInPeriod = oldestTx
+      ? Math.max(1, Math.ceil((now.getTime() - new Date(oldestTx.created_at).getTime()) / (1000 * 60 * 60 * 24)))
+      : 90;
+
+    // Daily usage rates
+    const roundPerDay = roundUsed / daysInPeriod;
+    const squarePerDay = squareUsed / daysInPeriod;
+
+    // Days until empty (runway)
+    const roundRunway = roundPerDay > 0 ? Math.floor(inventory.round / roundPerDay) : Infinity;
+    const squareRunway = squarePerDay > 0 ? Math.floor(inventory.square.total / squarePerDay) : Infinity;
+
+    // Weekly data for chart (group by week)
+    const weeklyData: { week: string; round: number; square: number }[] = [];
+    const weekMap = new Map<string, { round: number; square: number }>();
+
+    usageTransactions.forEach(tx => {
+      const date = new Date(tx.created_at);
+      // Get start of week (Sunday)
+      const startOfWeek = new Date(date);
+      startOfWeek.setDate(date.getDate() - date.getDay());
+      const weekKey = startOfWeek.toISOString().split('T')[0];
+
+      if (!weekMap.has(weekKey)) {
+        weekMap.set(weekKey, { round: 0, square: 0 });
+      }
+
+      const week = weekMap.get(weekKey)!;
+      if (tx.bale_type === 'round') {
+        week.round += tx.quantity;
+      } else {
+        week.square += tx.quantity;
+      }
+    });
+
+    // Convert to array and sort
+    Array.from(weekMap.entries())
+      .sort(([a], [b]) => a.localeCompare(b))
+      .forEach(([weekKey, data]) => {
+        const date = new Date(weekKey);
+        const label = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        weeklyData.push({ week: label, ...data });
+      });
+
+    return {
+      roundUsed,
+      squareUsed,
+      roundPerDay,
+      squarePerDay,
+      roundRunway,
+      squareRunway,
+      weeklyData,
+      daysInPeriod,
+    };
+  }, [allTransactions, inventory]);
+
   if (loading) {
     return (
       <div className="min-h-screen bg-amber-50 flex items-center justify-center">
@@ -343,6 +435,14 @@ export default function HayTraxPage() {
             >
               <Plus size={24} />
               Bought Hay
+            </button>
+
+            <button
+              onClick={() => setView('stats')}
+              className="w-full py-4 px-6 bg-white hover:bg-amber-50 text-amber-700 border-2 border-amber-300 text-lg font-semibold rounded-xl shadow transition-colors flex items-center justify-center gap-3"
+            >
+              <BarChart3 size={20} />
+              View Stats
             </button>
 
             {/* Recent Activity */}
@@ -731,6 +831,154 @@ export default function HayTraxPage() {
               >
                 {submitting ? 'Saving...' : `Use 1 ${useBaleType} bale`}
               </button>
+            )}
+          </div>
+        )}
+
+        {/* Stats view */}
+        {view === 'stats' && (
+          <div className="space-y-6">
+            <button
+              onClick={handleBack}
+              className="flex items-center gap-2 text-amber-700 hover:text-amber-900 transition-colors"
+            >
+              <ChevronLeft size={20} />
+              Back
+            </button>
+
+            <h2 className="text-xl font-semibold text-amber-900">Usage Stats</h2>
+
+            {/* 3-month totals */}
+            <div className="bg-white rounded-xl border border-amber-200 p-4">
+              <h3 className="text-sm font-medium text-amber-600 mb-3">
+                Last {stats.daysInPeriod} days
+              </h3>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <div className="text-3xl font-bold text-amber-900">{stats.roundUsed}</div>
+                  <div className="text-sm text-amber-600">Round bales used</div>
+                  <div className="text-xs text-amber-500 mt-1">
+                    ~{stats.roundPerDay.toFixed(1)}/day
+                  </div>
+                </div>
+                <div>
+                  <div className="text-3xl font-bold text-amber-900">{stats.squareUsed}</div>
+                  <div className="text-sm text-amber-600">Square bales used</div>
+                  <div className="text-xs text-amber-500 mt-1">
+                    ~{stats.squarePerDay.toFixed(1)}/day
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Runway projections */}
+            <div className="bg-white rounded-xl border border-amber-200 p-4">
+              <h3 className="text-sm font-medium text-amber-600 mb-3">
+                Runway (at current usage)
+              </h3>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <div className={`text-2xl font-bold ${
+                    stats.roundRunway <= 7 ? 'text-red-600' :
+                    stats.roundRunway <= 14 ? 'text-amber-600' :
+                    'text-green-600'
+                  }`}>
+                    {stats.roundRunway === Infinity ? '—' :
+                      stats.roundRunway <= 1 ? '<1 day' :
+                      stats.roundRunway < 7 ? `${stats.roundRunway} days` :
+                      `${Math.floor(stats.roundRunway / 7)} weeks`}
+                  </div>
+                  <div className="text-sm text-amber-600">Round bales</div>
+                  <div className="text-xs text-amber-500 mt-1">
+                    {inventory.round} in stock
+                  </div>
+                </div>
+                <div>
+                  <div className={`text-2xl font-bold ${
+                    stats.squareRunway <= 7 ? 'text-red-600' :
+                    stats.squareRunway <= 14 ? 'text-amber-600' :
+                    'text-green-600'
+                  }`}>
+                    {stats.squareRunway === Infinity ? '—' :
+                      stats.squareRunway <= 1 ? '<1 day' :
+                      stats.squareRunway < 7 ? `${stats.squareRunway} days` :
+                      `${Math.floor(stats.squareRunway / 7)} weeks`}
+                  </div>
+                  <div className="text-sm text-amber-600">Square bales</div>
+                  <div className="text-xs text-amber-500 mt-1">
+                    {inventory.square.total} in stock
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Weekly usage chart */}
+            {stats.weeklyData.length > 0 && (
+              <div className="bg-white rounded-xl border border-amber-200 p-4">
+                <h3 className="text-sm font-medium text-amber-600 mb-3">
+                  Weekly Usage Trend
+                </h3>
+                <div className="h-48">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={stats.weeklyData} margin={{ top: 5, right: 5, bottom: 5, left: -20 }}>
+                      <XAxis
+                        dataKey="week"
+                        tick={{ fontSize: 10, fill: '#92400e' }}
+                        tickLine={false}
+                        axisLine={{ stroke: '#fbbf24' }}
+                      />
+                      <YAxis
+                        tick={{ fontSize: 10, fill: '#92400e' }}
+                        tickLine={false}
+                        axisLine={{ stroke: '#fbbf24' }}
+                        allowDecimals={false}
+                      />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: '#fffbeb',
+                          border: '1px solid #fbbf24',
+                          borderRadius: '8px',
+                          fontSize: '12px',
+                        }}
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="round"
+                        stroke="#b45309"
+                        strokeWidth={2}
+                        dot={{ fill: '#b45309', strokeWidth: 0, r: 3 }}
+                        name="Round"
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="square"
+                        stroke="#d97706"
+                        strokeWidth={2}
+                        dot={{ fill: '#d97706', strokeWidth: 0, r: 3 }}
+                        name="Square"
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+                <div className="flex justify-center gap-6 mt-2">
+                  <div className="flex items-center gap-2 text-xs text-amber-700">
+                    <div className="w-3 h-3 rounded-full bg-amber-700" />
+                    Round
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-amber-600">
+                    <div className="w-3 h-3 rounded-full bg-amber-500" />
+                    Square
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {stats.weeklyData.length === 0 && (
+              <div className="bg-white rounded-xl border border-amber-200 p-6 text-center text-amber-600">
+                Not enough data yet for usage trends.
+                <br />
+                <span className="text-sm text-amber-500">Check back after recording more activity.</span>
+              </div>
             )}
           </div>
         )}
