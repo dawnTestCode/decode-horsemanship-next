@@ -2,14 +2,20 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
-import { ChevronLeft, Package, Minus, Plus, Check, X } from 'lucide-react';
+import { ChevronLeft, Package, Minus, Plus, Check, X, Circle } from 'lucide-react';
 
 type View = 'main' | 'bought' | 'used';
 type BaleType = 'round' | 'square';
+type HayType = 'fescue' | 'fescue-free' | 'alfalfa';
 
 interface Inventory {
   round: number;
-  square: number;
+  square: {
+    fescue: number;
+    'fescue-free': number;
+    alfalfa: number;
+    total: number;
+  };
 }
 
 const ROUND_BALE_FIELDS = [
@@ -28,9 +34,18 @@ const SQUARE_BALE_USES = [
   'Other',
 ];
 
+const HAY_TYPES: { value: HayType; label: string }[] = [
+  { value: 'fescue', label: 'Fescue' },
+  { value: 'fescue-free', label: 'Fescue-Free' },
+  { value: 'alfalfa', label: 'Alfalfa' },
+];
+
 export default function HayTraxPage() {
   const [view, setView] = useState<View>('main');
-  const [inventory, setInventory] = useState<Inventory>({ round: 0, square: 0 });
+  const [inventory, setInventory] = useState<Inventory>({
+    round: 0,
+    square: { fescue: 0, 'fescue-free': 0, alfalfa: 0, total: 0 },
+  });
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -38,26 +53,39 @@ export default function HayTraxPage() {
 
   // For buying hay
   const [buyBaleType, setBuyBaleType] = useState<BaleType | null>(null);
+  const [buyHayType, setBuyHayType] = useState<HayType | null>(null);
   const [buyQuantity, setBuyQuantity] = useState(1);
 
   // For using hay
   const [useBaleType, setUseBaleType] = useState<BaleType | null>(null);
+  const [useHayType, setUseHayType] = useState<HayType | null>(null);
   const [useLocation, setUseLocation] = useState('');
 
   const fetchInventory = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from('hay_inventory')
-        .select('bale_type, quantity');
+        .select('bale_type, hay_type, quantity');
 
       if (error) throw error;
 
-      const inv: Inventory = { round: 0, square: 0 };
-      data?.forEach((row: { bale_type: string; quantity: number }) => {
-        if (row.bale_type === 'round' || row.bale_type === 'square') {
-          inv[row.bale_type] = row.quantity;
+      const inv: Inventory = {
+        round: 0,
+        square: { fescue: 0, 'fescue-free': 0, alfalfa: 0, total: 0 },
+      };
+
+      data?.forEach((row: { bale_type: string; hay_type: string | null; quantity: number }) => {
+        if (row.bale_type === 'round') {
+          inv.round = row.quantity;
+        } else if (row.bale_type === 'square' && row.hay_type) {
+          const hayType = row.hay_type as HayType;
+          if (hayType in inv.square) {
+            inv.square[hayType] = row.quantity;
+            inv.square.total += row.quantity;
+          }
         }
       });
+
       setInventory(inv);
     } catch (err) {
       console.error('Error fetching inventory:', err);
@@ -73,8 +101,10 @@ export default function HayTraxPage() {
 
   const resetState = () => {
     setBuyBaleType(null);
+    setBuyHayType(null);
     setBuyQuantity(1);
     setUseBaleType(null);
+    setUseHayType(null);
     setUseLocation('');
     setError(null);
     setSuccess(null);
@@ -87,6 +117,7 @@ export default function HayTraxPage() {
 
   const handleBuyHay = async () => {
     if (!buyBaleType || buyQuantity < 1) return;
+    if (buyBaleType === 'square' && !buyHayType) return;
 
     setSubmitting(true);
     setError(null);
@@ -95,11 +126,15 @@ export default function HayTraxPage() {
       const { error } = await supabase.rpc('record_hay_purchase', {
         p_bale_type: buyBaleType,
         p_quantity: buyQuantity,
+        p_hay_type: buyBaleType === 'square' ? buyHayType : null,
       });
 
       if (error) throw error;
 
-      setSuccess(`Added ${buyQuantity} ${buyBaleType} bale${buyQuantity > 1 ? 's' : ''}`);
+      const typeLabel = buyBaleType === 'square' && buyHayType
+        ? `${HAY_TYPES.find(t => t.value === buyHayType)?.label} `
+        : '';
+      setSuccess(`Added ${buyQuantity} ${typeLabel}${buyBaleType} bale${buyQuantity > 1 ? 's' : ''}`);
       await fetchInventory();
       setTimeout(() => {
         handleBack();
@@ -114,6 +149,7 @@ export default function HayTraxPage() {
 
   const handleUseHay = async () => {
     if (!useBaleType || !useLocation) return;
+    if (useBaleType === 'square' && !useHayType) return;
 
     setSubmitting(true);
     setError(null);
@@ -123,11 +159,15 @@ export default function HayTraxPage() {
         p_bale_type: useBaleType,
         p_quantity: 1,
         p_usage_location: useLocation,
+        p_hay_type: useBaleType === 'square' ? useHayType : null,
       });
 
       if (error) throw error;
 
-      setSuccess(`Used 1 ${useBaleType} bale for ${useLocation}`);
+      const typeLabel = useBaleType === 'square' && useHayType
+        ? `${HAY_TYPES.find(t => t.value === useHayType)?.label} `
+        : '';
+      setSuccess(`Used 1 ${typeLabel}${useBaleType} bale for ${useLocation}`);
       await fetchInventory();
       setTimeout(() => {
         handleBack();
@@ -157,15 +197,18 @@ export default function HayTraxPage() {
       {/* Header with inventory */}
       <header className="bg-amber-900 text-amber-50 px-4 pb-6 pt-6" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 1.5rem)' }}>
         <h1 className="text-2xl font-bold text-center mb-4">HayTrax</h1>
-        <div className="flex justify-center gap-8">
+        <div className="flex justify-center gap-6">
           <div className="text-center">
             <div className="text-4xl font-bold">{inventory.round}</div>
-            <div className="text-amber-200 text-sm">Round Bales</div>
+            <div className="text-amber-200 text-sm">Round</div>
           </div>
           <div className="w-px bg-amber-700" />
           <div className="text-center">
-            <div className="text-4xl font-bold">{inventory.square}</div>
-            <div className="text-amber-200 text-sm">Square Bales</div>
+            <div className="text-4xl font-bold">{inventory.square.total}</div>
+            <div className="text-amber-200 text-sm">Square</div>
+            <div className="text-amber-300 text-xs mt-1">
+              {inventory.square.fescue}F / {inventory.square['fescue-free']}FF / {inventory.square.alfalfa}A
+            </div>
           </div>
         </div>
       </header>
@@ -221,18 +264,24 @@ export default function HayTraxPage() {
             {/* Bale type selection */}
             <div className="grid grid-cols-2 gap-4">
               <button
-                onClick={() => setBuyBaleType('round')}
+                onClick={() => {
+                  setBuyBaleType('round');
+                  setBuyHayType(null);
+                }}
                 className={`p-6 rounded-xl border-2 transition-all ${
                   buyBaleType === 'round'
                     ? 'border-amber-700 bg-amber-100'
                     : 'border-amber-200 bg-white hover:border-amber-400'
                 }`}
               >
-                <Package size={32} className="mx-auto mb-2 text-amber-700" />
+                <Circle size={32} className="mx-auto mb-2 text-amber-700" />
                 <div className="font-semibold text-amber-900">Round</div>
               </button>
               <button
-                onClick={() => setBuyBaleType('square')}
+                onClick={() => {
+                  setBuyBaleType('square');
+                  setBuyHayType(null);
+                }}
                 className={`p-6 rounded-xl border-2 transition-all ${
                   buyBaleType === 'square'
                     ? 'border-amber-700 bg-amber-100'
@@ -244,11 +293,33 @@ export default function HayTraxPage() {
               </button>
             </div>
 
+            {/* Hay type selection for square bales */}
+            {buyBaleType === 'square' && (
+              <div className="space-y-3">
+                <label className="block text-amber-900 font-medium">What type of hay?</label>
+                <div className="space-y-2">
+                  {HAY_TYPES.map((type) => (
+                    <button
+                      key={type.value}
+                      onClick={() => setBuyHayType(type.value)}
+                      className={`w-full py-3 px-4 rounded-lg border-2 text-left transition-all ${
+                        buyHayType === type.value
+                          ? 'border-amber-700 bg-amber-100 text-amber-900'
+                          : 'border-amber-200 bg-white text-amber-800 hover:border-amber-400'
+                      }`}
+                    >
+                      {type.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Quantity input */}
-            {buyBaleType && (
+            {buyBaleType && (buyBaleType === 'round' || buyHayType) && (
               <div className="space-y-3">
                 <label className="block text-amber-900 font-medium">
-                  How many {buyBaleType} bales?
+                  How many bales?
                 </label>
                 <div className="flex items-center justify-center gap-4">
                   <button
@@ -275,13 +346,13 @@ export default function HayTraxPage() {
             )}
 
             {/* Submit button */}
-            {buyBaleType && (
+            {buyBaleType && (buyBaleType === 'round' || buyHayType) && (
               <button
                 onClick={handleBuyHay}
                 disabled={submitting}
                 className="w-full py-4 bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white text-lg font-semibold rounded-xl shadow-lg transition-colors"
               >
-                {submitting ? 'Saving...' : `Add ${buyQuantity} ${buyBaleType} bale${buyQuantity > 1 ? 's' : ''}`}
+                {submitting ? 'Saving...' : `Add ${buyQuantity} bale${buyQuantity > 1 ? 's' : ''}`}
               </button>
             )}
           </div>
@@ -305,6 +376,7 @@ export default function HayTraxPage() {
               <button
                 onClick={() => {
                   setUseBaleType('round');
+                  setUseHayType(null);
                   setUseLocation('');
                 }}
                 disabled={inventory.round === 0}
@@ -316,7 +388,7 @@ export default function HayTraxPage() {
                     : 'border-amber-200 bg-white hover:border-amber-400'
                 }`}
               >
-                <Package size={32} className={`mx-auto mb-2 ${inventory.round === 0 ? 'text-gray-400' : 'text-amber-700'}`} />
+                <Circle size={32} className={`mx-auto mb-2 ${inventory.round === 0 ? 'text-gray-400' : 'text-amber-700'}`} />
                 <div className={`font-semibold ${inventory.round === 0 ? 'text-gray-500' : 'text-amber-900'}`}>Round</div>
                 <div className={`text-sm ${inventory.round === 0 ? 'text-gray-400' : 'text-amber-600'}`}>
                   {inventory.round} left
@@ -325,26 +397,62 @@ export default function HayTraxPage() {
               <button
                 onClick={() => {
                   setUseBaleType('square');
+                  setUseHayType(null);
                   setUseLocation('');
                 }}
-                disabled={inventory.square === 0}
+                disabled={inventory.square.total === 0}
                 className={`p-6 rounded-xl border-2 transition-all ${
                   useBaleType === 'square'
                     ? 'border-amber-700 bg-amber-100'
-                    : inventory.square === 0
+                    : inventory.square.total === 0
                     ? 'border-gray-200 bg-gray-100 opacity-50 cursor-not-allowed'
                     : 'border-amber-200 bg-white hover:border-amber-400'
                 }`}
               >
-                <Package size={32} className={`mx-auto mb-2 ${inventory.square === 0 ? 'text-gray-400' : 'text-amber-700'}`} />
-                <div className={`font-semibold ${inventory.square === 0 ? 'text-gray-500' : 'text-amber-900'}`}>Square</div>
-                <div className={`text-sm ${inventory.square === 0 ? 'text-gray-400' : 'text-amber-600'}`}>
-                  {inventory.square} left
+                <Package size={32} className={`mx-auto mb-2 ${inventory.square.total === 0 ? 'text-gray-400' : 'text-amber-700'}`} />
+                <div className={`font-semibold ${inventory.square.total === 0 ? 'text-gray-500' : 'text-amber-900'}`}>Square</div>
+                <div className={`text-sm ${inventory.square.total === 0 ? 'text-gray-400' : 'text-amber-600'}`}>
+                  {inventory.square.total} left
                 </div>
               </button>
             </div>
 
-            {/* Location/use selection */}
+            {/* Hay type selection for square bales */}
+            {useBaleType === 'square' && (
+              <div className="space-y-3">
+                <label className="block text-amber-900 font-medium">What type of hay?</label>
+                <div className="space-y-2">
+                  {HAY_TYPES.map((type) => {
+                    const count = inventory.square[type.value];
+                    const disabled = count === 0;
+                    return (
+                      <button
+                        key={type.value}
+                        onClick={() => {
+                          setUseHayType(type.value);
+                          setUseLocation('');
+                        }}
+                        disabled={disabled}
+                        className={`w-full py-3 px-4 rounded-lg border-2 text-left transition-all flex justify-between items-center ${
+                          useHayType === type.value
+                            ? 'border-amber-700 bg-amber-100 text-amber-900'
+                            : disabled
+                            ? 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed'
+                            : 'border-amber-200 bg-white text-amber-800 hover:border-amber-400'
+                        }`}
+                      >
+                        <span>{type.label}</span>
+                        <span className={`text-sm ${disabled ? 'text-gray-400' : 'text-amber-600'}`}>
+                          {count} left
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Location/use selection for round bales */}
             {useBaleType === 'round' && (
               <div className="space-y-3">
                 <label className="block text-amber-900 font-medium">Which field?</label>
@@ -366,7 +474,8 @@ export default function HayTraxPage() {
               </div>
             )}
 
-            {useBaleType === 'square' && (
+            {/* Usage selection for square bales (after hay type is selected) */}
+            {useBaleType === 'square' && useHayType && (
               <div className="space-y-3">
                 <label className="block text-amber-900 font-medium">What was it used for?</label>
                 <div className="space-y-2">
@@ -388,7 +497,7 @@ export default function HayTraxPage() {
             )}
 
             {/* Submit button */}
-            {useBaleType && useLocation && (
+            {useBaleType && useLocation && (useBaleType === 'round' || useHayType) && (
               <button
                 onClick={handleUseHay}
                 disabled={submitting}
