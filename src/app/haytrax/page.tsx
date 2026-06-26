@@ -8,6 +8,16 @@ type View = 'main' | 'bought' | 'used';
 type BaleType = 'round' | 'square';
 type HayType = 'fescue' | 'fescue-free' | 'alfalfa';
 
+interface Transaction {
+  id: string;
+  bale_type: BaleType;
+  hay_type: HayType | null;
+  transaction_type: 'bought' | 'used';
+  quantity: number;
+  usage_location: string | null;
+  created_at: string;
+}
+
 interface Inventory {
   round: number;
   square: {
@@ -52,12 +62,36 @@ const HAY_TYPES: { value: HayType; label: string }[] = [
   { value: 'alfalfa', label: 'Alfalfa' },
 ];
 
+function formatDate(dateString: string): string {
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+  if (diffDays === 0) {
+    return 'Today';
+  } else if (diffDays === 1) {
+    return 'Yesterday';
+  } else if (diffDays < 7) {
+    return `${diffDays} days ago`;
+  } else {
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  }
+}
+
+function getHayTypeLabel(hayType: HayType | null): string {
+  if (!hayType) return '';
+  const type = HAY_TYPES.find(t => t.value === hayType);
+  return type ? type.label : hayType;
+}
+
 export default function HayTraxPage() {
   const [view, setView] = useState<View>('main');
   const [inventory, setInventory] = useState<Inventory>({
     round: 0,
     square: { fescue: 0, 'fescue-free': 0, alfalfa: 0, total: 0 },
   });
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -73,20 +107,21 @@ export default function HayTraxPage() {
   const [useHayType, setUseHayType] = useState<HayType | null>(null);
   const [useLocation, setUseLocation] = useState('');
 
-  const fetchInventory = useCallback(async () => {
+  const fetchData = useCallback(async () => {
     try {
-      const { data, error } = await supabase
+      // Fetch inventory
+      const { data: invData, error: invError } = await supabase
         .from('hay_inventory')
         .select('bale_type, hay_type, quantity');
 
-      if (error) throw error;
+      if (invError) throw invError;
 
       const inv: Inventory = {
         round: 0,
         square: { fescue: 0, 'fescue-free': 0, alfalfa: 0, total: 0 },
       };
 
-      data?.forEach((row: { bale_type: string; hay_type: string | null; quantity: number }) => {
+      invData?.forEach((row: { bale_type: string; hay_type: string | null; quantity: number }) => {
         if (row.bale_type === 'round') {
           inv.round = row.quantity;
         } else if (row.bale_type === 'square' && row.hay_type) {
@@ -99,17 +134,31 @@ export default function HayTraxPage() {
       });
 
       setInventory(inv);
+
+      // Fetch recent transactions (last 30 days)
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+      const { data: txData, error: txError } = await supabase
+        .from('hay_transactions')
+        .select('id, bale_type, hay_type, transaction_type, quantity, usage_location, created_at')
+        .gte('created_at', thirtyDaysAgo.toISOString())
+        .order('created_at', { ascending: false });
+
+      if (txError) throw txError;
+
+      setTransactions(txData as Transaction[] || []);
     } catch (err) {
-      console.error('Error fetching inventory:', err);
-      setError('Failed to load inventory');
+      console.error('Error fetching data:', err);
+      setError('Failed to load data');
     } finally {
       setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    fetchInventory();
-  }, [fetchInventory]);
+    fetchData();
+  }, [fetchData]);
 
   const resetState = () => {
     setBuyBaleType(null);
@@ -147,7 +196,7 @@ export default function HayTraxPage() {
         ? `${HAY_TYPES.find(t => t.value === buyHayType)?.label} `
         : '';
       setSuccess(`Added ${buyQuantity} ${typeLabel}${buyBaleType} bale${buyQuantity > 1 ? 's' : ''}`);
-      await fetchInventory();
+      await fetchData();
       setTimeout(() => {
         handleBack();
       }, 1500);
@@ -180,7 +229,7 @@ export default function HayTraxPage() {
         ? `${HAY_TYPES.find(t => t.value === useHayType)?.label} `
         : '';
       setSuccess(`Used 1 ${typeLabel}${useBaleType} bale for ${useLocation}`);
-      await fetchInventory();
+      await fetchData();
       setTimeout(() => {
         handleBack();
       }, 1500);
@@ -257,6 +306,55 @@ export default function HayTraxPage() {
               <Plus size={24} />
               Bought Hay
             </button>
+
+            {/* Recent Activity */}
+            {transactions.length > 0 && (
+              <div className="mt-8">
+                <h2 className="text-lg font-semibold text-amber-900 mb-3">Recent Activity</h2>
+                <div className="space-y-2">
+                  {transactions.map((tx) => {
+                    const isBought = tx.transaction_type === 'bought';
+                    const hayTypeLabel = tx.bale_type === 'square' && tx.hay_type
+                      ? ` ${getHayTypeLabel(tx.hay_type)}`
+                      : '';
+
+                    return (
+                      <div
+                        key={tx.id}
+                        className="bg-white rounded-lg border border-amber-200 p-3 flex items-center gap-3"
+                      >
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                          isBought ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'
+                        }`}>
+                          {isBought ? <Plus size={16} /> : <Minus size={16} />}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="text-sm text-amber-900">
+                            {isBought ? (
+                              <>
+                                <span className="font-medium">+{tx.quantity}</span>
+                                {hayTypeLabel} {tx.bale_type}
+                              </>
+                            ) : (
+                              <>
+                                <span className="font-medium">-{tx.quantity}</span>
+                                {hayTypeLabel} {tx.bale_type}
+                                {tx.usage_location && (
+                                  <span className="text-amber-600"> → {tx.usage_location}</span>
+                                )}
+                              </>
+                            )}
+                          </div>
+                        </div>
+                        <div className="text-xs text-amber-500 whitespace-nowrap">
+                          {formatDate(tx.created_at)}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
         )}
 
