@@ -1,22 +1,24 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180">
   <!-- Background -->
-  <rect width="180" height="180" rx="40" fill="#78350f"/>
+  <rect width="180" height="180" rx="40" fill="#92400e"/>
 
-  <!-- Hay bale (round) - stylized -->
-  <ellipse cx="90" cy="100" rx="55" ry="45" fill="#fbbf24"/>
-  <ellipse cx="90" cy="100" rx="55" ry="45" fill="none" stroke="#92400e" stroke-width="3"/>
+  <!-- Hay bale - cylindrical round bale from the side -->
+  <ellipse cx="90" cy="95" rx="60" ry="50" fill="#fbbf24"/>
 
-  <!-- Hay texture lines -->
-  <path d="M45 85 Q90 75 135 85" stroke="#d97706" stroke-width="2" fill="none"/>
-  <path d="M40 100 Q90 90 140 100" stroke="#d97706" stroke-width="2" fill="none"/>
-  <path d="M45 115 Q90 105 135 115" stroke="#d97706" stroke-width="2" fill="none"/>
+  <!-- Hay texture - horizontal wavy lines -->
+  <path d="M35 70 Q60 65 90 70 Q120 75 145 70" stroke="#d97706" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <path d="M32 85 Q60 80 90 85 Q120 90 148 85" stroke="#d97706" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <path d="M30 100 Q60 95 90 100 Q120 105 150 100" stroke="#d97706" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <path d="M32 115 Q60 110 90 115 Q120 120 148 115" stroke="#d97706" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <path d="M35 130 Q60 125 90 130 Q120 135 145 130" stroke="#d97706" stroke-width="3" fill="none" stroke-linecap="round"/>
 
-  <!-- Binding straps -->
-  <rect x="55" y="60" width="8" height="80" rx="2" fill="#451a03"/>
-  <rect x="117" y="60" width="8" height="80" rx="2" fill="#451a03"/>
+  <!-- Bale edge/shadow -->
+  <ellipse cx="90" cy="95" rx="60" ry="50" fill="none" stroke="#b45309" stroke-width="3"/>
 
-  <!-- Small decorative hay wisps on top -->
-  <path d="M70 55 Q75 45 80 55" stroke="#fbbf24" stroke-width="3" fill="none" stroke-linecap="round"/>
-  <path d="M95 50 Q100 38 105 50" stroke="#fbbf24" stroke-width="3" fill="none" stroke-linecap="round"/>
-  <path d="M85 52 Q88 42 92 52" stroke="#d97706" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <!-- Loose hay strands on top -->
+  <path d="M55 48 Q58 38 65 45" stroke="#fcd34d" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <path d="M80 42 Q85 30 90 42" stroke="#fbbf24" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <path d="M105 45 Q112 35 118 48" stroke="#fcd34d" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <path d="M70 46 Q73 36 78 44" stroke="#f59e0b" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <path d="M95 44 Q98 32 102 43" stroke="#f59e0b" stroke-width="2" fill="none" stroke-linecap="round"/>
 </svg>
