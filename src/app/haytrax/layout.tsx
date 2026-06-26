@@ -10,7 +10,9 @@ export const metadata: Metadata = {
   },
   applicationName: 'HayTrax',
   icons: {
-    apple: '/haytrax-icon.png',
+    apple: [
+      { url: '/apple-touch-icon-haytrax.png', sizes: '180x180', type: 'image/png' },
+    ],
   },
 };
 
@@ -27,5 +29,10 @@ export default function HayTraxLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return children;
+  return (
+    <>
+      <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon-haytrax.png" />
+      {children}
+    </>
+  );
 }
