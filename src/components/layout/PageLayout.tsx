@@ -25,7 +25,6 @@ const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {
     { href: '/experiences', label: 'All Experiences' },
     { href: '/about/dawn', label: 'About' },
     { href: '/no-reins', label: 'No Reins' },
-    { href: '/summer-camp', label: 'Summer Camp' },
     { href: '/corporate', label: 'Corporate' },
     { href: '/contact', label: 'Contact' },
   ];

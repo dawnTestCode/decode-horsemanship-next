@@ -137,7 +137,6 @@ export default function ContactPage() {
                       <option value="dust-and-leather">Dust & Leather</option>
                       <option value="corporate">Corporate Programs</option>
                       <option value="mustang">Mustang Immersion</option>
-                      <option value="summer-camp">Summer Camp</option>
                       <option value="adoption">Horse Adoption</option>
                       <option value="boarding">Boarding Inquiry</option>
                       <option value="general">General Question</option>

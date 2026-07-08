@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowRight, Users, Heart, Compass, Building2, Tent, HelpCircle } from 'lucide-react';
+import { ArrowRight, Users, Heart, Compass, Building2, HelpCircle } from 'lucide-react';
 import { useProgramImages } from '@/hooks/useProgramImages';
 
 const programs = [
@@ -14,16 +14,6 @@ const programs = [
     icon: Heart,
     color: 'amber',
     schedule: 'Third Saturday of each month',
-  },
-  {
-    slug: 'summer-camp',
-    title: 'Summer Camp',
-    tagline: 'For kids ages 6–14',
-    description: 'A week of real horsemanship. Grooming, groundwork, and time with the herd. No screens, no shortcuts.',
-    href: '/summer-camp',
-    icon: Tent,
-    color: 'green',
-    schedule: 'Weekly sessions, June–August',
   },
   {
     slug: 'mustang',
