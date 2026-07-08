@@ -50,10 +50,10 @@ export default function Navigation({ activeSection, onSectionClick }: Navigation
               Experiences
             </Link>
             <Link
-              href="/summer-camp"
-              className="text-sm font-medium transition-colors hover:text-amber-400 text-stone-300"
+              href="/lessons"
+              className="text-sm font-medium transition-colors hover:text-red-500 text-stone-300"
             >
-              Summer Camp
+              Lessons
             </Link>
             <a
               href="https://forms.gle/DszFyex1HKBbLDw6A"
@@ -168,11 +168,11 @@ export default function Navigation({ activeSection, onSectionClick }: Navigation
               Experiences
             </Link>
             <Link
-              href="/summer-camp"
+              href="/lessons"
               onClick={() => setMobileMenuOpen(false)}
-              className="block w-full text-left py-2 text-stone-300 hover:text-amber-400"
+              className="block w-full text-left py-2 text-stone-300 hover:text-red-500"
             >
-              Summer Camp
+              Lessons
             </Link>
             <a
               href="https://forms.gle/DszFyex1HKBbLDw6A"

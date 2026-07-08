@@ -224,6 +224,20 @@ export default function NoReinsPage() {
               </div>
             </section>
 
+            {/* Ladder handoff to Lessons */}
+            <section className="hidden lg:block mt-12 pt-8 border-t border-stone-800">
+              <p className="text-lg font-serif text-stone-400 mb-4">
+                Some women want a day. Some want to keep going.
+              </p>
+              <Link
+                href="/lessons"
+                className="inline-flex items-center gap-2 text-amber-600 hover:text-amber-500 font-medium transition-colors"
+              >
+                Lessons
+                <ArrowRight size={16} />
+              </Link>
+            </section>
+
           </div>
 
           {/* Right Column - Booking (1/3 width) */}
@@ -316,6 +330,20 @@ export default function NoReinsPage() {
                   <Link href="/mustang" className="block p-4 bg-stone-900/50 rounded-lg border border-stone-800 hover:border-amber-900/50 transition-colors">
                     <p className="font-semibold text-[#f5f0e8]">Mustang Immersion</p>
                     <p className="text-stone-500 text-sm">Three days with a mustang, a few times a year.</p>
+                  </Link>
+                </div>
+
+                {/* Ladder handoff to Lessons (mobile) */}
+                <div className="mt-8 pt-6 border-t border-stone-800">
+                  <p className="text-lg font-serif text-stone-400 mb-4">
+                    Some women want a day. Some want to keep going.
+                  </p>
+                  <Link
+                    href="/lessons"
+                    className="inline-flex items-center gap-2 text-amber-600 hover:text-amber-500 font-medium transition-colors"
+                  >
+                    Lessons
+                    <ArrowRight size={16} />
                   </Link>
                 </div>
               </section>

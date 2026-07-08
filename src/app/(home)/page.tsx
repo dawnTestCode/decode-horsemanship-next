@@ -6,6 +6,7 @@ import { Horse, GalleryItem } from '@/types';
 import Navigation from '@/components/home/Navigation';
 import HeroSection from '@/components/home/HeroSection';
 import StatsBar from '@/components/home/StatsBar';
+import FrontDoorModule from '@/components/home/FrontDoorModule';
 import HorsesSection from '@/components/home/HorsesSection';
 import MissionSection from '@/components/home/MissionSection';
 import GallerySection from '@/components/home/GallerySection';
@@ -90,6 +91,7 @@ export default function HomePage() {
       <Navigation activeSection={activeSection} onSectionClick={scrollToSection} />
       <HeroSection onSectionClick={scrollToSection} />
       <StatsBar />
+      <FrontDoorModule />
       <HorsesSection
         horses={horses}
         loading={loadingHorses}

@@ -32,6 +32,11 @@ export default function Footer({ onSectionClick }: FooterProps) {
                 </li>
               ))}
               <li>
+                <Link href="/lessons" className="text-stone-500 hover:text-red-500 transition-colors text-sm">
+                  Lessons
+                </Link>
+              </li>
+              <li>
                 <Link href="/volunteer" className="text-stone-500 hover:text-green-500 transition-colors text-sm">
                   Volunteer Portal
                 </Link>
