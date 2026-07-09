@@ -140,6 +140,10 @@ export default function HayTraxPage() {
   const [useDate, setUseDate] = useState<string | null>(null); // null = today
   const [showUseDatePicker, setShowUseDatePicker] = useState(false);
 
+  // For ledger filtering
+  type LedgerFilter = 'all' | 'round' | 'fescue' | 'fescue-free' | 'alfalfa';
+  const [ledgerFilter, setLedgerFilter] = useState<LedgerFilter>('all');
+
   const fetchData = useCallback(async () => {
     try {
       // Fetch inventory
@@ -596,47 +600,88 @@ export default function HayTraxPage() {
             {transactions.length > 0 && (
               <div className="mt-8">
                 <h2 className="text-lg font-semibold text-amber-900 mb-3">Recent Activity</h2>
-                <div className="space-y-2">
-                  {transactions.map((tx) => {
-                    const isBought = tx.transaction_type === 'bought';
-                    const hayTypeLabel = tx.bale_type === 'square' && tx.hay_type
-                      ? ` ${getHayTypeLabel(tx.hay_type)}`
-                      : '';
 
-                    return (
-                      <div
-                        key={tx.id}
-                        className="bg-white rounded-lg border border-amber-200 p-3 flex items-center gap-3"
-                      >
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                          isBought ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'
-                        }`}>
-                          {isBought ? <Plus size={16} /> : <Minus size={16} />}
+                {/* Filter pills */}
+                <div className="flex flex-wrap gap-2 mb-4">
+                  {([
+                    { value: 'all', label: 'All' },
+                    { value: 'round', label: 'Round' },
+                    { value: 'fescue', label: 'Fescue' },
+                    { value: 'fescue-free', label: 'FF' },
+                    { value: 'alfalfa', label: 'Alfalfa' },
+                  ] as const).map((filter) => (
+                    <button
+                      key={filter.value}
+                      onClick={() => setLedgerFilter(filter.value)}
+                      className={`px-3 py-1.5 text-sm rounded-full transition-all ${
+                        ledgerFilter === filter.value
+                          ? 'bg-amber-700 text-white'
+                          : 'bg-white border border-amber-300 text-amber-700 hover:border-amber-500'
+                      }`}
+                    >
+                      {filter.label}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="space-y-2">
+                  {(() => {
+                    const filteredTx = transactions.filter((tx) => {
+                      if (ledgerFilter === 'all') return true;
+                      if (ledgerFilter === 'round') return tx.bale_type === 'round';
+                      // For square bale types, match hay_type
+                      return tx.bale_type === 'square' && tx.hay_type === ledgerFilter;
+                    });
+
+                    if (filteredTx.length === 0) {
+                      return (
+                        <div className="text-center py-4 text-amber-500 text-sm">
+                          No {ledgerFilter === 'all' ? '' : ledgerFilter + ' '}activity in the last 30 days
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="text-sm text-amber-900">
-                            {isBought ? (
-                              <>
-                                <span className="font-medium">+{tx.quantity}</span>
-                                {hayTypeLabel} {tx.bale_type}
-                              </>
-                            ) : (
-                              <>
-                                <span className="font-medium">-{tx.quantity}</span>
-                                {hayTypeLabel} {tx.bale_type}
-                                {tx.usage_location && (
-                                  <span className="text-amber-600"> → {tx.usage_location}</span>
-                                )}
-                              </>
-                            )}
+                      );
+                    }
+
+                    return filteredTx.map((tx) => {
+                      const isBought = tx.transaction_type === 'bought';
+                      const hayTypeLabel = tx.bale_type === 'square' && tx.hay_type
+                        ? ` ${getHayTypeLabel(tx.hay_type)}`
+                        : '';
+
+                      return (
+                        <div
+                          key={tx.id}
+                          className="bg-white rounded-lg border border-amber-200 p-3 flex items-center gap-3"
+                        >
+                          <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                            isBought ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'
+                          }`}>
+                            {isBought ? <Plus size={16} /> : <Minus size={16} />}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="text-sm text-amber-900">
+                              {isBought ? (
+                                <>
+                                  <span className="font-medium">+{tx.quantity}</span>
+                                  {hayTypeLabel} {tx.bale_type}
+                                </>
+                              ) : (
+                                <>
+                                  <span className="font-medium">-{tx.quantity}</span>
+                                  {hayTypeLabel} {tx.bale_type}
+                                  {tx.usage_location && (
+                                    <span className="text-amber-600"> → {tx.usage_location}</span>
+                                  )}
+                                </>
+                              )}
+                            </div>
+                          </div>
+                          <div className="text-xs text-amber-500 whitespace-nowrap">
+                            {formatDate(tx.created_at)}
                           </div>
                         </div>
-                        <div className="text-xs text-amber-500 whitespace-nowrap">
-                          {formatDate(tx.created_at)}
-                        </div>
-                      </div>
-                    );
-                  })}
+                      );
+                    });
+                  })()}
                 </div>
               </div>
             )}
