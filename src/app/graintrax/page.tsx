@@ -769,6 +769,15 @@ export default function GrainTraxPage() {
               Manage Horses
             </button>
 
+            <button
+              onClick={() => setView('missedFeeding')}
+              disabled={submitting}
+              className="w-full py-3 px-6 bg-amber-100 hover:bg-amber-200 text-amber-800 border-2 border-amber-300 text-base font-medium rounded-xl shadow transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+            >
+              <Minus size={18} />
+              Missed Feeding
+            </button>
+
             <div className="flex gap-4">
               <button
                 onClick={() => setView('stats')}
@@ -785,15 +794,6 @@ export default function GrainTraxPage() {
                 <Settings size={20} />
               </button>
             </div>
-
-            <button
-              onClick={() => setView('missedFeeding')}
-              disabled={submitting}
-              className="w-full py-3 px-6 bg-amber-100 hover:bg-amber-200 text-amber-800 border-2 border-amber-300 text-base font-medium rounded-xl shadow transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
-            >
-              <Minus size={18} />
-              Missed Feeding
-            </button>
 
             {/* Recent activity */}
             {transactions.length > 0 && (
