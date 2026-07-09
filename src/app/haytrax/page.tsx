@@ -307,13 +307,25 @@ export default function HayTraxPage() {
     // Filter to only usage transactions
     const usageTransactions = allTransactions.filter(tx => tx.transaction_type === 'used');
 
-    // Count usage by bale type
+    // Count usage by bale type and hay type
     const roundUsed = usageTransactions
       .filter(tx => tx.bale_type === 'round')
       .reduce((sum, tx) => sum + tx.quantity, 0);
 
     const squareUsed = usageTransactions
       .filter(tx => tx.bale_type === 'square')
+      .reduce((sum, tx) => sum + tx.quantity, 0);
+
+    const fescueUsed = usageTransactions
+      .filter(tx => tx.bale_type === 'square' && tx.hay_type === 'fescue')
+      .reduce((sum, tx) => sum + tx.quantity, 0);
+
+    const fescueFreeUsed = usageTransactions
+      .filter(tx => tx.bale_type === 'square' && tx.hay_type === 'fescue-free')
+      .reduce((sum, tx) => sum + tx.quantity, 0);
+
+    const alfalfaUsed = usageTransactions
+      .filter(tx => tx.bale_type === 'square' && tx.hay_type === 'alfalfa')
       .reduce((sum, tx) => sum + tx.quantity, 0);
 
     // Calculate days in the period
@@ -325,10 +337,16 @@ export default function HayTraxPage() {
     // Daily usage rates
     const roundPerDay = roundUsed / daysInPeriod;
     const squarePerDay = squareUsed / daysInPeriod;
+    const fescuePerDay = fescueUsed / daysInPeriod;
+    const fescueFreePerDay = fescueFreeUsed / daysInPeriod;
+    const alfalfaPerDay = alfalfaUsed / daysInPeriod;
 
     // Days until empty (runway)
     const roundRunway = roundPerDay > 0 ? Math.floor(inventory.round / roundPerDay) : Infinity;
     const squareRunway = squarePerDay > 0 ? Math.floor(inventory.square.total / squarePerDay) : Infinity;
+    const fescueRunway = fescuePerDay > 0 ? Math.floor(inventory.square.fescue / fescuePerDay) : Infinity;
+    const fescueFreeRunway = fescueFreePerDay > 0 ? Math.floor(inventory.square['fescue-free'] / fescueFreePerDay) : Infinity;
+    const alfalfaRunway = alfalfaPerDay > 0 ? Math.floor(inventory.square.alfalfa / alfalfaPerDay) : Infinity;
 
     // Weekly data for chart (group by week, with hay type breakdown)
     interface WeeklyDataItem {
@@ -494,6 +512,9 @@ export default function HayTraxPage() {
       squarePerDay,
       roundRunway,
       squareRunway,
+      fescueRunway,
+      fescueFreeRunway,
+      alfalfaRunway,
       weeklyData,
       monthlyData,
       daysInPeriod,
@@ -1014,25 +1035,57 @@ export default function HayTraxPage() {
                       stats.roundRunway < 7 ? `${stats.roundRunway} days` :
                       `${Math.floor(stats.roundRunway / 7)} weeks`}
                   </div>
-                  <div className="text-sm text-amber-600">Round bales</div>
+                  <div className="text-sm text-amber-800">Round</div>
                   <div className="text-xs text-amber-500 mt-1">
                     {inventory.round} in stock
                   </div>
                 </div>
                 <div>
                   <div className={`text-2xl font-bold ${
-                    stats.squareRunway <= 7 ? 'text-red-600' :
-                    stats.squareRunway <= 14 ? 'text-amber-600' :
+                    stats.fescueRunway <= 7 ? 'text-red-600' :
+                    stats.fescueRunway <= 14 ? 'text-amber-600' :
                     'text-green-600'
                   }`}>
-                    {stats.squareRunway === Infinity ? '—' :
-                      stats.squareRunway <= 1 ? '<1 day' :
-                      stats.squareRunway < 7 ? `${stats.squareRunway} days` :
-                      `${Math.floor(stats.squareRunway / 7)} weeks`}
+                    {stats.fescueRunway === Infinity ? '—' :
+                      stats.fescueRunway <= 1 ? '<1 day' :
+                      stats.fescueRunway < 7 ? `${stats.fescueRunway} days` :
+                      `${Math.floor(stats.fescueRunway / 7)} weeks`}
                   </div>
-                  <div className="text-sm text-amber-600">Square bales</div>
+                  <div className="text-sm text-amber-600">Fescue</div>
                   <div className="text-xs text-amber-500 mt-1">
-                    {inventory.square.total} in stock
+                    {inventory.square.fescue} in stock
+                  </div>
+                </div>
+                <div>
+                  <div className={`text-2xl font-bold ${
+                    stats.fescueFreeRunway <= 7 ? 'text-red-600' :
+                    stats.fescueFreeRunway <= 14 ? 'text-amber-600' :
+                    'text-green-600'
+                  }`}>
+                    {stats.fescueFreeRunway === Infinity ? '—' :
+                      stats.fescueFreeRunway <= 1 ? '<1 day' :
+                      stats.fescueFreeRunway < 7 ? `${stats.fescueFreeRunway} days` :
+                      `${Math.floor(stats.fescueFreeRunway / 7)} weeks`}
+                  </div>
+                  <div className="text-sm text-amber-500">Fescue-Free</div>
+                  <div className="text-xs text-amber-500 mt-1">
+                    {inventory.square['fescue-free']} in stock
+                  </div>
+                </div>
+                <div>
+                  <div className={`text-2xl font-bold ${
+                    stats.alfalfaRunway <= 7 ? 'text-red-600' :
+                    stats.alfalfaRunway <= 14 ? 'text-amber-600' :
+                    'text-green-600'
+                  }`}>
+                    {stats.alfalfaRunway === Infinity ? '—' :
+                      stats.alfalfaRunway <= 1 ? '<1 day' :
+                      stats.alfalfaRunway < 7 ? `${stats.alfalfaRunway} days` :
+                      `${Math.floor(stats.alfalfaRunway / 7)} weeks`}
+                  </div>
+                  <div className="text-sm text-green-600">Alfalfa</div>
+                  <div className="text-xs text-amber-500 mt-1">
+                    {inventory.square.alfalfa} in stock
                   </div>
                 </div>
               </div>
@@ -1129,12 +1182,12 @@ export default function HayTraxPage() {
                                 style={{ width: `${(week.alfalfa / maxValue) * 100}%` }}
                               />
                             </div>
-                            <div className="text-xs text-amber-700 w-24 text-right">
-                              {week.round > 0 && `${week.round}R `}
-                              {week.fescue > 0 && `${week.fescue}F `}
-                              {week.fescueFree > 0 && `${week.fescueFree}FF `}
-                              {week.alfalfa > 0 && `${week.alfalfa}A`}
-                              {total === 0 && '—'}
+                            <div className="text-xs w-28 text-right flex flex-wrap justify-end gap-x-1">
+                              {week.round > 0 && <span className="text-amber-800">{week.round}R</span>}
+                              {week.fescue > 0 && <span className="text-amber-600">{week.fescue}F</span>}
+                              {week.fescueFree > 0 && <span className="text-amber-500">{week.fescueFree}FF</span>}
+                              {week.alfalfa > 0 && <span className="text-green-600">{week.alfalfa}A</span>}
+                              {total === 0 && <span className="text-amber-400">—</span>}
                             </div>
                           </div>
                         </div>
@@ -1214,12 +1267,12 @@ export default function HayTraxPage() {
                                 style={{ width: `${(month.alfalfa / maxValue) * 100}%` }}
                               />
                             </div>
-                            <div className="text-xs text-amber-700 w-24 text-right">
-                              {month.round > 0 && `${month.round}R `}
-                              {month.fescue > 0 && `${month.fescue}F `}
-                              {month.fescueFree > 0 && `${month.fescueFree}FF `}
-                              {month.alfalfa > 0 && `${month.alfalfa}A`}
-                              {total === 0 && '—'}
+                            <div className="text-xs w-28 text-right flex flex-wrap justify-end gap-x-1">
+                              {month.round > 0 && <span className="text-amber-800">{month.round}R</span>}
+                              {month.fescue > 0 && <span className="text-amber-600">{month.fescue}F</span>}
+                              {month.fescueFree > 0 && <span className="text-amber-500">{month.fescueFree}FF</span>}
+                              {month.alfalfa > 0 && <span className="text-green-600">{month.alfalfa}A</span>}
+                              {total === 0 && <span className="text-amber-400">—</span>}
                             </div>
                           </div>
                         </div>
