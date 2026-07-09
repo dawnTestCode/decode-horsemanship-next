@@ -413,7 +413,7 @@ export default function GrainTraxPage() {
       enrich: 0,
     };
 
-    // Calculate daily vitamin scoops
+    // Calculate daily vitamin scoops (vitamin_scoops is per feeding, 2 feedings/day)
     let dailyVitaminScoops = 0;
 
     activeHorses.forEach(horse => {
@@ -421,7 +421,7 @@ export default function GrainTraxPage() {
       const dailyCans = horse.cans_per_feeding * 2;
       const dailyLbs = dailyCans * LBS_PER_CAN[horse.grain_type];
       dailyGrainLbs[horse.grain_type] += dailyLbs;
-      dailyVitaminScoops += horse.vitamin_scoops;
+      dailyVitaminScoops += horse.vitamin_scoops * 2; // 2 feedings per day
     });
 
     // Calculate bags per day
@@ -565,7 +565,7 @@ export default function GrainTraxPage() {
                           </div>
                           {horse.vitamin_scoops > 0 && (
                             <div className="text-xs text-emerald-500">
-                              + {horse.vitamin_scoops} scoop{horse.vitamin_scoops !== 1 ? 's' : ''} vitamins/day
+                              + {horse.vitamin_scoops} scoop{horse.vitamin_scoops !== 1 ? 's' : ''} vitamins/feeding
                             </div>
                           )}
                         </div>
@@ -806,7 +806,7 @@ export default function GrainTraxPage() {
                         </div>
                         {horse.vitamin_scoops > 0 && (
                           <div className="text-sm text-emerald-500 mt-0.5">
-                            + {horse.vitamin_scoops} scoop{horse.vitamin_scoops !== 1 ? 's' : ''} vitamins/day
+                            + {horse.vitamin_scoops} scoop{horse.vitamin_scoops !== 1 ? 's' : ''} vitamins/feeding
                           </div>
                         )}
                       </div>
@@ -933,7 +933,7 @@ export default function GrainTraxPage() {
 
             {/* Vitamin scoops */}
             <div className="space-y-2">
-              <label className="block text-emerald-900 font-medium">Vitamin Scoops per Day</label>
+              <label className="block text-emerald-900 font-medium">Vitamin Scoops per Feeding</label>
               <input
                 type="number"
                 value={horseVitaminScoops}
@@ -1022,7 +1022,7 @@ export default function GrainTraxPage() {
 
             {/* Vitamin scoops */}
             <div className="space-y-2">
-              <label className="block text-emerald-900 font-medium">Vitamin Scoops per Day</label>
+              <label className="block text-emerald-900 font-medium">Vitamin Scoops per Feeding</label>
               <input
                 type="number"
                 value={horseVitaminScoops}
