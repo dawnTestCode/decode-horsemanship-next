@@ -9,6 +9,9 @@ export const metadata: Metadata = {
     title: 'GrainTrax',
   },
   applicationName: 'GrainTrax',
+  icons: {
+    apple: '/apple-touch-icon-graintrax.png',
+  },
 };
 
 export const viewport: Viewport = {
