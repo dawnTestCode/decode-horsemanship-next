@@ -2,9 +2,9 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { supabase } from '@/lib/supabase';
-import { ChevronLeft, Plus, Check, X, Calendar, BarChart3, Users, Pencil, Trash2 } from 'lucide-react';
+import { ChevronLeft, Plus, Check, X, Calendar, BarChart3, Users, Pencil, Trash2, Settings } from 'lucide-react';
 
-type View = 'main' | 'bought' | 'horses' | 'stats' | 'addHorse' | 'editHorse';
+type View = 'main' | 'bought' | 'horses' | 'stats' | 'addHorse' | 'editHorse' | 'settings';
 type GrainType = 'strategy' | 'omelene' | 'enrich';
 type ItemType = 'grain' | 'vitamin';
 
@@ -37,20 +37,29 @@ interface Inventory {
   vitamin: number;
 }
 
+interface GrainSettings {
+  lbs_per_can_strategy: number;
+  lbs_per_can_omelene: number;
+  lbs_per_can_enrich: number;
+  lbs_per_scoop_vitamin: number;
+  bag_size_grain: number;
+  bag_size_vitamin: number;
+}
+
+const DEFAULT_SETTINGS: GrainSettings = {
+  lbs_per_can_strategy: 1.8,
+  lbs_per_can_omelene: 1.2,
+  lbs_per_can_enrich: 1.5,
+  lbs_per_scoop_vitamin: 0.1,
+  bag_size_grain: 50,
+  bag_size_vitamin: 5,
+};
+
 const GRAIN_TYPES: { value: GrainType; label: string; shortLabel: string }[] = [
   { value: 'strategy', label: 'Strategy Professional Gx', shortLabel: 'Strategy' },
   { value: 'omelene', label: 'Omelene 300 Mare & Foal', shortLabel: 'Omelene' },
   { value: 'enrich', label: 'Enrich +', shortLabel: 'Enrich' },
 ];
-
-// Pounds per can for each grain type
-const LBS_PER_CAN: Record<GrainType, number> = {
-  strategy: 1.8,
-  omelene: 1.2,
-  enrich: 1.5,
-};
-
-const BAG_SIZE_LBS = 50;
 
 function formatDate(dateString: string): string {
   const date = new Date(dateString);
@@ -109,6 +118,7 @@ export default function GrainTraxPage() {
   });
   const [horses, setHorses] = useState<Horse[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [settings, setSettings] = useState<GrainSettings>(DEFAULT_SETTINGS);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -127,6 +137,9 @@ export default function GrainTraxPage() {
   const [horseGrainType, setHorseGrainType] = useState<GrainType>('strategy');
   const [horseCansPerFeeding, setHorseCansPerFeeding] = useState('1');
   const [horseVitaminScoops, setHorseVitaminScoops] = useState('0');
+
+  // For editing settings
+  const [editSettings, setEditSettings] = useState<GrainSettings>(DEFAULT_SETTINGS);
 
   const fetchData = useCallback(async () => {
     try {
@@ -178,6 +191,25 @@ export default function GrainTraxPage() {
       if (txError) throw txError;
 
       setTransactions(txData as Transaction[] || []);
+
+      // Fetch settings
+      const { data: settingsData, error: settingsError } = await supabase
+        .from('grain_settings')
+        .select('setting_key, setting_value');
+
+      if (settingsError) throw settingsError;
+
+      if (settingsData) {
+        const loadedSettings: GrainSettings = { ...DEFAULT_SETTINGS };
+        settingsData.forEach((row: { setting_key: string; setting_value: number }) => {
+          const key = row.setting_key as keyof GrainSettings;
+          if (key in loadedSettings) {
+            loadedSettings[key] = Number(row.setting_value);
+          }
+        });
+        setSettings(loadedSettings);
+        setEditSettings(loadedSettings);
+      }
     } catch (err) {
       console.error('Error fetching data:', err);
       setError('Failed to load data');
@@ -402,6 +434,50 @@ export default function GrainTraxPage() {
     setView('editHorse');
   };
 
+  const openSettings = () => {
+    setEditSettings({ ...settings });
+    setView('settings');
+  };
+
+  const handleSaveSettings = async () => {
+    setSubmitting(true);
+    setError(null);
+
+    try {
+      // Update each setting
+      const updates = Object.entries(editSettings).map(([key, value]) =>
+        supabase.rpc('update_grain_setting', {
+          p_setting_key: key,
+          p_setting_value: value,
+        })
+      );
+
+      const results = await Promise.all(updates);
+      const errors = results.filter(r => r.error);
+      if (errors.length > 0) throw errors[0].error;
+
+      setSettings({ ...editSettings });
+      setSuccess('Settings saved');
+      setTimeout(() => {
+        handleBack();
+      }, 1500);
+    } catch (err) {
+      console.error('Error saving settings:', err);
+      setError('Failed to save settings');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  // Helper to get lbs per can for a grain type from settings
+  const getLbsPerCan = useCallback((grainType: GrainType): number => {
+    switch (grainType) {
+      case 'strategy': return settings.lbs_per_can_strategy;
+      case 'omelene': return settings.lbs_per_can_omelene;
+      case 'enrich': return settings.lbs_per_can_enrich;
+    }
+  }, [settings]);
+
   // Calculate daily usage and runway stats
   const stats = useMemo(() => {
     const activeHorses = horses.filter(h => h.active);
@@ -413,23 +489,28 @@ export default function GrainTraxPage() {
       enrich: 0,
     };
 
-    // Calculate daily vitamin scoops (vitamin_scoops is per feeding, 2 feedings/day)
+    // Calculate daily vitamin scoops and lbs (vitamin_scoops is per feeding, 2 feedings/day)
     let dailyVitaminScoops = 0;
 
     activeHorses.forEach(horse => {
       // 2 feedings per day
       const dailyCans = horse.cans_per_feeding * 2;
-      const dailyLbs = dailyCans * LBS_PER_CAN[horse.grain_type];
+      const dailyLbs = dailyCans * getLbsPerCan(horse.grain_type);
       dailyGrainLbs[horse.grain_type] += dailyLbs;
       dailyVitaminScoops += horse.vitamin_scoops * 2; // 2 feedings per day
     });
 
+    // Daily vitamin lbs
+    const dailyVitaminLbs = dailyVitaminScoops * settings.lbs_per_scoop_vitamin;
+
     // Calculate bags per day
     const bagsPerDay: Record<GrainType, number> = {
-      strategy: dailyGrainLbs.strategy / BAG_SIZE_LBS,
-      omelene: dailyGrainLbs.omelene / BAG_SIZE_LBS,
-      enrich: dailyGrainLbs.enrich / BAG_SIZE_LBS,
+      strategy: dailyGrainLbs.strategy / settings.bag_size_grain,
+      omelene: dailyGrainLbs.omelene / settings.bag_size_grain,
+      enrich: dailyGrainLbs.enrich / settings.bag_size_grain,
     };
+
+    const vitaminBagsPerDay = dailyVitaminLbs / settings.bag_size_vitamin;
 
     // Calculate runway in days
     const runwayDays: Record<GrainType, number> = {
@@ -437,6 +518,8 @@ export default function GrainTraxPage() {
       omelene: bagsPerDay.omelene > 0 ? Math.floor(inventory.grain.omelene / bagsPerDay.omelene) : Infinity,
       enrich: bagsPerDay.enrich > 0 ? Math.floor(inventory.grain.enrich / bagsPerDay.enrich) : Infinity,
     };
+
+    const vitaminRunwayDays = vitaminBagsPerDay > 0 ? Math.floor(inventory.vitamin / vitaminBagsPerDay) : Infinity;
 
     // Calculate weekly and monthly grain usage in bags
     const weeklyBags: Record<GrainType, number> = {
@@ -454,7 +537,7 @@ export default function GrainTraxPage() {
     // Per-horse daily consumption in lbs
     const horseConsumption = activeHorses.map(horse => ({
       horse,
-      dailyLbs: horse.cans_per_feeding * 2 * LBS_PER_CAN[horse.grain_type],
+      dailyLbs: horse.cans_per_feeding * 2 * getLbsPerCan(horse.grain_type),
       dailyCans: horse.cans_per_feeding * 2,
     })).sort((a, b) => b.dailyLbs - a.dailyLbs);
 
@@ -462,13 +545,16 @@ export default function GrainTraxPage() {
       activeHorses,
       dailyGrainLbs,
       dailyVitaminScoops,
+      dailyVitaminLbs,
       bagsPerDay,
+      vitaminBagsPerDay,
       runwayDays,
+      vitaminRunwayDays,
       weeklyBags,
       monthlyBags,
       horseConsumption,
     };
-  }, [horses, inventory]);
+  }, [horses, inventory, settings, getLbsPerCan]);
 
   if (loading) {
     return (
@@ -539,13 +625,22 @@ export default function GrainTraxPage() {
               Manage Horses
             </button>
 
-            <button
-              onClick={() => setView('stats')}
-              className="w-full py-4 px-6 bg-white hover:bg-emerald-50 text-emerald-700 border-2 border-emerald-300 text-lg font-semibold rounded-xl shadow transition-colors flex items-center justify-center gap-3"
-            >
-              <BarChart3 size={20} />
-              View Stats
-            </button>
+            <div className="flex gap-4">
+              <button
+                onClick={() => setView('stats')}
+                className="flex-1 py-4 px-6 bg-white hover:bg-emerald-50 text-emerald-700 border-2 border-emerald-300 text-lg font-semibold rounded-xl shadow transition-colors flex items-center justify-center gap-3"
+              >
+                <BarChart3 size={20} />
+                View Stats
+              </button>
+              <button
+                onClick={openSettings}
+                className="py-4 px-4 bg-white hover:bg-emerald-50 text-emerald-700 border-2 border-emerald-300 rounded-xl shadow transition-colors flex items-center justify-center"
+                title="Settings"
+              >
+                <Settings size={20} />
+              </button>
+            </div>
 
             {/* Active horses list */}
             {stats.activeHorses.length > 0 && (
@@ -571,7 +666,7 @@ export default function GrainTraxPage() {
                         </div>
                         <div className="text-right">
                           <div className="text-lg font-bold text-emerald-700">
-                            {(horse.cans_per_feeding * 2 * LBS_PER_CAN[horse.grain_type]).toFixed(1)}
+                            {(horse.cans_per_feeding * 2 * getLbsPerCan(horse.grain_type)).toFixed(1)}
                           </div>
                           <div className="text-xs text-emerald-500">lbs/day</div>
                         </div>
@@ -927,7 +1022,7 @@ export default function GrainTraxPage() {
                 className="w-full px-4 py-3 rounded-lg border-2 border-emerald-200 bg-white text-emerald-900 placeholder-emerald-400 focus:border-emerald-500 focus:outline-none"
               />
               <div className="text-sm text-emerald-600">
-                Fed twice daily = {((parseFloat(horseCansPerFeeding) || 0) * 2 * LBS_PER_CAN[horseGrainType]).toFixed(1)} lbs/day
+                Fed twice daily = {((parseFloat(horseCansPerFeeding) || 0) * 2 * getLbsPerCan(horseGrainType)).toFixed(1)} lbs/day
               </div>
             </div>
 
@@ -1016,7 +1111,7 @@ export default function GrainTraxPage() {
                 className="w-full px-4 py-3 rounded-lg border-2 border-emerald-200 bg-white text-emerald-900 placeholder-emerald-400 focus:border-emerald-500 focus:outline-none"
               />
               <div className="text-sm text-emerald-600">
-                Fed twice daily = {((parseFloat(horseCansPerFeeding) || 0) * 2 * LBS_PER_CAN[horseGrainType]).toFixed(1)} lbs/day
+                Fed twice daily = {((parseFloat(horseCansPerFeeding) || 0) * 2 * getLbsPerCan(horseGrainType)).toFixed(1)} lbs/day
               </div>
             </div>
 
@@ -1204,6 +1299,111 @@ export default function GrainTraxPage() {
                 <span className="text-sm text-emerald-500">Add horses to see usage projections.</span>
               </div>
             )}
+          </div>
+        )}
+
+        {/* Settings view */}
+        {view === 'settings' && (
+          <div className="space-y-6">
+            <button
+              onClick={handleBack}
+              className="flex items-center gap-2 text-emerald-700 hover:text-emerald-900 transition-colors"
+            >
+              <ChevronLeft size={20} />
+              Back
+            </button>
+
+            <h2 className="text-xl font-semibold text-emerald-900">Settings</h2>
+
+            {/* Grain weights */}
+            <div className="bg-white rounded-xl border border-emerald-200 p-4">
+              <h3 className="text-sm font-medium text-emerald-600 mb-4">Grain Weight (lbs per can)</h3>
+              <div className="space-y-4">
+                {GRAIN_TYPES.map(type => (
+                  <div key={type.value} className="flex items-center justify-between gap-4">
+                    <label className="text-emerald-900 flex-1">{type.shortLabel}</label>
+                    <input
+                      type="number"
+                      value={editSettings[`lbs_per_can_${type.value}` as keyof GrainSettings]}
+                      onChange={(e) => setEditSettings({
+                        ...editSettings,
+                        [`lbs_per_can_${type.value}`]: parseFloat(e.target.value) || 0,
+                      })}
+                      step="0.1"
+                      min="0"
+                      className="w-24 px-3 py-2 rounded-lg border-2 border-emerald-200 bg-white text-emerald-900 text-right focus:border-emerald-500 focus:outline-none"
+                    />
+                    <span className="text-emerald-600 text-sm w-8">lbs</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Vitamin weight */}
+            <div className="bg-white rounded-xl border border-emerald-200 p-4">
+              <h3 className="text-sm font-medium text-emerald-600 mb-4">Vitamin Weight</h3>
+              <div className="flex items-center justify-between gap-4">
+                <label className="text-emerald-900 flex-1">Lbs per scoop</label>
+                <input
+                  type="number"
+                  value={editSettings.lbs_per_scoop_vitamin}
+                  onChange={(e) => setEditSettings({
+                    ...editSettings,
+                    lbs_per_scoop_vitamin: parseFloat(e.target.value) || 0,
+                  })}
+                  step="0.01"
+                  min="0"
+                  className="w-24 px-3 py-2 rounded-lg border-2 border-emerald-200 bg-white text-emerald-900 text-right focus:border-emerald-500 focus:outline-none"
+                />
+                <span className="text-emerald-600 text-sm w-8">lbs</span>
+              </div>
+            </div>
+
+            {/* Bag sizes */}
+            <div className="bg-white rounded-xl border border-emerald-200 p-4">
+              <h3 className="text-sm font-medium text-emerald-600 mb-4">Bag Sizes</h3>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between gap-4">
+                  <label className="text-emerald-900 flex-1">Grain bag size</label>
+                  <input
+                    type="number"
+                    value={editSettings.bag_size_grain}
+                    onChange={(e) => setEditSettings({
+                      ...editSettings,
+                      bag_size_grain: parseFloat(e.target.value) || 0,
+                    })}
+                    step="1"
+                    min="1"
+                    className="w-24 px-3 py-2 rounded-lg border-2 border-emerald-200 bg-white text-emerald-900 text-right focus:border-emerald-500 focus:outline-none"
+                  />
+                  <span className="text-emerald-600 text-sm w-8">lbs</span>
+                </div>
+                <div className="flex items-center justify-between gap-4">
+                  <label className="text-emerald-900 flex-1">Vitamin bag size</label>
+                  <input
+                    type="number"
+                    value={editSettings.bag_size_vitamin}
+                    onChange={(e) => setEditSettings({
+                      ...editSettings,
+                      bag_size_vitamin: parseFloat(e.target.value) || 0,
+                    })}
+                    step="0.5"
+                    min="0.1"
+                    className="w-24 px-3 py-2 rounded-lg border-2 border-emerald-200 bg-white text-emerald-900 text-right focus:border-emerald-500 focus:outline-none"
+                  />
+                  <span className="text-emerald-600 text-sm w-8">lbs</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Save button */}
+            <button
+              onClick={handleSaveSettings}
+              disabled={submitting}
+              className="w-full py-4 bg-emerald-700 hover:bg-emerald-800 disabled:bg-emerald-400 text-white text-lg font-semibold rounded-xl shadow-lg transition-colors"
+            >
+              {submitting ? 'Saving...' : 'Save Settings'}
+            </button>
           </div>
         )}
       </main>
