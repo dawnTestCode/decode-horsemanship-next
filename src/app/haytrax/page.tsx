@@ -357,9 +357,57 @@ export default function HayTraxPage() {
     Array.from(weekMap.entries())
       .sort(([a], [b]) => a.localeCompare(b))
       .forEach(([weekKey, data]) => {
-        const date = new Date(weekKey);
-        const label = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        const startDate = new Date(weekKey);
+        const endDate = new Date(startDate);
+        endDate.setDate(startDate.getDate() + 6);
+        // Format as "Jun 29 – Jul 5"
+        const startLabel = startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        const endLabel = endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        const label = `${startLabel} – ${endLabel}`;
         weeklyData.push({ week: label, ...data });
+      });
+
+    // Monthly data (group by calendar month)
+    const monthlyData: { month: string; monthKey: string; round: number; square: number; isCurrent: boolean }[] = [];
+    const monthMap = new Map<string, { round: number; square: number }>();
+
+    usageTransactions.forEach(tx => {
+      const date = new Date(tx.created_at);
+      const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+
+      if (!monthMap.has(monthKey)) {
+        monthMap.set(monthKey, { round: 0, square: 0 });
+      }
+
+      const month = monthMap.get(monthKey)!;
+      if (tx.bale_type === 'round') {
+        month.round += tx.quantity;
+      } else {
+        month.square += tx.quantity;
+      }
+    });
+
+    // Get current month key
+    const currentMonthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+
+    // Ensure current month exists even if no transactions yet
+    if (!monthMap.has(currentMonthKey)) {
+      monthMap.set(currentMonthKey, { round: 0, square: 0 });
+    }
+
+    // Convert to array and sort
+    Array.from(monthMap.entries())
+      .sort(([a], [b]) => a.localeCompare(b))
+      .forEach(([monthKey, data]) => {
+        const [year, month] = monthKey.split('-');
+        const date = new Date(parseInt(year), parseInt(month) - 1, 1);
+        const label = date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+        monthlyData.push({
+          month: label,
+          monthKey,
+          isCurrent: monthKey === currentMonthKey,
+          ...data,
+        });
       });
 
     // Calculate field consumption rates (days per bale for each field)
@@ -423,6 +471,7 @@ export default function HayTraxPage() {
       roundRunway,
       squareRunway,
       weeklyData,
+      monthlyData,
       daysInPeriod,
       fieldConsumption,
     };
@@ -1069,11 +1118,65 @@ export default function HayTraxPage() {
 
             {stats.weeklyData.length < 2 && (
               <div className="bg-white rounded-xl border border-amber-200 p-6 text-center text-amber-600">
-                Not enough data yet for usage trends.
+                Not enough data yet for weekly trends.
                 <br />
                 <span className="text-sm text-amber-500">Check back after recording more activity.</span>
               </div>
             )}
+
+            {/* Monthly usage */}
+            {stats.monthlyData.length > 0 && (() => {
+              const maxValue = Math.max(
+                ...stats.monthlyData.map(d => Math.max(d.round, d.square)),
+                1
+              );
+              return (
+                <div className="bg-white rounded-xl border border-amber-200 p-4">
+                  <h3 className="text-sm font-medium text-amber-600 mb-4">
+                    Monthly Usage
+                  </h3>
+                  <div className="space-y-3">
+                    {stats.monthlyData.map((month) => (
+                      <div key={month.monthKey} className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <div className="text-xs text-amber-600 font-medium">{month.month}</div>
+                          {month.isCurrent && (
+                            <span className="text-[10px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded">
+                              in progress
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex gap-2 items-center">
+                          <div className="flex-1 h-6 bg-amber-100 rounded overflow-hidden flex">
+                            <div
+                              className="h-full bg-amber-700 rounded-l"
+                              style={{ width: `${(month.round / maxValue) * 100}%` }}
+                            />
+                            <div
+                              className="h-full bg-amber-500"
+                              style={{ width: `${(month.square / maxValue) * 100}%` }}
+                            />
+                          </div>
+                          <div className="text-xs text-amber-700 w-16 text-right">
+                            {month.round}R / {month.square}S
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="flex justify-center gap-6 mt-4 pt-3 border-t border-amber-100">
+                    <div className="flex items-center gap-2 text-xs text-amber-700">
+                      <div className="w-3 h-3 rounded bg-amber-700" />
+                      Round
+                    </div>
+                    <div className="flex items-center gap-2 text-xs text-amber-600">
+                      <div className="w-3 h-3 rounded bg-amber-500" />
+                      Square
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
           </div>
         )}
       </main>
