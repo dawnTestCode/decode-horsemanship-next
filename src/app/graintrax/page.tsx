@@ -1203,10 +1203,10 @@ export default function GrainTraxPage() {
                         'text-green-600'
                       }`}>
                         {runway === Infinity ? '—' :
-                          runway <= 1 ? '<1d' :
-                          runway < 7 ? `${runway}d` :
-                          `${Math.floor(runway / 7)}w`}
+                          runway <= 1 ? '<1' :
+                          `${runway}`}
                       </div>
+                      <div className="text-xs text-emerald-500">days</div>
                       <div className="text-sm text-emerald-700">{type.shortLabel}</div>
                       <div className="text-xs text-emerald-500 mt-1">
                         {bags} bag{bags !== 1 ? 's' : ''}
