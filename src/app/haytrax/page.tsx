@@ -1027,9 +1027,9 @@ export default function HayTraxPage() {
                 <h3 className="text-sm font-medium text-amber-600 mb-3">
                   Weekly Usage Trend
                 </h3>
-                <div className="h-48">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={stats.weeklyData} margin={{ top: 5, right: 5, bottom: 5, left: -20 }}>
+                <div style={{ width: '100%', height: 192 }}>
+                  <ResponsiveContainer>
+                    <BarChart data={stats.weeklyData} margin={{ top: 10, right: 10, bottom: 5, left: 0 }}>
                       <XAxis
                         dataKey="week"
                         tick={{ fontSize: 10, fill: '#92400e' }}
@@ -1041,6 +1041,7 @@ export default function HayTraxPage() {
                         tickLine={false}
                         axisLine={{ stroke: '#fbbf24' }}
                         allowDecimals={false}
+                        width={30}
                       />
                       <Tooltip
                         contentStyle={{
