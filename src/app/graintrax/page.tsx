@@ -1272,7 +1272,7 @@ export default function GrainTraxPage() {
               <h3 className="text-sm font-medium text-emerald-600 mb-3">
                 Runway (at current usage)
               </h3>
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-4 gap-4">
                 {GRAIN_TYPES.map(type => {
                   const runway = stats.runwayDays[type.value];
                   const bags = inventory.grain[type.value];
@@ -1281,7 +1281,6 @@ export default function GrainTraxPage() {
                       <div className={`text-2xl font-bold ${
                         runway === Infinity ? 'text-gray-400' :
                         runway <= 7 ? 'text-red-600' :
-                        runway <= 14 ? 'text-amber-600' :
                         'text-green-600'
                       }`}>
                         {runway === Infinity ? '—' :
@@ -1296,6 +1295,22 @@ export default function GrainTraxPage() {
                     </div>
                   );
                 })}
+                <div>
+                  <div className={`text-2xl font-bold ${
+                    stats.vitaminRunwayDays === Infinity ? 'text-gray-400' :
+                    stats.vitaminRunwayDays <= 7 ? 'text-red-600' :
+                    'text-green-600'
+                  }`}>
+                    {stats.vitaminRunwayDays === Infinity ? '—' :
+                      stats.vitaminRunwayDays <= 1 ? '<1' :
+                      `${stats.vitaminRunwayDays}`}
+                  </div>
+                  <div className="text-xs text-emerald-500">days</div>
+                  <div className="text-sm text-emerald-700">Vitamins</div>
+                  <div className="text-xs text-emerald-500 mt-1">
+                    {inventory.vitamin} bag{inventory.vitamin !== 1 ? 's' : ''}
+                  </div>
+                </div>
               </div>
             </div>
 
