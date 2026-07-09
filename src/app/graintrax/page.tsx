@@ -516,26 +516,23 @@ export default function GrainTraxPage() {
     }
   };
 
-  const handleMissedFeeding = async (horseIds: string[] | 'all') => {
+  const handleMissedFeeding = async (horseId: string | 'all') => {
     setSubmitting(true);
     setError(null);
 
     try {
-      if (horseIds === 'all') {
+      if (horseId === 'all') {
         const { error } = await supabase.rpc('record_half_feeding');
         if (error) throw error;
         setSuccess('Marked missed feeding for all horses');
       } else {
-        // Record missed feeding for specific horses
-        const { error } = await supabase.rpc('record_half_feeding_for_horses', {
-          p_horse_ids: horseIds,
+        // Record missed feeding for a specific horse
+        const { error } = await supabase.rpc('record_half_feeding_for_horse', {
+          p_horse_id: horseId,
         });
         if (error) throw error;
-        const horseNames = horses
-          .filter(h => horseIds.includes(h.id))
-          .map(h => h.name)
-          .join(', ');
-        setSuccess(`Marked missed feeding for ${horseNames}`);
+        const horseName = horses.find(h => h.id === horseId)?.name;
+        setSuccess(`Marked missed feeding for ${horseName}`);
       }
       await fetchData();
       setTimeout(() => {
@@ -1499,7 +1496,7 @@ export default function GrainTraxPage() {
                 {stats.activeHorses.map(horse => (
                   <button
                     key={horse.id}
-                    onClick={() => handleMissedFeeding([horse.id])}
+                    onClick={() => handleMissedFeeding(horse.id)}
                     disabled={submitting}
                     className="w-full bg-white hover:bg-amber-50 rounded-lg border-2 border-amber-200 hover:border-amber-400 p-4 text-left transition-all disabled:opacity-50"
                   >
