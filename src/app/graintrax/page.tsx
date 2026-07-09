@@ -610,14 +610,60 @@ export default function GrainTraxPage() {
 
     const vitaminBagsPerDay = dailyVitaminLbs / settings.bag_size_vitamin;
 
-    // Calculate runway in days
-    const runwayDays: Record<GrainType, number> = {
-      strategy: bagsPerDay.strategy > 0 ? Math.floor(inventory.grain.strategy / bagsPerDay.strategy) : Infinity,
-      omelene: bagsPerDay.omelene > 0 ? Math.floor(inventory.grain.omelene / bagsPerDay.omelene) : Infinity,
-      enrich: bagsPerDay.enrich > 0 ? Math.floor(inventory.grain.enrich / bagsPerDay.enrich) : Infinity,
+    // Calculate grain saved from missed feedings (in lbs)
+    const savedGrainLbs: Record<GrainType, number> = {
+      strategy: 0,
+      omelene: 0,
+      enrich: 0,
+    };
+    let savedVitaminScoops = 0;
+
+    transactions
+      .filter(tx => tx.transaction_type === 'half_feeding')
+      .forEach(tx => {
+        if (tx.details === 'Horses fed once') {
+          // All horses missed a feeding - add one feeding worth for each horse
+          activeHorses.forEach(horse => {
+            savedGrainLbs[horse.grain_type] += horse.cans_per_feeding * getLbsPerCan(horse.grain_type);
+            savedVitaminScoops += horse.vitamin_scoops;
+          });
+        } else if (tx.details) {
+          // Specific horse(s) missed a feeding - parse horse name from details
+          const horseName = tx.details.replace(' missed feeding', '');
+          const horse = horses.find(h => h.name === horseName);
+          if (horse) {
+            savedGrainLbs[horse.grain_type] += horse.cans_per_feeding * getLbsPerCan(horse.grain_type);
+            savedVitaminScoops += horse.vitamin_scoops;
+          }
+        }
+      });
+
+    // Convert saved grain to bags
+    const savedGrainBags: Record<GrainType, number> = {
+      strategy: savedGrainLbs.strategy / settings.bag_size_grain,
+      omelene: savedGrainLbs.omelene / settings.bag_size_grain,
+      enrich: savedGrainLbs.enrich / settings.bag_size_grain,
+    };
+    const savedVitaminBags = (savedVitaminScoops * settings.lbs_per_scoop_vitamin) / settings.bag_size_vitamin;
+
+    // Effective inventory = actual inventory + saved grain from missed feedings
+    const effectiveInventory = {
+      grain: {
+        strategy: inventory.grain.strategy + savedGrainBags.strategy,
+        omelene: inventory.grain.omelene + savedGrainBags.omelene,
+        enrich: inventory.grain.enrich + savedGrainBags.enrich,
+      },
+      vitamin: inventory.vitamin + savedVitaminBags,
     };
 
-    const vitaminRunwayDays = vitaminBagsPerDay > 0 ? Math.floor(inventory.vitamin / vitaminBagsPerDay) : Infinity;
+    // Calculate runway in days using effective inventory
+    const runwayDays: Record<GrainType, number> = {
+      strategy: bagsPerDay.strategy > 0 ? Math.floor(effectiveInventory.grain.strategy / bagsPerDay.strategy) : Infinity,
+      omelene: bagsPerDay.omelene > 0 ? Math.floor(effectiveInventory.grain.omelene / bagsPerDay.omelene) : Infinity,
+      enrich: bagsPerDay.enrich > 0 ? Math.floor(effectiveInventory.grain.enrich / bagsPerDay.enrich) : Infinity,
+    };
+
+    const vitaminRunwayDays = vitaminBagsPerDay > 0 ? Math.floor(effectiveInventory.vitamin / vitaminBagsPerDay) : Infinity;
 
     // Calculate weekly and monthly grain usage in bags
     const weeklyBags: Record<GrainType, number> = {
