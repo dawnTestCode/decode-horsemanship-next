@@ -19,12 +19,17 @@ interface Horse {
   updated_at: string;
 }
 
+type TransactionType = 'bought' | 'horse_added' | 'horse_updated' | 'horse_removed';
+
 interface Transaction {
   id: string;
   item_type: ItemType;
   grain_type: GrainType | null;
-  transaction_type: 'bought';
+  transaction_type: TransactionType;
   quantity: number;
+  horse_id: string | null;
+  horse_name: string | null;
+  details: string | null;
   created_at: string;
 }
 
@@ -184,7 +189,7 @@ export default function GrainTraxPage() {
 
       const { data: txData, error: txError } = await supabase
         .from('grain_transactions')
-        .select('id, item_type, grain_type, transaction_type, quantity, created_at')
+        .select('id, item_type, grain_type, transaction_type, quantity, horse_id, horse_name, details, created_at')
         .gte('created_at', thirtyDaysAgo.toISOString())
         .order('created_at', { ascending: false });
 
@@ -309,7 +314,7 @@ export default function GrainTraxPage() {
     setError(null);
 
     try {
-      const { error } = await supabase.rpc('add_grain_horse', {
+      const { data: horseId, error } = await supabase.rpc('add_grain_horse', {
         p_name: horseName.trim(),
         p_grain_type: horseGrainType,
         p_cans_per_feeding: cans,
@@ -317,6 +322,14 @@ export default function GrainTraxPage() {
       });
 
       if (error) throw error;
+
+      // Record activity
+      await supabase.rpc('record_horse_activity', {
+        p_horse_id: horseId,
+        p_horse_name: horseName.trim(),
+        p_activity_type: 'horse_added',
+        p_details: `${cans} cans ${getGrainTypeLabel(horseGrainType, true)}/feeding`,
+      });
 
       setSuccess(`Added ${horseName.trim()}`);
       await fetchData();
@@ -365,6 +378,25 @@ export default function GrainTraxPage() {
 
       if (error) throw error;
 
+      // Record activity with what changed
+      const changes: string[] = [];
+      if (editingHorse.cans_per_feeding !== cans) {
+        changes.push(`${editingHorse.cans_per_feeding} → ${cans} cans`);
+      }
+      if (editingHorse.grain_type !== horseGrainType) {
+        changes.push(`${getGrainTypeLabel(editingHorse.grain_type, true)} → ${getGrainTypeLabel(horseGrainType, true)}`);
+      }
+      if (editingHorse.vitamin_scoops !== vitamins) {
+        changes.push(`vitamins ${editingHorse.vitamin_scoops} → ${vitamins}`);
+      }
+
+      await supabase.rpc('record_horse_activity', {
+        p_horse_id: editingHorse.id,
+        p_horse_name: horseName.trim(),
+        p_activity_type: 'horse_updated',
+        p_details: changes.length > 0 ? changes.join(', ') : 'no changes',
+      });
+
       setSuccess(`Updated ${horseName.trim()}`);
       await fetchData();
       setTimeout(() => {
@@ -393,6 +425,13 @@ export default function GrainTraxPage() {
 
       if (error) throw error;
 
+      // Record activity
+      await supabase.rpc('record_horse_activity', {
+        p_horse_id: horse.id,
+        p_horse_name: horse.name,
+        p_activity_type: 'horse_removed',
+      });
+
       setSuccess(`Removed ${horse.name}`);
       await fetchData();
     } catch (err) {
@@ -414,6 +453,14 @@ export default function GrainTraxPage() {
       });
 
       if (error) throw error;
+
+      // Record activity
+      await supabase.rpc('record_horse_activity', {
+        p_horse_id: horse.id,
+        p_horse_name: horse.name,
+        p_activity_type: 'horse_added',
+        p_details: 'reactivated',
+      });
 
       setSuccess(`Reactivated ${horse.name}`);
       await fetchData();
@@ -582,7 +629,7 @@ export default function GrainTraxPage() {
           <div className="w-px bg-emerald-700" />
           <div className="text-center">
             <div className="text-4xl font-bold">{inventory.vitamin}</div>
-            <div className="text-emerald-200 text-sm">Vitamins</div>
+            <div className="text-emerald-200 text-sm">Vitamin Bag{inventory.vitamin !== 1 ? 's' : ''}</div>
           </div>
           <div className="w-px bg-emerald-700" />
           <div className="text-center">
@@ -642,35 +689,70 @@ export default function GrainTraxPage() {
               </button>
             </div>
 
-            {/* Recent purchases */}
+            {/* Recent activity */}
             {transactions.length > 0 && (
               <div className="mt-8">
-                <h2 className="text-lg font-semibold text-emerald-900 mb-3">Recent Purchases</h2>
+                <h2 className="text-lg font-semibold text-emerald-900 mb-3">Recent Activity</h2>
                 <div className="space-y-2">
-                  {transactions.slice(0, 5).map(tx => (
-                    <div
-                      key={tx.id}
-                      className="bg-white rounded-lg border border-emerald-200 p-3 flex items-center gap-3"
-                    >
-                      <div className="w-8 h-8 rounded-full flex items-center justify-center bg-green-100 text-green-700">
-                        <Plus size={16} />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="text-sm text-emerald-900">
-                          <span className="font-medium">+{tx.quantity}</span>
-                          {' '}
-                          {tx.item_type === 'grain'
-                            ? getGrainTypeLabel(tx.grain_type, true)
-                            : 'Vitamin'
-                          }
-                          {' bag'}{tx.quantity > 1 ? 's' : ''}
+                  {transactions.slice(0, 8).map(tx => {
+                    const isBought = tx.transaction_type === 'bought';
+                    const isHorseAdded = tx.transaction_type === 'horse_added';
+                    const isHorseUpdated = tx.transaction_type === 'horse_updated';
+                    const isHorseRemoved = tx.transaction_type === 'horse_removed';
+
+                    return (
+                      <div
+                        key={tx.id}
+                        className="bg-white rounded-lg border border-emerald-200 p-3 flex items-center gap-3"
+                      >
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                          isBought ? 'bg-green-100 text-green-700' :
+                          isHorseAdded ? 'bg-blue-100 text-blue-700' :
+                          isHorseUpdated ? 'bg-amber-100 text-amber-700' :
+                          isHorseRemoved ? 'bg-red-100 text-red-700' :
+                          'bg-gray-100 text-gray-700'
+                        }`}>
+                          {isBought && <Plus size={16} />}
+                          {isHorseAdded && <Users size={16} />}
+                          {isHorseUpdated && <Pencil size={16} />}
+                          {isHorseRemoved && <Trash2 size={16} />}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          {isBought && (
+                            <div className="text-sm text-emerald-900">
+                              <span className="font-medium">+{tx.quantity}</span>
+                              {' '}
+                              {tx.item_type === 'grain'
+                                ? getGrainTypeLabel(tx.grain_type, true)
+                                : 'Vitamin'
+                              }
+                              {' bag'}{tx.quantity > 1 ? 's' : ''}
+                            </div>
+                          )}
+                          {isHorseAdded && (
+                            <div className="text-sm text-emerald-900">
+                              <span className="font-medium">Added {tx.horse_name}</span>
+                              {tx.details && <span className="text-emerald-600"> ({tx.details})</span>}
+                            </div>
+                          )}
+                          {isHorseUpdated && (
+                            <div className="text-sm text-emerald-900">
+                              <span className="font-medium">Updated {tx.horse_name}</span>
+                              {tx.details && <span className="text-emerald-600"> ({tx.details})</span>}
+                            </div>
+                          )}
+                          {isHorseRemoved && (
+                            <div className="text-sm text-emerald-900">
+                              <span className="font-medium">Removed {tx.horse_name}</span>
+                            </div>
+                          )}
+                        </div>
+                        <div className="text-xs text-emerald-500 whitespace-nowrap">
+                          {formatDate(tx.created_at)}
                         </div>
                       </div>
-                      <div className="text-xs text-emerald-500 whitespace-nowrap">
-                        {formatDate(tx.created_at)}
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             )}
