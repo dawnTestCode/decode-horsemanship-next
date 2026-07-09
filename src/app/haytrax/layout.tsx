@@ -10,6 +10,10 @@ export const metadata: Metadata = {
   },
   applicationName: 'HayTrax',
   icons: {
+    icon: [
+      { url: '/haytrax-icon.svg', type: 'image/svg+xml' },
+      { url: '/haytrax-icon.png', type: 'image/png' },
+    ],
     apple: [
       { url: '/apple-touch-icon-haytrax.png', sizes: '180x180', type: 'image/png' },
     ],
@@ -31,6 +35,8 @@ export default function HayTraxLayout({
 }) {
   return (
     <>
+      <link rel="icon" type="image/svg+xml" href="/haytrax-icon.svg" />
+      <link rel="icon" type="image/png" href="/haytrax-icon.png" />
       <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon-haytrax.png" />
       {children}
     </>
