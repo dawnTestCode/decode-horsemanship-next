@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { supabase } from '@/lib/supabase';
 import { ChevronLeft, Package, Minus, Plus, Check, X, Circle, Calendar, BarChart3 } from 'lucide-react';
-import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip } from 'recharts';
 
 type View = 'main' | 'bought' | 'used' | 'stats';
 type BaleType = 'round' | 'square';
@@ -1022,14 +1022,14 @@ export default function HayTraxPage() {
             )}
 
             {/* Weekly usage chart */}
-            {stats.weeklyData.length > 0 && (
+            {stats.weeklyData.length >= 2 && (
               <div className="bg-white rounded-xl border border-amber-200 p-4">
                 <h3 className="text-sm font-medium text-amber-600 mb-3">
                   Weekly Usage Trend
                 </h3>
                 <div className="h-48">
                   <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={stats.weeklyData} margin={{ top: 5, right: 5, bottom: 5, left: -20 }}>
+                    <BarChart data={stats.weeklyData} margin={{ top: 5, right: 5, bottom: 5, left: -20 }}>
                       <XAxis
                         dataKey="week"
                         tick={{ fontSize: 10, fill: '#92400e' }}
@@ -1050,23 +1050,9 @@ export default function HayTraxPage() {
                           fontSize: '12px',
                         }}
                       />
-                      <Line
-                        type="monotone"
-                        dataKey="round"
-                        stroke="#b45309"
-                        strokeWidth={2}
-                        dot={{ fill: '#b45309', strokeWidth: 0, r: 3 }}
-                        name="Round"
-                      />
-                      <Line
-                        type="monotone"
-                        dataKey="square"
-                        stroke="#d97706"
-                        strokeWidth={2}
-                        dot={{ fill: '#d97706', strokeWidth: 0, r: 3 }}
-                        name="Square"
-                      />
-                    </LineChart>
+                      <Bar dataKey="round" fill="#b45309" name="Round" radius={[4, 4, 0, 0]} />
+                      <Bar dataKey="square" fill="#d97706" name="Square" radius={[4, 4, 0, 0]} />
+                    </BarChart>
                   </ResponsiveContainer>
                 </div>
                 <div className="flex justify-center gap-6 mt-2">
@@ -1082,7 +1068,7 @@ export default function HayTraxPage() {
               </div>
             )}
 
-            {stats.weeklyData.length === 0 && (
+            {stats.weeklyData.length < 2 && (
               <div className="bg-white rounded-xl border border-amber-200 p-6 text-center text-amber-600">
                 Not enough data yet for usage trends.
                 <br />
