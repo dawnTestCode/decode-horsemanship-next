@@ -330,9 +330,16 @@ export default function HayTraxPage() {
     const roundRunway = roundPerDay > 0 ? Math.floor(inventory.round / roundPerDay) : Infinity;
     const squareRunway = squarePerDay > 0 ? Math.floor(inventory.square.total / squarePerDay) : Infinity;
 
-    // Weekly data for chart (group by week)
-    const weeklyData: { week: string; round: number; square: number }[] = [];
-    const weekMap = new Map<string, { round: number; square: number }>();
+    // Weekly data for chart (group by week, with hay type breakdown)
+    interface WeeklyDataItem {
+      week: string;
+      round: number;
+      fescue: number;
+      fescueFree: number;
+      alfalfa: number;
+    }
+    const weeklyData: WeeklyDataItem[] = [];
+    const weekMap = new Map<string, { round: number; fescue: number; fescueFree: number; alfalfa: number }>();
 
     usageTransactions.forEach(tx => {
       const date = new Date(tx.created_at);
@@ -342,14 +349,18 @@ export default function HayTraxPage() {
       const weekKey = startOfWeek.toISOString().split('T')[0];
 
       if (!weekMap.has(weekKey)) {
-        weekMap.set(weekKey, { round: 0, square: 0 });
+        weekMap.set(weekKey, { round: 0, fescue: 0, fescueFree: 0, alfalfa: 0 });
       }
 
       const week = weekMap.get(weekKey)!;
       if (tx.bale_type === 'round') {
         week.round += tx.quantity;
-      } else {
-        week.square += tx.quantity;
+      } else if (tx.hay_type === 'fescue') {
+        week.fescue += tx.quantity;
+      } else if (tx.hay_type === 'fescue-free') {
+        week.fescueFree += tx.quantity;
+      } else if (tx.hay_type === 'alfalfa') {
+        week.alfalfa += tx.quantity;
       }
     });
 
@@ -367,23 +378,36 @@ export default function HayTraxPage() {
         weeklyData.push({ week: label, ...data });
       });
 
-    // Monthly data (group by calendar month)
-    const monthlyData: { month: string; monthKey: string; round: number; square: number; isCurrent: boolean }[] = [];
-    const monthMap = new Map<string, { round: number; square: number }>();
+    // Monthly data (group by calendar month, with hay type breakdown)
+    interface MonthlyDataItem {
+      month: string;
+      monthKey: string;
+      round: number;
+      fescue: number;
+      fescueFree: number;
+      alfalfa: number;
+      isCurrent: boolean;
+    }
+    const monthlyData: MonthlyDataItem[] = [];
+    const monthMap = new Map<string, { round: number; fescue: number; fescueFree: number; alfalfa: number }>();
 
     usageTransactions.forEach(tx => {
       const date = new Date(tx.created_at);
       const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
 
       if (!monthMap.has(monthKey)) {
-        monthMap.set(monthKey, { round: 0, square: 0 });
+        monthMap.set(monthKey, { round: 0, fescue: 0, fescueFree: 0, alfalfa: 0 });
       }
 
       const month = monthMap.get(monthKey)!;
       if (tx.bale_type === 'round') {
         month.round += tx.quantity;
-      } else {
-        month.square += tx.quantity;
+      } else if (tx.hay_type === 'fescue') {
+        month.fescue += tx.quantity;
+      } else if (tx.hay_type === 'fescue-free') {
+        month.fescueFree += tx.quantity;
+      } else if (tx.hay_type === 'alfalfa') {
+        month.alfalfa += tx.quantity;
       }
     });
 
@@ -392,7 +416,7 @@ export default function HayTraxPage() {
 
     // Ensure current month exists even if no transactions yet
     if (!monthMap.has(currentMonthKey)) {
-      monthMap.set(currentMonthKey, { round: 0, square: 0 });
+      monthMap.set(currentMonthKey, { round: 0, fescue: 0, fescueFree: 0, alfalfa: 0 });
     }
 
     // Convert to array and sort (most recent first)
@@ -1072,44 +1096,67 @@ export default function HayTraxPage() {
             {/* Weekly usage chart */}
             {stats.weeklyData.length >= 2 && (() => {
               const maxValue = Math.max(
-                ...stats.weeklyData.map(d => Math.max(d.round, d.square)),
+                ...stats.weeklyData.map(d => d.round + d.fescue + d.fescueFree + d.alfalfa),
                 1
               );
               return (
                 <div className="bg-white rounded-xl border border-amber-200 p-4">
                   <h3 className="text-sm font-medium text-amber-600 mb-4">
-                    Weekly Usage Trend
+                    Weekly Usage
                   </h3>
                   <div className="space-y-3">
-                    {stats.weeklyData.map((week) => (
-                      <div key={week.week} className="space-y-1">
-                        <div className="text-xs text-amber-600 font-medium">{week.week}</div>
-                        <div className="flex gap-2 items-center">
-                          <div className="flex-1 h-6 bg-amber-100 rounded overflow-hidden flex">
-                            <div
-                              className="h-full bg-amber-700 rounded-l"
-                              style={{ width: `${(week.round / maxValue) * 100}%` }}
-                            />
-                            <div
-                              className="h-full bg-amber-500"
-                              style={{ width: `${(week.square / maxValue) * 100}%` }}
-                            />
-                          </div>
-                          <div className="text-xs text-amber-700 w-16 text-right">
-                            {week.round}R / {week.square}S
+                    {stats.weeklyData.map((week) => {
+                      const total = week.round + week.fescue + week.fescueFree + week.alfalfa;
+                      return (
+                        <div key={week.week} className="space-y-1">
+                          <div className="text-xs text-amber-600 font-medium">{week.week}</div>
+                          <div className="flex gap-2 items-center">
+                            <div className="flex-1 h-6 bg-amber-100 rounded overflow-hidden flex">
+                              <div
+                                className="h-full bg-amber-800"
+                                style={{ width: `${(week.round / maxValue) * 100}%` }}
+                              />
+                              <div
+                                className="h-full bg-amber-600"
+                                style={{ width: `${(week.fescue / maxValue) * 100}%` }}
+                              />
+                              <div
+                                className="h-full bg-amber-400"
+                                style={{ width: `${(week.fescueFree / maxValue) * 100}%` }}
+                              />
+                              <div
+                                className="h-full bg-green-500"
+                                style={{ width: `${(week.alfalfa / maxValue) * 100}%` }}
+                              />
+                            </div>
+                            <div className="text-xs text-amber-700 w-24 text-right">
+                              {week.round > 0 && `${week.round}R `}
+                              {week.fescue > 0 && `${week.fescue}F `}
+                              {week.fescueFree > 0 && `${week.fescueFree}FF `}
+                              {week.alfalfa > 0 && `${week.alfalfa}A`}
+                              {total === 0 && '—'}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
-                  <div className="flex justify-center gap-6 mt-4 pt-3 border-t border-amber-100">
-                    <div className="flex items-center gap-2 text-xs text-amber-700">
-                      <div className="w-3 h-3 rounded bg-amber-700" />
+                  <div className="flex flex-wrap justify-center gap-x-4 gap-y-1 mt-4 pt-3 border-t border-amber-100">
+                    <div className="flex items-center gap-1.5 text-xs text-amber-800">
+                      <div className="w-3 h-3 rounded bg-amber-800" />
                       Round
                     </div>
-                    <div className="flex items-center gap-2 text-xs text-amber-600">
-                      <div className="w-3 h-3 rounded bg-amber-500" />
-                      Square
+                    <div className="flex items-center gap-1.5 text-xs text-amber-600">
+                      <div className="w-3 h-3 rounded bg-amber-600" />
+                      Fescue
+                    </div>
+                    <div className="flex items-center gap-1.5 text-xs text-amber-500">
+                      <div className="w-3 h-3 rounded bg-amber-400" />
+                      FF
+                    </div>
+                    <div className="flex items-center gap-1.5 text-xs text-green-600">
+                      <div className="w-3 h-3 rounded bg-green-500" />
+                      Alfalfa
                     </div>
                   </div>
                 </div>
@@ -1127,7 +1174,7 @@ export default function HayTraxPage() {
             {/* Monthly usage */}
             {stats.monthlyData.length > 0 && (() => {
               const maxValue = Math.max(
-                ...stats.monthlyData.map(d => Math.max(d.round, d.square)),
+                ...stats.monthlyData.map(d => d.round + d.fescue + d.fescueFree + d.alfalfa),
                 1
               );
               return (
@@ -1136,42 +1183,65 @@ export default function HayTraxPage() {
                     Monthly Usage
                   </h3>
                   <div className="space-y-3">
-                    {stats.monthlyData.map((month) => (
-                      <div key={month.monthKey} className="space-y-1">
-                        <div className="flex items-center gap-2">
-                          <div className="text-xs text-amber-600 font-medium">{month.month}</div>
-                          {month.isCurrent && (
-                            <span className="text-[10px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded">
-                              in progress
-                            </span>
-                          )}
-                        </div>
-                        <div className="flex gap-2 items-center">
-                          <div className="flex-1 h-6 bg-amber-100 rounded overflow-hidden flex">
-                            <div
-                              className="h-full bg-amber-700 rounded-l"
-                              style={{ width: `${(month.round / maxValue) * 100}%` }}
-                            />
-                            <div
-                              className="h-full bg-amber-500"
-                              style={{ width: `${(month.square / maxValue) * 100}%` }}
-                            />
+                    {stats.monthlyData.map((month) => {
+                      const total = month.round + month.fescue + month.fescueFree + month.alfalfa;
+                      return (
+                        <div key={month.monthKey} className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <div className="text-xs text-amber-600 font-medium">{month.month}</div>
+                            {month.isCurrent && (
+                              <span className="text-[10px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded">
+                                in progress
+                              </span>
+                            )}
                           </div>
-                          <div className="text-xs text-amber-700 w-16 text-right">
-                            {month.round}R / {month.square}S
+                          <div className="flex gap-2 items-center">
+                            <div className="flex-1 h-6 bg-amber-100 rounded overflow-hidden flex">
+                              <div
+                                className="h-full bg-amber-800"
+                                style={{ width: `${(month.round / maxValue) * 100}%` }}
+                              />
+                              <div
+                                className="h-full bg-amber-600"
+                                style={{ width: `${(month.fescue / maxValue) * 100}%` }}
+                              />
+                              <div
+                                className="h-full bg-amber-400"
+                                style={{ width: `${(month.fescueFree / maxValue) * 100}%` }}
+                              />
+                              <div
+                                className="h-full bg-green-500"
+                                style={{ width: `${(month.alfalfa / maxValue) * 100}%` }}
+                              />
+                            </div>
+                            <div className="text-xs text-amber-700 w-24 text-right">
+                              {month.round > 0 && `${month.round}R `}
+                              {month.fescue > 0 && `${month.fescue}F `}
+                              {month.fescueFree > 0 && `${month.fescueFree}FF `}
+                              {month.alfalfa > 0 && `${month.alfalfa}A`}
+                              {total === 0 && '—'}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
-                  <div className="flex justify-center gap-6 mt-4 pt-3 border-t border-amber-100">
-                    <div className="flex items-center gap-2 text-xs text-amber-700">
-                      <div className="w-3 h-3 rounded bg-amber-700" />
+                  <div className="flex flex-wrap justify-center gap-x-4 gap-y-1 mt-4 pt-3 border-t border-amber-100">
+                    <div className="flex items-center gap-1.5 text-xs text-amber-800">
+                      <div className="w-3 h-3 rounded bg-amber-800" />
                       Round
                     </div>
-                    <div className="flex items-center gap-2 text-xs text-amber-600">
-                      <div className="w-3 h-3 rounded bg-amber-500" />
-                      Square
+                    <div className="flex items-center gap-1.5 text-xs text-amber-600">
+                      <div className="w-3 h-3 rounded bg-amber-600" />
+                      Fescue
+                    </div>
+                    <div className="flex items-center gap-1.5 text-xs text-amber-500">
+                      <div className="w-3 h-3 rounded bg-amber-400" />
+                      FF
+                    </div>
+                    <div className="flex items-center gap-1.5 text-xs text-green-600">
+                      <div className="w-3 h-3 rounded bg-green-500" />
+                      Alfalfa
                     </div>
                   </div>
                 </div>
