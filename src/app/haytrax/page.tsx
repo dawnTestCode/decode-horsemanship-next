@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { supabase } from '@/lib/supabase';
 import { ChevronLeft, Package, Minus, Plus, Check, X, Circle, Calendar, BarChart3 } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip } from 'recharts';
 
 type View = 'main' | 'bought' | 'used' | 'stats';
 type BaleType = 'round' | 'square';
@@ -1022,52 +1021,51 @@ export default function HayTraxPage() {
             )}
 
             {/* Weekly usage chart */}
-            {stats.weeklyData.length >= 2 && (
-              <div className="bg-white rounded-xl border border-amber-200 p-4">
-                <h3 className="text-sm font-medium text-amber-600 mb-3">
-                  Weekly Usage Trend
-                </h3>
-                <div style={{ width: '100%', height: 192 }}>
-                  <ResponsiveContainer>
-                    <BarChart data={stats.weeklyData} margin={{ top: 10, right: 10, bottom: 5, left: 0 }}>
-                      <XAxis
-                        dataKey="week"
-                        tick={{ fontSize: 10, fill: '#92400e' }}
-                        tickLine={false}
-                        axisLine={{ stroke: '#fbbf24' }}
-                      />
-                      <YAxis
-                        tick={{ fontSize: 10, fill: '#92400e' }}
-                        tickLine={false}
-                        axisLine={{ stroke: '#fbbf24' }}
-                        allowDecimals={false}
-                        width={30}
-                      />
-                      <Tooltip
-                        contentStyle={{
-                          backgroundColor: '#fffbeb',
-                          border: '1px solid #fbbf24',
-                          borderRadius: '8px',
-                          fontSize: '12px',
-                        }}
-                      />
-                      <Bar dataKey="round" fill="#b45309" name="Round" radius={[4, 4, 0, 0]} />
-                      <Bar dataKey="square" fill="#d97706" name="Square" radius={[4, 4, 0, 0]} />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-                <div className="flex justify-center gap-6 mt-2">
-                  <div className="flex items-center gap-2 text-xs text-amber-700">
-                    <div className="w-3 h-3 rounded-full bg-amber-700" />
-                    Round
+            {stats.weeklyData.length >= 2 && (() => {
+              const maxValue = Math.max(
+                ...stats.weeklyData.map(d => Math.max(d.round, d.square)),
+                1
+              );
+              return (
+                <div className="bg-white rounded-xl border border-amber-200 p-4">
+                  <h3 className="text-sm font-medium text-amber-600 mb-4">
+                    Weekly Usage Trend
+                  </h3>
+                  <div className="space-y-3">
+                    {stats.weeklyData.map((week) => (
+                      <div key={week.week} className="space-y-1">
+                        <div className="text-xs text-amber-600 font-medium">{week.week}</div>
+                        <div className="flex gap-2 items-center">
+                          <div className="flex-1 h-6 bg-amber-100 rounded overflow-hidden flex">
+                            <div
+                              className="h-full bg-amber-700 rounded-l"
+                              style={{ width: `${(week.round / maxValue) * 100}%` }}
+                            />
+                            <div
+                              className="h-full bg-amber-500"
+                              style={{ width: `${(week.square / maxValue) * 100}%` }}
+                            />
+                          </div>
+                          <div className="text-xs text-amber-700 w-16 text-right">
+                            {week.round}R / {week.square}S
+                          </div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                  <div className="flex items-center gap-2 text-xs text-amber-600">
-                    <div className="w-3 h-3 rounded-full bg-amber-500" />
-                    Square
+                  <div className="flex justify-center gap-6 mt-4 pt-3 border-t border-amber-100">
+                    <div className="flex items-center gap-2 text-xs text-amber-700">
+                      <div className="w-3 h-3 rounded bg-amber-700" />
+                      Round
+                    </div>
+                    <div className="flex items-center gap-2 text-xs text-amber-600">
+                      <div className="w-3 h-3 rounded bg-amber-500" />
+                      Square
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
+              );
+            })()}
 
             {stats.weeklyData.length < 2 && (
               <div className="bg-white rounded-xl border border-amber-200 p-6 text-center text-amber-600">
