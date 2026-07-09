@@ -363,6 +363,59 @@ export default function HayTraxPage() {
         weeklyData.push({ week: label, ...data });
       });
 
+    // Calculate field consumption rates (days per bale for each field)
+    // Group round bale usage by field, sorted by date
+    const roundBalesByField = new Map<string, Date[]>();
+    usageTransactions
+      .filter(tx => tx.bale_type === 'round' && tx.usage_location)
+      .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
+      .forEach(tx => {
+        const field = tx.usage_location!;
+        if (!roundBalesByField.has(field)) {
+          roundBalesByField.set(field, []);
+        }
+        roundBalesByField.get(field)!.push(new Date(tx.created_at));
+      });
+
+    // Calculate average days between bales for each field
+    const fieldConsumption: { field: string; avgDays: number; baleCount: number; lastBale: Date }[] = [];
+
+    roundBalesByField.forEach((dates, field) => {
+      if (dates.length >= 2) {
+        // Calculate intervals between consecutive bales
+        const intervals: number[] = [];
+        for (let i = 1; i < dates.length; i++) {
+          const daysBetween = Math.round(
+            (dates[i].getTime() - dates[i - 1].getTime()) / (1000 * 60 * 60 * 24)
+          );
+          intervals.push(daysBetween);
+        }
+        const avgDays = intervals.reduce((sum, d) => sum + d, 0) / intervals.length;
+        fieldConsumption.push({
+          field,
+          avgDays: Math.round(avgDays * 10) / 10,
+          baleCount: dates.length,
+          lastBale: dates[dates.length - 1],
+        });
+      } else if (dates.length === 1) {
+        // Only one bale recorded - show as "gathering data"
+        fieldConsumption.push({
+          field,
+          avgDays: -1, // indicates insufficient data
+          baleCount: 1,
+          lastBale: dates[0],
+        });
+      }
+    });
+
+    // Sort by average days (fastest consumers first), then by field name
+    fieldConsumption.sort((a, b) => {
+      if (a.avgDays === -1 && b.avgDays === -1) return a.field.localeCompare(b.field);
+      if (a.avgDays === -1) return 1;
+      if (b.avgDays === -1) return -1;
+      return a.avgDays - b.avgDays;
+    });
+
     return {
       roundUsed,
       squareUsed,
@@ -372,6 +425,7 @@ export default function HayTraxPage() {
       squareRunway,
       weeklyData,
       daysInPeriod,
+      fieldConsumption,
     };
   }, [allTransactions, inventory]);
 
@@ -978,6 +1032,61 @@ export default function HayTraxPage() {
                 Not enough data yet for usage trends.
                 <br />
                 <span className="text-sm text-amber-500">Check back after recording more activity.</span>
+              </div>
+            )}
+
+            {/* Field consumption rates */}
+            {stats.fieldConsumption.length > 0 && (
+              <div className="bg-white rounded-xl border border-amber-200 p-4">
+                <h3 className="text-sm font-medium text-amber-600 mb-3">
+                  Field Consumption (Days per Round Bale)
+                </h3>
+                <div className="space-y-2">
+                  {stats.fieldConsumption.map(({ field, avgDays, baleCount, lastBale }) => {
+                    const daysSinceLastBale = Math.floor(
+                      (Date.now() - lastBale.getTime()) / (1000 * 60 * 60 * 24)
+                    );
+
+                    return (
+                      <div
+                        key={field}
+                        className="flex items-center justify-between py-2 border-b border-amber-100 last:border-0"
+                      >
+                        <div className="flex-1">
+                          <div className="font-medium text-amber-900">{field}</div>
+                          <div className="text-xs text-amber-500">
+                            {baleCount} bale{baleCount !== 1 ? 's' : ''} tracked
+                            {daysSinceLastBale > 0 && ` · last ${daysSinceLastBale}d ago`}
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          {avgDays === -1 ? (
+                            <div className="text-sm text-amber-400 italic">gathering data</div>
+                          ) : (
+                            <>
+                              <div className={`text-xl font-bold ${
+                                avgDays <= 7 ? 'text-red-600' :
+                                avgDays <= 14 ? 'text-amber-600' :
+                                'text-green-600'
+                              }`}>
+                                {avgDays} days
+                              </div>
+                              <div className="text-xs text-amber-500">avg per bale</div>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {stats.fieldConsumption.length === 0 && (
+              <div className="bg-white rounded-xl border border-amber-200 p-6 text-center text-amber-600">
+                No field consumption data yet.
+                <br />
+                <span className="text-sm text-amber-500">Record round bale usage to track field consumption rates.</span>
               </div>
             )}
           </div>
