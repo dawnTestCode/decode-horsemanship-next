@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { supabase } from '@/lib/supabase';
 import { ChevronLeft, Plus, Check, X, Calendar, BarChart3, Users, Pencil, Trash2, Settings, Minus } from 'lucide-react';
 
-type View = 'main' | 'bought' | 'horses' | 'stats' | 'addHorse' | 'editHorse' | 'settings';
+type View = 'main' | 'bought' | 'horses' | 'stats' | 'addHorse' | 'editHorse' | 'settings' | 'missedFeeding';
 type GrainType = 'strategy' | 'omelene' | 'enrich';
 type ItemType = 'grain' | 'vitamin';
 
@@ -516,24 +516,34 @@ export default function GrainTraxPage() {
     }
   };
 
-  const handleHalfFeeding = async () => {
-    if (!confirm('Mark that horses only ate once today?')) {
-      return;
-    }
-
+  const handleMissedFeeding = async (horseIds: string[] | 'all') => {
     setSubmitting(true);
     setError(null);
 
     try {
-      const { error } = await supabase.rpc('record_half_feeding');
-
-      if (error) throw error;
-
-      setSuccess('Marked as half feeding day');
+      if (horseIds === 'all') {
+        const { error } = await supabase.rpc('record_half_feeding');
+        if (error) throw error;
+        setSuccess('Marked missed feeding for all horses');
+      } else {
+        // Record missed feeding for specific horses
+        const { error } = await supabase.rpc('record_half_feeding_for_horses', {
+          p_horse_ids: horseIds,
+        });
+        if (error) throw error;
+        const horseNames = horses
+          .filter(h => horseIds.includes(h.id))
+          .map(h => h.name)
+          .join(', ');
+        setSuccess(`Marked missed feeding for ${horseNames}`);
+      }
       await fetchData();
+      setTimeout(() => {
+        handleBack();
+      }, 1500);
     } catch (err) {
-      console.error('Error recording half feeding:', err);
-      setError('Failed to record half feeding');
+      console.error('Error recording missed feeding:', err);
+      setError('Failed to record missed feeding');
     } finally {
       setSubmitting(false);
     }
@@ -713,12 +723,12 @@ export default function GrainTraxPage() {
             </div>
 
             <button
-              onClick={handleHalfFeeding}
+              onClick={() => setView('missedFeeding')}
               disabled={submitting}
               className="w-full py-3 px-6 bg-amber-100 hover:bg-amber-200 text-amber-800 border-2 border-amber-300 text-base font-medium rounded-xl shadow transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
             >
               <Minus size={18} />
-              Half Feeding Day
+              Missed Feeding
             </button>
 
             {/* Recent activity */}
@@ -783,7 +793,10 @@ export default function GrainTraxPage() {
                           )}
                           {isHalfFeeding && (
                             <div className="text-sm text-emerald-900">
-                              <span className="font-medium">Half feeding day</span>
+                              <span className="font-medium">Missed feeding</span>
+                              {tx.details && tx.details !== 'Horses fed once' && (
+                                <span className="text-emerald-600"> ({tx.details.replace(' missed feeding', '')})</span>
+                              )}
                             </div>
                           )}
                         </div>
@@ -1452,6 +1465,61 @@ export default function GrainTraxPage() {
                 No active horses.
                 <br />
                 <span className="text-sm text-emerald-500">Add horses to see usage projections.</span>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Missed feeding view */}
+        {view === 'missedFeeding' && (
+          <div className="space-y-6">
+            <button
+              onClick={handleBack}
+              className="flex items-center gap-2 text-emerald-700 hover:text-emerald-900 transition-colors"
+            >
+              <ChevronLeft size={20} />
+              Back
+            </button>
+
+            <h2 className="text-xl font-semibold text-emerald-900">Missed Feeding</h2>
+            <p className="text-emerald-600 text-sm">Select which horses missed a feeding today.</p>
+
+            {/* All Horses button */}
+            <button
+              onClick={() => handleMissedFeeding('all')}
+              disabled={submitting || stats.activeHorses.length === 0}
+              className="w-full py-4 px-6 bg-amber-600 hover:bg-amber-700 disabled:bg-amber-400 text-white text-lg font-semibold rounded-xl shadow-lg transition-colors"
+            >
+              {submitting ? 'Saving...' : 'All Horses'}
+            </button>
+
+            {/* Individual horses */}
+            {stats.activeHorses.length > 0 && (
+              <div className="space-y-2">
+                {stats.activeHorses.map(horse => (
+                  <button
+                    key={horse.id}
+                    onClick={() => handleMissedFeeding([horse.id])}
+                    disabled={submitting}
+                    className="w-full bg-white hover:bg-amber-50 rounded-lg border-2 border-amber-200 hover:border-amber-400 p-4 text-left transition-all disabled:opacity-50"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <div className="font-medium text-emerald-900 text-lg">{horse.name}</div>
+                        <div className="text-sm text-emerald-600">
+                          {horse.cans_per_feeding} can{horse.cans_per_feeding !== 1 ? 's' : ''} {getGrainTypeLabel(horse.grain_type, true)}
+                        </div>
+                      </div>
+                      <Minus size={20} className="text-amber-600" />
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {stats.activeHorses.length === 0 && (
+              <div className="text-center py-8 text-emerald-600">
+                No active horses.
               </div>
             )}
           </div>
