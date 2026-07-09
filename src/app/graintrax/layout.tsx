@@ -10,7 +10,12 @@ export const metadata: Metadata = {
   },
   applicationName: 'GrainTrax',
   icons: {
-    apple: '/apple-touch-icon-graintrax.png',
+    icon: [
+      { url: '/apple-touch-icon-graintrax.png', type: 'image/png' },
+    ],
+    apple: [
+      { url: '/apple-touch-icon-graintrax.png', sizes: '180x180', type: 'image/png' },
+    ],
   },
 };
 
@@ -27,5 +32,11 @@ export default function GrainTraxLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <>{children}</>;
+  return (
+    <>
+      <link rel="icon" type="image/png" href="/apple-touch-icon-graintrax.png" />
+      <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon-graintrax.png" />
+      {children}
+    </>
+  );
 }
