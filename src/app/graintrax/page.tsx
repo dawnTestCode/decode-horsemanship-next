@@ -642,6 +642,39 @@ export default function GrainTraxPage() {
               </button>
             </div>
 
+            {/* Recent purchases */}
+            {transactions.length > 0 && (
+              <div className="mt-8">
+                <h2 className="text-lg font-semibold text-emerald-900 mb-3">Recent Purchases</h2>
+                <div className="space-y-2">
+                  {transactions.slice(0, 5).map(tx => (
+                    <div
+                      key={tx.id}
+                      className="bg-white rounded-lg border border-emerald-200 p-3 flex items-center gap-3"
+                    >
+                      <div className="w-8 h-8 rounded-full flex items-center justify-center bg-green-100 text-green-700">
+                        <Plus size={16} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm text-emerald-900">
+                          <span className="font-medium">+{tx.quantity}</span>
+                          {' '}
+                          {tx.item_type === 'grain'
+                            ? getGrainTypeLabel(tx.grain_type, true)
+                            : 'Vitamin'
+                          }
+                          {' bag'}{tx.quantity > 1 ? 's' : ''}
+                        </div>
+                      </div>
+                      <div className="text-xs text-emerald-500 whitespace-nowrap">
+                        {formatDate(tx.created_at)}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Active horses list */}
             {stats.activeHorses.length > 0 && (
               <div className="mt-8">
@@ -670,39 +703,6 @@ export default function GrainTraxPage() {
                           </div>
                           <div className="text-xs text-emerald-500">lbs/day</div>
                         </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Recent purchases */}
-            {transactions.length > 0 && (
-              <div className="mt-8">
-                <h2 className="text-lg font-semibold text-emerald-900 mb-3">Recent Purchases</h2>
-                <div className="space-y-2">
-                  {transactions.slice(0, 5).map(tx => (
-                    <div
-                      key={tx.id}
-                      className="bg-white rounded-lg border border-emerald-200 p-3 flex items-center gap-3"
-                    >
-                      <div className="w-8 h-8 rounded-full flex items-center justify-center bg-green-100 text-green-700">
-                        <Plus size={16} />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="text-sm text-emerald-900">
-                          <span className="font-medium">+{tx.quantity}</span>
-                          {' '}
-                          {tx.item_type === 'grain'
-                            ? getGrainTypeLabel(tx.grain_type, true)
-                            : 'Vitamin'
-                          }
-                          {' bag'}{tx.quantity > 1 ? 's' : ''}
-                        </div>
-                      </div>
-                      <div className="text-xs text-emerald-500 whitespace-nowrap">
-                        {formatDate(tx.created_at)}
                       </div>
                     </div>
                   ))}
