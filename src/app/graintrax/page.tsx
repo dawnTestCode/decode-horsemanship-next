@@ -146,6 +146,9 @@ export default function GrainTraxPage() {
   // For editing settings
   const [editSettings, setEditSettings] = useState<GrainSettings>(DEFAULT_SETTINGS);
 
+  // For missed feeding selection
+  const [selectedHorseIds, setSelectedHorseIds] = useState<Set<string>>(new Set());
+
   const fetchData = useCallback(async () => {
     try {
       // Fetch inventory
@@ -238,6 +241,7 @@ export default function GrainTraxPage() {
     setHorseGrainType('strategy');
     setHorseCansPerFeeding('1');
     setHorseVitaminScoops('0');
+    setSelectedHorseIds(new Set());
     setError(null);
     setSuccess(null);
   };
@@ -516,23 +520,28 @@ export default function GrainTraxPage() {
     }
   };
 
-  const handleMissedFeeding = async (horseId: string | 'all') => {
+  const handleMissedFeeding = async (horseIds: string[] | 'all') => {
     setSubmitting(true);
     setError(null);
 
     try {
-      if (horseId === 'all') {
+      if (horseIds === 'all') {
         const { error } = await supabase.rpc('record_half_feeding');
         if (error) throw error;
         setSuccess('Marked missed feeding for all horses');
       } else {
-        // Record missed feeding for a specific horse
-        const { error } = await supabase.rpc('record_half_feeding_for_horse', {
-          p_horse_id: horseId,
-        });
-        if (error) throw error;
-        const horseName = horses.find(h => h.id === horseId)?.name;
-        setSuccess(`Marked missed feeding for ${horseName}`);
+        // Record missed feeding for selected horses (one transaction per horse)
+        for (const horseId of horseIds) {
+          const { error } = await supabase.rpc('record_half_feeding_for_horse', {
+            p_horse_id: horseId,
+          });
+          if (error) throw error;
+        }
+        const horseNames = horses
+          .filter(h => horseIds.includes(h.id))
+          .map(h => h.name)
+          .join(', ');
+        setSuccess(`Marked missed feeding for ${horseNames}`);
       }
       await fetchData();
       setTimeout(() => {
@@ -544,6 +553,18 @@ export default function GrainTraxPage() {
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const toggleHorseSelection = (horseId: string) => {
+    setSelectedHorseIds(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(horseId)) {
+        newSet.delete(horseId);
+      } else {
+        newSet.add(horseId);
+      }
+      return newSet;
+    });
   };
 
   // Helper to get lbs per can for a grain type from settings
@@ -1469,7 +1490,7 @@ export default function GrainTraxPage() {
 
         {/* Missed feeding view */}
         {view === 'missedFeeding' && (
-          <div className="space-y-6">
+          <div className="space-y-6 pb-24">
             <button
               onClick={handleBack}
               className="flex items-center gap-2 text-emerald-700 hover:text-emerald-900 transition-colors"
@@ -1490,27 +1511,55 @@ export default function GrainTraxPage() {
               {submitting ? 'Saving...' : 'All Horses'}
             </button>
 
-            {/* Individual horses */}
+            {/* Individual horses - multi-select */}
             {stats.activeHorses.length > 0 && (
               <div className="space-y-2">
-                {stats.activeHorses.map(horse => (
-                  <button
-                    key={horse.id}
-                    onClick={() => handleMissedFeeding(horse.id)}
-                    disabled={submitting}
-                    className="w-full bg-white hover:bg-amber-50 rounded-lg border-2 border-amber-200 hover:border-amber-400 p-4 text-left transition-all disabled:opacity-50"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <div className="font-medium text-emerald-900 text-lg">{horse.name}</div>
-                        <div className="text-sm text-emerald-600">
-                          {horse.cans_per_feeding} can{horse.cans_per_feeding !== 1 ? 's' : ''} {getGrainTypeLabel(horse.grain_type, true)}
+                {stats.activeHorses.map(horse => {
+                  const isSelected = selectedHorseIds.has(horse.id);
+                  return (
+                    <button
+                      key={horse.id}
+                      onClick={() => toggleHorseSelection(horse.id)}
+                      disabled={submitting}
+                      className={`w-full rounded-lg border-2 p-4 text-left transition-all disabled:opacity-50 ${
+                        isSelected
+                          ? 'bg-amber-100 border-amber-500'
+                          : 'bg-white hover:bg-amber-50 border-amber-200 hover:border-amber-400'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <div className="font-medium text-emerald-900 text-lg">{horse.name}</div>
+                          <div className="text-sm text-emerald-600">
+                            {horse.cans_per_feeding} can{horse.cans_per_feeding !== 1 ? 's' : ''} {getGrainTypeLabel(horse.grain_type, true)}
+                          </div>
+                        </div>
+                        <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
+                          isSelected
+                            ? 'bg-amber-600 border-amber-600'
+                            : 'border-amber-300'
+                        }`}>
+                          {isSelected && <Check size={14} className="text-white" />}
                         </div>
                       </div>
-                      <Minus size={20} className="text-amber-600" />
-                    </div>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Confirm button - fixed at bottom */}
+            {selectedHorseIds.size > 0 && (
+              <div className="fixed bottom-0 left-0 right-0 p-4 bg-emerald-50 border-t border-emerald-200">
+                <div className="max-w-md mx-auto">
+                  <button
+                    onClick={() => handleMissedFeeding(Array.from(selectedHorseIds))}
+                    disabled={submitting}
+                    className="w-full py-4 px-6 bg-amber-600 hover:bg-amber-700 disabled:bg-amber-400 text-white text-lg font-semibold rounded-xl shadow-lg transition-colors"
+                  >
+                    {submitting ? 'Saving...' : `Record Missed Feeding (${selectedHorseIds.size})`}
                   </button>
-                ))}
+                </div>
               </div>
             )}
 
