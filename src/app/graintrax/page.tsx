@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { supabase } from '@/lib/supabase';
-import { ChevronLeft, Plus, Check, X, Calendar, BarChart3, Users, Pencil, Trash2, Settings } from 'lucide-react';
+import { ChevronLeft, Plus, Check, X, Calendar, BarChart3, Users, Pencil, Trash2, Settings, Minus } from 'lucide-react';
 
 type View = 'main' | 'bought' | 'horses' | 'stats' | 'addHorse' | 'editHorse' | 'settings';
 type GrainType = 'strategy' | 'omelene' | 'enrich';
@@ -19,7 +19,7 @@ interface Horse {
   updated_at: string;
 }
 
-type TransactionType = 'bought' | 'horse_added' | 'horse_updated' | 'horse_removed';
+type TransactionType = 'bought' | 'horse_added' | 'horse_updated' | 'horse_removed' | 'half_feeding';
 
 interface Transaction {
   id: string;
@@ -516,6 +516,29 @@ export default function GrainTraxPage() {
     }
   };
 
+  const handleHalfFeeding = async () => {
+    if (!confirm('Mark that horses only ate once today?')) {
+      return;
+    }
+
+    setSubmitting(true);
+    setError(null);
+
+    try {
+      const { error } = await supabase.rpc('record_half_feeding');
+
+      if (error) throw error;
+
+      setSuccess('Marked as half feeding day');
+      await fetchData();
+    } catch (err) {
+      console.error('Error recording half feeding:', err);
+      setError('Failed to record half feeding');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   // Helper to get lbs per can for a grain type from settings
   const getLbsPerCan = useCallback((grainType: GrainType): number => {
     switch (grainType) {
@@ -689,6 +712,15 @@ export default function GrainTraxPage() {
               </button>
             </div>
 
+            <button
+              onClick={handleHalfFeeding}
+              disabled={submitting}
+              className="w-full py-3 px-6 bg-amber-100 hover:bg-amber-200 text-amber-800 border-2 border-amber-300 text-base font-medium rounded-xl shadow transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+            >
+              <Minus size={18} />
+              Half Feeding Day
+            </button>
+
             {/* Recent activity */}
             {transactions.length > 0 && (
               <div className="mt-8">
@@ -699,6 +731,7 @@ export default function GrainTraxPage() {
                     const isHorseAdded = tx.transaction_type === 'horse_added';
                     const isHorseUpdated = tx.transaction_type === 'horse_updated';
                     const isHorseRemoved = tx.transaction_type === 'horse_removed';
+                    const isHalfFeeding = tx.transaction_type === 'half_feeding';
 
                     return (
                       <div
@@ -710,12 +743,14 @@ export default function GrainTraxPage() {
                           isHorseAdded ? 'bg-blue-100 text-blue-700' :
                           isHorseUpdated ? 'bg-amber-100 text-amber-700' :
                           isHorseRemoved ? 'bg-red-100 text-red-700' :
+                          isHalfFeeding ? 'bg-orange-100 text-orange-700' :
                           'bg-gray-100 text-gray-700'
                         }`}>
                           {isBought && <Plus size={16} />}
                           {isHorseAdded && <Users size={16} />}
                           {isHorseUpdated && <Pencil size={16} />}
                           {isHorseRemoved && <Trash2 size={16} />}
+                          {isHalfFeeding && <Minus size={16} />}
                         </div>
                         <div className="flex-1 min-w-0">
                           {isBought && (
@@ -744,6 +779,11 @@ export default function GrainTraxPage() {
                           {isHorseRemoved && (
                             <div className="text-sm text-emerald-900">
                               <span className="font-medium">Removed {tx.horse_name}</span>
+                            </div>
+                          )}
+                          {isHalfFeeding && (
+                            <div className="text-sm text-emerald-900">
+                              <span className="font-medium">Half feeding day</span>
                             </div>
                           )}
                         </div>
