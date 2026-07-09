@@ -353,9 +353,9 @@ export default function HayTraxPage() {
       }
     });
 
-    // Convert to array and sort
+    // Convert to array and sort (most recent first)
     Array.from(weekMap.entries())
-      .sort(([a], [b]) => a.localeCompare(b))
+      .sort(([a], [b]) => b.localeCompare(a))
       .forEach(([weekKey, data]) => {
         const startDate = new Date(weekKey);
         const endDate = new Date(startDate);
@@ -395,9 +395,9 @@ export default function HayTraxPage() {
       monthMap.set(currentMonthKey, { round: 0, square: 0 });
     }
 
-    // Convert to array and sort
+    // Convert to array and sort (most recent first)
     Array.from(monthMap.entries())
-      .sort(([a], [b]) => a.localeCompare(b))
+      .sort(([a], [b]) => b.localeCompare(a))
       .forEach(([monthKey, data]) => {
         const [year, month] = monthKey.split('-');
         const date = new Date(parseInt(year), parseInt(month) - 1, 1);
