@@ -1322,7 +1322,7 @@ export default function GrainTraxPage() {
               <div className="space-y-4">
                 <div>
                   <div className="text-xs text-emerald-500 mb-2">Per Week</div>
-                  <div className="grid grid-cols-3 gap-2">
+                  <div className="grid grid-cols-4 gap-2">
                     {GRAIN_TYPES.map(type => {
                       const bags = stats.weeklyBags[type.value];
                       if (bags === 0) return (
@@ -1336,11 +1336,20 @@ export default function GrainTraxPage() {
                         </div>
                       );
                     })}
+                    {stats.vitaminBagsPerDay * 7 === 0 ? (
+                      <div className="text-center text-gray-400">—</div>
+                    ) : (
+                      <div className="text-center">
+                        <span className="font-bold text-emerald-900">{(stats.vitaminBagsPerDay * 7).toFixed(1)}</span>
+                        <span className="text-emerald-600 text-sm ml-1">bags</span>
+                        <div className="text-xs text-emerald-500">Vitamins</div>
+                      </div>
+                    )}
                   </div>
                 </div>
                 <div className="pt-4 border-t border-emerald-100">
                   <div className="text-xs text-emerald-500 mb-2">Per Month</div>
-                  <div className="grid grid-cols-3 gap-2">
+                  <div className="grid grid-cols-4 gap-2">
                     {GRAIN_TYPES.map(type => {
                       const bags = stats.monthlyBags[type.value];
                       if (bags === 0) return (
@@ -1354,6 +1363,15 @@ export default function GrainTraxPage() {
                         </div>
                       );
                     })}
+                    {stats.vitaminBagsPerDay * 30 === 0 ? (
+                      <div className="text-center text-gray-400">—</div>
+                    ) : (
+                      <div className="text-center">
+                        <span className="font-bold text-emerald-900">{(stats.vitaminBagsPerDay * 30).toFixed(1)}</span>
+                        <span className="text-emerald-600 text-sm ml-1">bags</span>
+                        <div className="text-xs text-emerald-500">Vitamins</div>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
