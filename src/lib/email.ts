@@ -1279,3 +1279,89 @@ export async function sendNoReinsReminder({
     html,
   });
 }
+
+// ─── Foal Waitlist Confirmation Email ─────────────────────────────────────────
+
+const FOAL_WAITLIST_FROM_EMAIL = 'Decode Horsemanship <hello@decodehorsemanship.com>';
+
+export async function sendFoalWaitlistConfirmation({
+  name,
+  email,
+}: {
+  name: string;
+  email: string;
+}) {
+  const firstName = name.split(' ')[0];
+
+  const html = `
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width"></head>
+<body style="margin: 0; padding: 0; background: #1a1a1a; font-family: Arial, sans-serif;">
+  <div style="max-width: 560px; margin: 0 auto; background: #1a1a1a;">
+
+    <!-- Header -->
+    <div style="background: #9E1B32; padding: 40px; text-align: center;">
+      <p style="margin: 0 0 8px; color: rgba(255,255,255,0.7); font-size: 11px; letter-spacing: 2px; text-transform: uppercase;">
+        Decode Horsemanship
+      </p>
+      <h1 style="margin: 0; color: #fff; font-size: 28px; font-weight: 700;">
+        Foal Handling Lessons
+      </h1>
+    </div>
+
+    <!-- Body -->
+    <div style="padding: 40px; background: #262626;">
+      <p style="color: #fafafa; font-size: 18px; line-height: 1.6; margin: 0 0 24px;">
+        ${firstName},
+      </p>
+      <p style="color: #d4d4d4; font-size: 16px; line-height: 1.6; margin: 0 0 24px;">
+        You're on the list! We'll email you the moment our foal is ready for visitors — expected early-to-mid August.
+      </p>
+      <p style="color: #d4d4d4; font-size: 16px; line-height: 1.6; margin: 0 0 24px;">
+        Until then, no action needed from you. Just keep an eye on your inbox.
+      </p>
+
+      <!-- What to expect -->
+      <div style="background: #1a1a1a; border: 1px solid #404040; border-radius: 8px; padding: 20px; margin-bottom: 24px;">
+        <p style="color: #fafafa; font-size: 14px; font-weight: 600; margin: 0 0 12px;">What to Expect</p>
+        <ul style="color: #a3a3a3; font-size: 14px; line-height: 1.8; padding-left: 20px; margin: 0;">
+          <li>Email notification when the foal is born</li>
+          <li>Another email ~3–4 weeks later with lesson dates and booking info</li>
+          <li>Small group sessions at our farm in Chapel Hill, NC</li>
+        </ul>
+      </div>
+
+      <!-- Questions -->
+      <div style="border-top: 1px solid #404040; padding-top: 20px;">
+        <p style="color: #a3a3a3; font-size: 14px; margin: 0;">
+          Questions? Reply to this email or reach us at
+          <a href="mailto:dawn@decodehorsemanship.com" style="color: #9E1B32;">dawn@decodehorsemanship.com</a>
+        </p>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div style="background: #1a1a1a; padding: 20px; text-align: center; border-top: 1px solid #404040;">
+      <p style="color: #737373; font-size: 12px; margin: 0 0 8px;">
+        Decode Horsemanship · Chapel Hill, NC
+      </p>
+      <p style="color: #525252; font-size: 11px; margin: 0;">
+        <a href="{{{RESEND_UNSUBSCRIBE_URL}}}" style="color: #525252;">Unsubscribe</a>
+      </p>
+    </div>
+
+  </div>
+</body>
+</html>`;
+
+  await getResend().emails.send({
+    from: FOAL_WAITLIST_FROM_EMAIL,
+    to: email,
+    subject: `You're on the foal lessons waitlist!`,
+    html,
+    headers: {
+      'List-Unsubscribe': '{{{RESEND_UNSUBSCRIBE_URL}}}',
+    },
+  });
+}
