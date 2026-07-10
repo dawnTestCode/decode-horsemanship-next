@@ -80,7 +80,7 @@ export default function FoalLessonsPage() {
         <div className="max-w-2xl mx-auto">
           {/* Hero */}
           <section className="text-center py-12 md:py-20">
-            <p className="text-xs uppercase tracking-[0.2em] text-[#9E1B32] mb-4">
+            <p className="text-lg md:text-xl uppercase tracking-[0.15em] text-[#9E1B32] font-semibold mb-4">
               Coming Summer 2026
             </p>
             <h1 className="font-['Barlow_Condensed',sans-serif] text-4xl md:text-6xl font-bold tracking-tight mb-6">
