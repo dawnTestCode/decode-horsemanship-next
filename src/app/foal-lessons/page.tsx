@@ -93,11 +93,16 @@ export default function FoalLessonsPage() {
             </p>
           </section>
 
-          {/* Photo placeholder */}
+          {/* Photo of Cali */}
           <section className="mb-16">
-            <div className="aspect-[16/9] bg-white/5 rounded-lg border border-white/10 flex items-center justify-center">
-              <p className="text-white/40 text-sm">Photo of Cali (the expecting mare) coming soon</p>
-            </div>
+            <img
+              src="/cali.png"
+              alt="Cali, our expecting Gypsy Vanner mare"
+              className="w-full rounded-lg"
+            />
+            <p className="text-white/50 text-sm text-center mt-3">
+              Cali, our expecting Gypsy Vanner mare
+            </p>
           </section>
 
           {/* What to expect */}
