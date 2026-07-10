@@ -858,7 +858,9 @@ export default function GrainTraxPage() {
                           {isHalfFeeding && (
                             <div className="text-sm text-emerald-900">
                               <span className="font-medium">Missed feeding</span>
-                              {tx.details && tx.details !== 'Horses fed once' && (
+                              {tx.details === 'Horses fed once' ? (
+                                <span className="text-emerald-600"> (all horses)</span>
+                              ) : tx.details && (
                                 <span className="text-emerald-600"> ({tx.details.replace(' missed feeding', '')})</span>
                               )}
                             </div>
