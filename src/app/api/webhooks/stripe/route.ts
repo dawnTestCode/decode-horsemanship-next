@@ -10,6 +10,7 @@ import {
   sendSummerCampOwnerNotification,
   sendWomensRetreatConfirmation,
   sendWomensRetreatOwnerNotification,
+  sendLessonReceipt,
 } from '@/lib/email';
 
 export async function POST(request: Request) {
@@ -363,6 +364,25 @@ export async function POST(request: Request) {
 
       } catch (err: unknown) {
         console.error('Women\'s Retreat webhook error:', err);
+      }
+
+      return NextResponse.json({ received: true });
+    }
+
+    // ─── Single Lesson Payment ─────────────────────────────────────────────────
+    if (meta.program === 'single-lesson') {
+      try {
+        // Send receipt email
+        await sendLessonReceipt({
+          name: meta.name,
+          email: meta.email,
+          amount: parseInt(meta.amount),
+        });
+
+        console.log(`Single lesson payment received: ${meta.email}`);
+
+      } catch (err: unknown) {
+        console.error('Single lesson webhook error:', err);
       }
 
       return NextResponse.json({ received: true });

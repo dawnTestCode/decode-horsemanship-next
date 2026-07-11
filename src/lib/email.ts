@@ -1365,3 +1365,94 @@ export async function sendFoalWaitlistConfirmation({
     },
   });
 }
+
+// ─── Single Lesson Receipt Email ──────────────────────────────────────────────
+
+export async function sendLessonReceipt({
+  name,
+  email,
+  amount,
+}: {
+  name: string;
+  email: string;
+  amount: number;
+}) {
+  const firstName = name.split(' ')[0];
+  const formattedAmount = `$${(amount / 100).toFixed(0)}`;
+  const today = new Date().toLocaleDateString('en-US', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+  });
+
+  const html = `
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width"></head>
+<body style="margin: 0; padding: 0; background: #1a1a1a; font-family: Arial, sans-serif;">
+  <div style="max-width: 560px; margin: 0 auto; background: #1a1a1a;">
+
+    <!-- Header -->
+    <div style="background: #9E1B32; padding: 40px; text-align: center;">
+      <p style="margin: 0 0 8px; color: rgba(255,255,255,0.7); font-size: 11px; letter-spacing: 2px; text-transform: uppercase;">
+        Decode Horsemanship
+      </p>
+      <h1 style="margin: 0; color: #fff; font-size: 28px; font-weight: 700;">
+        Payment Receipt
+      </h1>
+    </div>
+
+    <!-- Body -->
+    <div style="padding: 40px; background: #262626;">
+      <p style="color: #fafafa; font-size: 18px; line-height: 1.6; margin: 0 0 24px;">
+        ${firstName},
+      </p>
+      <p style="color: #d4d4d4; font-size: 16px; line-height: 1.6; margin: 0 0 24px;">
+        Thank you for your payment. This email confirms your lesson purchase.
+      </p>
+
+      <!-- Receipt details -->
+      <div style="background: #1a1a1a; border: 1px solid #404040; border-radius: 8px; padding: 24px; margin-bottom: 24px;">
+        <table style="width: 100%; border-collapse: collapse;">
+          <tr>
+            <td style="padding: 12px 0; color: #a3a3a3; font-size: 14px;">Date</td>
+            <td style="padding: 12px 0; color: #fafafa; font-size: 14px; text-align: right;">${today}</td>
+          </tr>
+          <tr>
+            <td style="padding: 12px 0; color: #a3a3a3; font-size: 14px; border-top: 1px solid #404040;">Description</td>
+            <td style="padding: 12px 0; color: #fafafa; font-size: 14px; text-align: right; border-top: 1px solid #404040;">Single Lesson</td>
+          </tr>
+          <tr>
+            <td style="padding: 12px 0; color: #a3a3a3; font-size: 14px; border-top: 1px solid #404040;">Amount Paid</td>
+            <td style="padding: 12px 0; color: #4ade80; font-size: 18px; font-weight: 600; text-align: right; border-top: 1px solid #404040;">${formattedAmount}</td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- Questions -->
+      <div style="border-top: 1px solid #404040; padding-top: 20px;">
+        <p style="color: #a3a3a3; font-size: 14px; margin: 0;">
+          Questions? Reply to this email or reach us at
+          <a href="mailto:dawn@decodehorsemanship.com" style="color: #9E1B32;">dawn@decodehorsemanship.com</a>
+        </p>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div style="background: #1a1a1a; padding: 20px; text-align: center; border-top: 1px solid #404040;">
+      <p style="color: #737373; font-size: 12px; margin: 0;">
+        Decode Horsemanship · Chapel Hill, NC
+      </p>
+    </div>
+
+  </div>
+</body>
+</html>`;
+
+  await getResend().emails.send({
+    from: FROM_EMAIL,
+    to: email,
+    subject: `Payment received — Single Lesson`,
+    html,
+  });
+}
