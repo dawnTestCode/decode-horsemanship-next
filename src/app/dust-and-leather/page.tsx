@@ -534,7 +534,7 @@ export default async function DustAndLeatherPage() {
                 from lunch and the Dutch oven goes on as the light drops.
               </p>
               <p className="font-body text-bone text-lg sm:text-xl leading-snug">
-                Cobbler. Cigars. Whiskey by the bottle. Cards by lantern light.{" "}
+                Cobbler. Cigars. Cards by lantern light.{" "}
                 <Em mode="dark">
                   We play until somebody runs out of chips or somebody runs out
                   of stories.
@@ -547,7 +547,7 @@ export default async function DustAndLeatherPage() {
               <EveningListItem label="SUPPER" description="Dutch oven, slow-cooked." />
               <EveningListItem
                 label="DRINK"
-                description="Whiskey. Beer. Coffee if you want it."
+                description="Coffee. Sweet tea. Water."
               />
               <EveningListItem label="SMOKE" description="Cigars by the fire." />
               <EveningListItem label="CARDS" description="Poker until they're done." />
@@ -570,7 +570,7 @@ export default async function DustAndLeatherPage() {
             <PricingCard
               label="Stay for the Fire · Until the cards are done"
               price={formatPrice(pricing["stay-for-fire"])}
-              description="Day Pass plus Dutch oven supper, whiskey, and cards."
+              description="Day Pass plus Dutch oven supper, cigars, and cards."
             />
           </div>
           <p className="font-voice italic text-dust text-lg text-center mt-8">
