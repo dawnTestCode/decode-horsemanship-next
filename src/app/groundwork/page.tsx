@@ -12,19 +12,14 @@ async function getPricing() {
 
   const { data } = await supabase
     .from('programs')
-    .select('full_price, deposit_amount, price_label')
+    .select('full_price, price_label')
     .eq('slug', 'groundwork')
     .single();
 
   return {
-    fullPrice: data?.full_price || 85000,
-    depositAmount: data?.deposit_amount || 20000,
-    priceLabel: data?.price_label || '$850 per person',
+    fullPrice: data?.full_price || 47500,
+    priceLabel: data?.price_label || '$475',
   };
-}
-
-function formatPrice(cents: number): string {
-  return `$${(cents / 100).toFixed(0)}`;
 }
 
 export default async function GroundworkPage() {
@@ -39,10 +34,10 @@ export default async function GroundworkPage() {
           </h1>
           <div className="w-24 h-px bg-groundwork-cream/40 mx-auto mb-8" />
           <p className="text-xs font-sans uppercase tracking-[0.2em] text-groundwork-cream/70 mb-4">
-            For men who want something else
+            A half-day for men
           </p>
           <p className="text-xl md:text-2xl font-serif italic text-groundwork-cream/90">
-            A day with horses. That&apos;s all. That&apos;s enough.
+            No talking circle. No trust falls. No one&apos;s going to ask how that made you feel.
           </p>
         </div>
 
@@ -53,17 +48,17 @@ export default async function GroundworkPage() {
         </div>
       </section>
 
-      {/* ─── What It Is ──────────────────────────────────────────────────────── */}
+      {/* ─── The Short Version ────────────────────────────────────────────────── */}
       <section className="py-24 md:py-32 px-6">
         <div className="max-w-[720px] mx-auto">
           <p className="text-[10px] font-sans font-medium uppercase tracking-[0.2em] text-groundwork-label mb-8">
-            What it is
+            The short version
           </p>
           <div className="space-y-6 text-lg md:text-xl leading-relaxed">
-            <p>One day at a working horse farm in Chapel Hill, North Carolina.</p>
-            <p>A small group of men. One to four horses. Real food at midday. Home by four.</p>
-            <p>No sharing circle. No journaling. No exercises designed to make you cry.</p>
-            <p>The horses show you things. Your only job is to notice.</p>
+            <p>Four hours. A horse that doesn&apos;t care about your job title. That&apos;s the whole pitch.</p>
+            <p>A half-day at a working horse farm in Chapel Hill, North Carolina.</p>
+            <p>Small group of men. One to four horses. Coffee at the start, lunch at the end.</p>
+            <p>Nothing in between is a workshop. Nothing is a metaphor someone&apos;s going to explain to you afterward.</p>
           </div>
         </div>
       </section>
@@ -73,76 +68,117 @@ export default async function GroundworkPage() {
         <div className="h-px bg-groundwork-border-light" />
       </div>
 
-      {/* ─── Who It's For ────────────────────────────────────────────────────── */}
+      {/* ─── This Is For You If ──────────────────────────────────────────────── */}
       <section className="py-24 md:py-32 px-6">
         <div className="max-w-[720px] mx-auto">
           <p className="text-[10px] font-sans font-medium uppercase tracking-[0.2em] text-groundwork-label mb-8">
-            Who it&apos;s for
+            This is for you if
           </p>
-          <p className="text-lg md:text-xl leading-relaxed mb-8">It&apos;s for you if —</p>
           <div className="space-y-4 font-sans text-base md:text-lg text-groundwork-dark/90">
-            <p>— You&apos;ve been told to &quot;talk to someone&quot; and it hasn&apos;t worked</p>
-            <p>— You&apos;ve outgrown the bar, the golf, the usual</p>
-            <p>— You&apos;re not in crisis. You&apos;re just off.</p>
-            <p>— You want more than another weekend</p>
+            <p>— You&apos;ve outgrown the bar, the golf, the usual.</p>
+            <p>— You&apos;re good at your job and don&apos;t know what to do with a Saturday that isn&apos;t more of it.</p>
+            <p>— Nothing&apos;s wrong, exactly. You&apos;re just tired of &quot;fine.&quot;</p>
+            <p>— You wouldn&apos;t tell your buddies you&apos;re doing this. You&apos;re doing it anyway.</p>
           </div>
         </div>
       </section>
 
-      {/* ─── What Happens ────────────────────────────────────────────────────── */}
+      {/* ─── How It Goes ─────────────────────────────────────────────────────── */}
       <section className="py-24 md:py-32 px-6 bg-groundwork-dark text-groundwork-cream">
         <div className="max-w-[720px] mx-auto">
           <p className="text-[10px] font-sans font-medium uppercase tracking-[0.2em] text-groundwork-cream/60 mb-8">
-            What happens
+            How it goes
           </p>
           <div className="space-y-6 text-lg md:text-xl leading-relaxed">
             <p>
-              You arrive. You get coffee. You go into the arena with the horses — no rope, no task.
-              You watch. They watch back.
+              You show up, get coffee, and stand at the fence for a while. Nobody hands you an icebreaker.
+              You just watch the horse figure out what kind of morning this is.
             </p>
-            <p>Later, you work with one of them. Then lunch. Then you work with another.</p>
             <p>
-              You leave when it&apos;s done. A few days later, something the horse did will come back to
-              you. That&apos;s the work.
+              Then you go in. One horse, no rope, no script — just you working out how to get 1,200 pounds
+              of animal to move because it wants to, not because you made it. Most guys find this harder
+              than it sounds and easier than they expected, in that order.
             </p>
+            <p>
+              Lunch closes it out. You can talk about what happened. Nobody&apos;s going to make you.
+            </p>
+            <p>
+              You&apos;re back in your truck by early afternoon. What actually landed usually shows up a few
+              days later — in traffic, at work, wherever you weren&apos;t expecting it.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── The Horses ──────────────────────────────────────────────────────── */}
+      <section className="py-24 md:py-32 px-6">
+        <div className="max-w-[720px] mx-auto">
+          <p className="text-[10px] font-sans font-medium uppercase tracking-[0.2em] text-groundwork-label mb-8">
+            The horses
+          </p>
+          <div className="space-y-6 text-lg md:text-xl leading-relaxed">
+            <p>
+              Some of these horses came straight off Bureau of Land Management holding pens — wild,
+              never handled, no idea yet what a calm human even is. They don&apos;t perform for you.
+              They don&apos;t care what you drive or what you do for a living.
+            </p>
+            <p>
+              They react to whatever&apos;s actually standing in front of them. If you&apos;re impatient,
+              you&apos;ll find out fast. If you&apos;re steady, you&apos;ll find that out too.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── Divider ─────────────────────────────────────────────────────────── */}
+      <div className="max-w-[720px] mx-auto px-6">
+        <div className="h-px bg-groundwork-border-light" />
+      </div>
+
+      {/* ─── No One Will ─────────────────────────────────────────────────────── */}
+      <section className="py-24 md:py-32 px-6">
+        <div className="max-w-[720px] mx-auto">
+          <p className="text-[10px] font-sans font-medium uppercase tracking-[0.2em] text-groundwork-label mb-8">
+            No one will
+          </p>
+          <div className="space-y-4 font-sans text-base md:text-lg text-groundwork-dark/90">
+            <p>— Ask you to share your feelings.</p>
+            <p>— Call this &quot;self-care.&quot;</p>
+            <p>— Treat you like something&apos;s broken.</p>
+            <p>— Care whether you cry, or whether you don&apos;t.</p>
+            <p>— Ask if you&apos;re &quot;ready.&quot; Just show up.</p>
           </div>
         </div>
       </section>
 
       {/* ─── Pull Quote ──────────────────────────────────────────────────────── */}
-      <section className="py-24 md:py-32 px-6">
+      <section className="py-24 md:py-32 px-6 bg-groundwork-dark text-groundwork-cream">
         <div className="max-w-[720px] mx-auto text-center">
-          <blockquote className="text-xl md:text-2xl font-serif italic text-groundwork-dark/90 mb-6">
+          <blockquote className="text-xl md:text-2xl font-serif italic text-groundwork-cream/90 mb-6">
             &quot;I&apos;ve been trying to explain it to my wife for a week.&quot;
           </blockquote>
-          <p className="text-xs font-sans uppercase tracking-[0.15em] text-groundwork-label">
+          <p className="text-xs font-sans uppercase tracking-[0.15em] text-groundwork-cream/60">
             — Groundwork, Cohort 01
           </p>
         </div>
       </section>
 
-      {/* ─── Divider ─────────────────────────────────────────────────────────── */}
-      <div className="max-w-[720px] mx-auto px-6">
-        <div className="h-px bg-groundwork-border-light" />
-      </div>
-
-      {/* ─── The Facilitator ─────────────────────────────────────────────────── */}
+      {/* ─── Who Runs It ─────────────────────────────────────────────────────── */}
       <section className="py-24 md:py-32 px-6">
         <div className="max-w-[720px] mx-auto">
           <p className="text-[10px] font-sans font-medium uppercase tracking-[0.2em] text-groundwork-label mb-8">
-            The facilitator
+            Who runs it
           </p>
           <div className="space-y-6 text-lg md:text-xl leading-relaxed">
             <p>
-              Groundwork is run by Dawn, founder of Decode Horsemanship in Chapel Hill. Before
-              horses, she spent two decades in corporate leadership — running teams, developing
-              people, consulting on team dynamics and process at the executive level. She has been
-              training, rehabilitating, and partnering with horses for over a decade, including
-              mustangs straight off Bureau of Land Management holdings.
+              Dawn — founder of Decode Horsemanship. Before horses, she spent two decades in corporate
+              leadership: running teams, developing people, consulting on team dynamics at the executive
+              level. She&apos;s been training and rehabilitating horses for over a decade, including mustangs
+              straight off BLM holdings.
             </p>
             <p>
-              Her work is grounded in deep horsemanship, not therapy. She is not there to process
-              your feelings. She is there to make sure the horses can do their work.
+              Her work is grounded in deep horsemanship, not therapy. She&apos;s not there to process your
+              feelings. She&apos;s there to make sure the horses can do theirs.
             </p>
           </div>
         </div>
@@ -153,18 +189,22 @@ export default async function GroundworkPage() {
         <div className="h-px bg-groundwork-border-light" />
       </div>
 
-      {/* ─── Dates & Pricing ─────────────────────────────────────────────────── */}
+      {/* ─── The Details ─────────────────────────────────────────────────────── */}
       <section className="py-24 md:py-32 px-6">
         <div className="max-w-[720px] mx-auto">
           <p className="text-[10px] font-sans font-medium uppercase tracking-[0.2em] text-groundwork-label mb-8">
-            Next dates
+            The details
           </p>
 
           <UpcomingSessions />
 
-          <div className="space-y-2 text-lg md:text-xl leading-relaxed mb-10">
-            <p>One day, 8:30 AM to 4:00 PM. Group of 4–6 men. Lunch included.</p>
-            <p className="font-medium">{pricing.priceLabel}.</p>
+          <div className="space-y-3 text-lg md:text-xl leading-relaxed mb-10 font-sans">
+            <p><span className="font-medium">When</span> — Second Saturday of the month. 8:30 AM – 12:30 PM.</p>
+            <p><span className="font-medium">Where</span> — Decode Horsemanship, Chapel Hill, NC. Directions sent on booking.</p>
+            <p><span className="font-medium">Group size</span> — 4–6 men.</p>
+            <p><span className="font-medium">What to bring</span> — Closed-toe shoes (boots or sturdy sneakers). Long pants. Layers for weather.</p>
+            <p><span className="font-medium">Lunch</span> — Included. Real food, not a granola bar.</p>
+            <p><span className="font-medium">What it costs</span> — {pricing.priceLabel}.</p>
           </div>
 
           <Link
@@ -173,6 +213,40 @@ export default async function GroundworkPage() {
           >
             Reserve a Spot
           </Link>
+        </div>
+      </section>
+
+      {/* ─── Divider ─────────────────────────────────────────────────────────── */}
+      <div className="max-w-[720px] mx-auto px-6">
+        <div className="h-px bg-groundwork-border-light" />
+      </div>
+
+      {/* ─── Other Programs ──────────────────────────────────────────────────── */}
+      <section className="py-24 md:py-32 px-6">
+        <div className="max-w-[720px] mx-auto">
+          <p className="text-[10px] font-sans font-medium uppercase tracking-[0.2em] text-groundwork-label mb-8">
+            Other programs at Decode
+          </p>
+          <div className="space-y-4 font-sans text-base md:text-lg">
+            <p>
+              <Link href="/no-reins" className="text-groundwork-dark hover:text-groundwork-dark/70 underline underline-offset-4 transition-colors">
+                No Reins
+              </Link>
+              <span className="text-groundwork-muted"> — A half-day for women, third Saturday of the month.</span>
+            </p>
+            <p>
+              <Link href="/dust-and-leather" className="text-groundwork-dark hover:text-groundwork-dark/70 underline underline-offset-4 transition-colors">
+                Dust &amp; Leather
+              </Link>
+              <span className="text-groundwork-muted"> — A full working ranch day for men, first Saturday of the month.</span>
+            </p>
+            <p>
+              <Link href="/mustang" className="text-groundwork-dark hover:text-groundwork-dark/70 underline underline-offset-4 transition-colors">
+                Mustang Immersion
+              </Link>
+              <span className="text-groundwork-muted"> — Three days with a mustang, a few times a year.</span>
+            </p>
+          </div>
         </div>
       </section>
 
@@ -192,16 +266,15 @@ export default async function GroundworkPage() {
             <div>
               <p className="text-lg md:text-xl font-serif mb-3">Do I need any horse experience?</p>
               <p className="font-sans text-base text-groundwork-muted">
-                No. Everything takes place on the ground. You will not ride. The horses will do the
-                work; your job is to show up.
+                No. Everything happens on the ground. You will not ride. The horses do the work;
+                your job is to show up.
               </p>
             </div>
 
             <div>
               <p className="text-lg md:text-xl font-serif mb-3">What should I wear?</p>
               <p className="font-sans text-base text-groundwork-muted">
-                Closed-toe shoes (boots or sturdy sneakers). Long pants. Layers for weather. No
-                flip-flops or sandals.
+                Closed-toe shoes, long pants, layers for weather. No flip-flops or sandals.
               </p>
             </div>
 
@@ -210,24 +283,23 @@ export default async function GroundworkPage() {
                 Can I bring my wife / partner / friend?
               </p>
               <p className="font-sans text-base text-groundwork-muted">
-                No. The day is structured for men only, and group size is capped at 6. If someone in
-                your life thinks they&apos;d benefit from something similar, Decode Horsemanship offers
-                other programs.
+                No. The morning is structured for men only, capped at 6. If someone in your life
+                would benefit from something similar, No Reins runs the same experience for women.
               </p>
             </div>
 
             <div>
               <p className="text-lg md:text-xl font-serif mb-3">What if the weather is bad?</p>
               <p className="font-sans text-base text-groundwork-muted">
-                We have an indoor round pen and covered areas. The day runs rain or shine. Only
-                severe weather (lightning, ice) would trigger a reschedule.
+                We have an indoor round pen and covered areas. The morning runs rain or shine. Only
+                severe weather (lightning, ice) triggers a reschedule.
               </p>
             </div>
 
             <div>
               <p className="text-lg md:text-xl font-serif mb-3">What&apos;s your cancellation policy?</p>
               <p className="font-sans text-base text-groundwork-muted">
-                {formatPrice(pricing.depositAmount)} deposit non-refundable. Balance refundable up to 14 days before the session.
+                Full refund up to 14 days before. Within 14 days, credit toward a future session.
               </p>
             </div>
           </div>

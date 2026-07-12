@@ -20,7 +20,7 @@ interface FormData {
   anythingToKnow: string;
   whatBroughtYou: string;
   agreeWaiver: boolean;
-  agreeDeposit: boolean;
+  agreeRefund: boolean;
   digitalSignature: string;
 }
 
@@ -36,7 +36,7 @@ const initialFormData: FormData = {
   anythingToKnow: '',
   whatBroughtYou: '',
   agreeWaiver: false,
-  agreeDeposit: false,
+  agreeRefund: false,
   digitalSignature: '',
 };
 
@@ -270,11 +270,6 @@ interface GroundworkSession {
   status: string;
 }
 
-interface Pricing {
-  depositAmount: number;
-  fullPrice: number;
-}
-
 function GroundworkRegisterForm() {
   const searchParams = useSearchParams();
   const [step, setStep] = useState(0);
@@ -283,7 +278,7 @@ function GroundworkRegisterForm() {
   const [error, setError] = useState<string | null>(null);
   const [sessions, setSessions] = useState<GroundworkSession[]>([]);
   const [loadingSessions, setLoadingSessions] = useState(true);
-  const [pricing, setPricing] = useState<Pricing>({ depositAmount: 20000, fullPrice: 85000 });
+  const [price, setPrice] = useState(47500);
 
   const steps = ['Session', 'About You', 'Questions', 'Agreement'];
 
@@ -292,15 +287,12 @@ function GroundworkRegisterForm() {
     const fetchPricing = async () => {
       const { data } = await supabase
         .from('programs')
-        .select('deposit_amount, full_price')
+        .select('full_price')
         .eq('slug', 'groundwork')
         .single();
 
       if (data) {
-        setPricing({
-          depositAmount: data.deposit_amount || 20000,
-          fullPrice: data.full_price || 85000,
-        });
+        setPrice(data.full_price || 47500);
       }
     };
 
@@ -370,7 +362,7 @@ function GroundworkRegisterForm() {
       case 2:
         return !!form.horseExperience;
       case 3:
-        return form.agreeWaiver && form.agreeDeposit && !!form.digitalSignature;
+        return form.agreeWaiver && form.agreeRefund && !!form.digitalSignature;
       default:
         return true;
     }
@@ -386,8 +378,7 @@ function GroundworkRegisterForm() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...form,
-          depositAmount: pricing.depositAmount,
-          totalPrice: pricing.fullPrice,
+          totalPrice: price,
         }),
       });
 
@@ -556,9 +547,9 @@ function GroundworkRegisterForm() {
         />
 
         <Checkbox
-          label={`I understand the ${formatPrice(pricing.depositAmount)} deposit is non-refundable, and the balance is due 14 days before the session`}
-          checked={form.agreeDeposit}
-          onChange={(v) => updateForm('agreeDeposit', v)}
+          label="I understand cancellations receive a full refund up to 14 days before, credit toward a future session within 14 days"
+          checked={form.agreeRefund}
+          onChange={(v) => updateForm('agreeRefund', v)}
         />
       </div>
 
@@ -578,20 +569,12 @@ function GroundworkRegisterForm() {
         <p className="font-sans text-sm text-groundwork-muted mb-4">Payment Summary</p>
         <div className="space-y-3 font-sans text-sm">
           <div className="flex justify-between">
-            <span className="text-groundwork-muted">Session fee</span>
-            <span className="text-groundwork-dark">{formatPrice(pricing.fullPrice)}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-groundwork-muted">Deposit due today</span>
-            <span className="text-groundwork-dark font-medium text-lg">{formatPrice(pricing.depositAmount)}</span>
-          </div>
-          <div className="flex justify-between text-groundwork-label">
-            <span>Balance due later</span>
-            <span>{formatPrice(pricing.fullPrice - pricing.depositAmount)}</span>
+            <span className="text-groundwork-muted">Groundwork — A Half-Day for Men</span>
+            <span className="text-groundwork-dark font-medium text-lg">{formatPrice(price)}</span>
           </div>
         </div>
         <p className="font-sans text-xs text-groundwork-label mt-4 pt-4 border-t border-groundwork-border-light">
-          You&apos;ll only be charged {formatPrice(pricing.depositAmount)} today to hold your spot.
+          Full payment secures your spot. Lunch included.
         </p>
       </div>
 
@@ -662,7 +645,7 @@ function GroundworkRegisterForm() {
                     </>
                   ) : (
                     <>
-                      Pay {formatPrice(pricing.depositAmount)} Deposit
+                      Pay {formatPrice(price)}
                       <ArrowRight size={18} />
                     </>
                   )}

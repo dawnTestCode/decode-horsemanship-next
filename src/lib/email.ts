@@ -37,13 +37,11 @@ export async function sendGroundworkConfirmation({
   registration: {
     first_name: string;
     email: string;
-    deposit_amount: number;
-    balance_due: number;
+    amount_paid: number;
   };
   confirmationCode: string;
 }) {
   const firstName = registration.first_name;
-  const balanceDue = registration.balance_due;
 
   const html = `
 <!DOCTYPE html>
@@ -59,7 +57,7 @@ export async function sendGroundworkConfirmation({
       </h1>
       <div style="width: 60px; height: 1px; background: rgba(245,241,234,0.3); margin: 16px auto;"></div>
       <p style="margin: 0; color: rgba(245,241,234,0.7); font-size: 12px; letter-spacing: 0.15em; text-transform: uppercase; font-family: Arial, sans-serif;">
-        A day with horses
+        A half-day for men
       </p>
     </div>
 
@@ -67,7 +65,7 @@ export async function sendGroundworkConfirmation({
     <div style="padding: 48px 40px;">
       <p style="color: #1a1a1a; font-size: 18px; line-height: 1.7; margin: 0 0 32px;">
         ${firstName},<br><br>
-        We've got you down. You'll hear from Dawn within 48 hours with logistics.
+        You're in. You'll hear from Dawn within 48 hours with logistics.
       </p>
 
       <!-- Confirmation details -->
@@ -80,15 +78,9 @@ export async function sendGroundworkConfirmation({
             </td>
           </tr>
           <tr>
-            <td style="padding: 8px 0; color: #888; font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; border-top: 1px solid #eee;">Deposit Paid</td>
-            <td style="padding: 8px 0; font-size: 14px; color: #1a1a1a; text-align: right; border-top: 1px solid #eee;">
-              ${formatCurrency(registration.deposit_amount)}
-            </td>
-          </tr>
-          <tr>
-            <td style="padding: 8px 0; color: #888; font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em;">Balance Due</td>
-            <td style="padding: 8px 0; font-size: 14px; color: #666; text-align: right;">
-              ${formatCurrency(balanceDue)} — 14 days before your session
+            <td style="padding: 8px 0; color: #888; font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; border-top: 1px solid #eee;">Paid</td>
+            <td style="padding: 8px 0; font-size: 14px; color: #2a7a2a; font-weight: 600; text-align: right; border-top: 1px solid #eee;">
+              ${formatCurrency(registration.amount_paid)}
             </td>
           </tr>
         </table>
@@ -103,7 +95,7 @@ export async function sendGroundworkConfirmation({
           <li>Layers for weather</li>
         </ul>
         <p style="color: #888; font-size: 13px; margin: 16px 0 0; font-family: Arial, sans-serif;">
-          8:30 AM to 4:00 PM. Lunch included.
+          8:30 AM to 12:30 PM. Lunch included.
         </p>
       </div>
 
@@ -130,7 +122,7 @@ export async function sendGroundworkConfirmation({
   await getResend().emails.send({
     from: GROUNDWORK_FROM_EMAIL,
     to: registration.email,
-    subject: `We've got you down (${confirmationCode})`,
+    subject: `You're in! (${confirmationCode})`,
     html,
   });
 }
@@ -350,8 +342,7 @@ export async function sendDustLeatherOwnerNotification({
 
 export async function sendGroundworkOwnerNotification({
   registration,
-  depositAmount,
-  balanceDue,
+  amountPaid,
 }: {
   registration: {
     first_name: string;
@@ -365,8 +356,7 @@ export async function sendGroundworkOwnerNotification({
     what_brought_you?: string | null;
     confirmation_code: string;
   };
-  depositAmount: number;
-  balanceDue: number;
+  amountPaid: number;
 }) {
   const fullName = `${registration.first_name} ${registration.last_name}`;
 
@@ -419,24 +409,18 @@ export async function sendGroundworkOwnerNotification({
           <td style="padding: 10px 12px;">${registration.referral_source}</td>
         </tr>` : ''}
         <tr>
-          <td style="padding: 10px 12px; color: #666; border-top: 2px solid #eee;">Deposit Paid</td>
+          <td style="padding: 10px 12px; color: #666; border-top: 2px solid #eee;">Paid</td>
           <td style="padding: 10px 12px; border-top: 2px solid #eee; font-weight: 600; color: #2a7a2a;">
-            ${formatCurrency(depositAmount)}
-          </td>
-        </tr>
-        <tr style="background: #f9f9f9;">
-          <td style="padding: 10px 12px; color: #666;">Balance Due</td>
-          <td style="padding: 10px 12px; color: #c05000;">
-            ${formatCurrency(balanceDue)}
+            ${formatCurrency(amountPaid)}
           </td>
         </tr>
         ${registration.anything_to_know ? `
-        <tr>
-          <td style="padding: 10px 12px; color: #666; vertical-align: top; border-top: 2px solid #eee;">Anything to Know</td>
-          <td style="padding: 10px 12px; font-style: italic; border-top: 2px solid #eee;">${registration.anything_to_know}</td>
+        <tr style="background: #f9f9f9;">
+          <td style="padding: 10px 12px; color: #666; vertical-align: top;">Anything to Know</td>
+          <td style="padding: 10px 12px; font-style: italic;">${registration.anything_to_know}</td>
         </tr>` : ''}
         ${registration.what_brought_you ? `
-        <tr style="background: #f9f9f9;">
+        <tr>
           <td style="padding: 10px 12px; color: #666; vertical-align: top;">What Brought Them</td>
           <td style="padding: 10px 12px; font-style: italic;">${registration.what_brought_you}</td>
         </tr>` : ''}

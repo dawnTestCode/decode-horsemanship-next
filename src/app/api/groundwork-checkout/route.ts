@@ -24,7 +24,6 @@ export async function POST(request: Request) {
       horseExperience,
       anythingToKnow,
       whatBroughtYou,
-      depositAmount,
       totalPrice,
     } = body;
 
@@ -38,11 +37,10 @@ export async function POST(request: Request) {
 
     const confirmationCode = generateConfirmationCode();
     const participantName = `${firstName} ${lastName}`;
-    const balanceDue = totalPrice - depositAmount;
 
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.decodehorsemanship.com';
 
-    // Create Stripe Checkout session
+    // Create Stripe Checkout session - full payment
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
       payment_method_types: ['card'],
@@ -52,10 +50,10 @@ export async function POST(request: Request) {
           price_data: {
             currency: 'usd',
             product_data: {
-              name: 'Groundwork — A Day with Horses',
-              description: `Deposit to hold your spot — balance of $${(balanceDue / 100).toFixed(0)} due 14 days before your session`,
+              name: 'Groundwork — A Half-Day for Men',
+              description: 'Second Saturday of the month. 8:30 AM – 12:30 PM. Lunch included.',
             },
-            unit_amount: depositAmount,
+            unit_amount: totalPrice,
           },
           quantity: 1,
         },
@@ -72,9 +70,7 @@ export async function POST(request: Request) {
         horseExperience: horseExperience || '',
         anythingToKnow: anythingToKnow || '',
         whatBroughtYou: whatBroughtYou || '',
-        depositAmount: String(depositAmount),
         totalPrice: String(totalPrice),
-        balanceDue: String(balanceDue),
       },
       success_url: `${siteUrl}/groundwork/success?code=${confirmationCode}&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${siteUrl}/groundwork/register`,

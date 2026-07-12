@@ -41,9 +41,11 @@ export async function POST(request: Request) {
     const session = event.data.object as Stripe.Checkout.Session;
     const meta = session.metadata!;
 
-    // ─── Groundwork Registration (Deposit) ──────────────────────────────────
-    if (meta.program === 'groundwork' && !meta.paymentType) {
+    // ─── Groundwork Registration (Full Payment) ────────────────────────────────
+    if (meta.program === 'groundwork') {
       try {
+        const amountPaid = parseInt(meta.totalPrice);
+
         // Write to groundwork_registrations table
         const { data: registration, error: regError } = await supabase
           .from('groundwork_registrations')
@@ -59,11 +61,11 @@ export async function POST(request: Request) {
             horse_experience: meta.horseExperience || null,
             anything_to_know: meta.anythingToKnow || null,
             what_brought_you: meta.whatBroughtYou || null,
-            deposit_amount: parseInt(meta.depositAmount),
-            total_price: parseInt(meta.totalPrice),
-            balance_due: parseInt(meta.balanceDue),
+            deposit_amount: amountPaid,
+            total_price: amountPaid,
+            balance_due: 0,
             deposit_paid_at: new Date().toISOString(),
-            status: 'deposit_paid',
+            status: 'paid_in_full',
             stripe_session_id: session.id,
             stripe_payment_intent_id: session.payment_intent as string,
           })
@@ -77,15 +79,18 @@ export async function POST(request: Request) {
 
         // Send confirmation email to participant
         await sendGroundworkConfirmation({
-          registration,
+          registration: {
+            first_name: registration.first_name,
+            email: registration.email,
+            amount_paid: amountPaid,
+          },
           confirmationCode: meta.confirmationCode,
         });
 
         // Send notification to Groundwork email
         await sendGroundworkOwnerNotification({
           registration,
-          depositAmount: parseInt(meta.depositAmount),
-          balanceDue: parseInt(meta.balanceDue),
+          amountPaid,
         });
 
         // Mark confirmation sent
@@ -98,32 +103,6 @@ export async function POST(request: Request) {
 
       } catch (err: unknown) {
         console.error('Groundwork webhook error:', err);
-      }
-
-      return NextResponse.json({ received: true });
-    }
-
-    // ─── Groundwork Balance Payment ───────────────────────────────────────────
-    if (meta.program === 'groundwork' && meta.paymentType === 'balance') {
-      try {
-        const { error: updateError } = await supabase
-          .from('groundwork_registrations')
-          .update({
-            balance_due: 0,
-            balance_paid_at: new Date().toISOString(),
-            status: 'paid_in_full',
-          })
-          .eq('id', meta.registrationId);
-
-        if (updateError) {
-          console.error('Failed to update Groundwork registration:', updateError);
-          throw updateError;
-        }
-
-        console.log(`Groundwork balance paid: ${meta.confirmationCode}`);
-
-      } catch (err: unknown) {
-        console.error('Groundwork balance webhook error:', err);
       }
 
       return NextResponse.json({ received: true });
