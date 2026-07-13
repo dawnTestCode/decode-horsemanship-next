@@ -32,7 +32,7 @@ export default function Navigation({ activeSection, onSectionClick }: Navigation
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-8">
-            {['home', 'horses', 'mission', 'gallery', 'contact'].map((section) => (
+            {['home', 'horses'].map((section) => (
               <button
                 key={section}
                 onClick={() => handleSectionClick(section)}
@@ -54,6 +54,12 @@ export default function Navigation({ activeSection, onSectionClick }: Navigation
               className="text-sm font-medium transition-colors hover:text-red-500 text-stone-300"
             >
               Lessons
+            </Link>
+            <Link
+              href="/contact"
+              className="text-sm font-medium transition-colors hover:text-red-500 text-stone-300"
+            >
+              Contact
             </Link>
             <a
               href="https://forms.gle/DszFyex1HKBbLDw6A"
@@ -151,7 +157,7 @@ export default function Navigation({ activeSection, onSectionClick }: Navigation
       {mobileMenuOpen && (
         <div className="md:hidden bg-black/95 border-t border-stone-800">
           <div className="px-4 py-4 space-y-3">
-            {['home', 'horses', 'mission', 'gallery', 'contact'].map((section) => (
+            {['home', 'horses'].map((section) => (
               <button
                 key={section}
                 onClick={() => handleSectionClick(section)}
@@ -173,6 +179,13 @@ export default function Navigation({ activeSection, onSectionClick }: Navigation
               className="block w-full text-left py-2 text-stone-300 hover:text-red-500"
             >
               Lessons
+            </Link>
+            <Link
+              href="/contact"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block w-full text-left py-2 text-stone-300 hover:text-red-500"
+            >
+              Contact
             </Link>
             <a
               href="https://forms.gle/DszFyex1HKBbLDw6A"
