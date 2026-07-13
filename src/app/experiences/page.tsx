@@ -16,16 +16,6 @@ const programs = [
     schedule: 'Third Saturday of each month',
   },
   {
-    slug: 'mustang',
-    title: 'Mustang Immersion',
-    tagline: 'Three days with a wild horse',
-    description: 'Work directly with a BLM mustang learning to trust humans. Witness transformation—theirs and yours.',
-    href: '/mustang',
-    icon: HelpCircle,
-    color: 'red',
-    schedule: 'Limited availability',
-  },
-  {
     slug: 'dust-and-leather',
     title: 'Dust & Leather',
     tagline: 'A working ranch day for men',
@@ -38,8 +28,8 @@ const programs = [
   {
     slug: 'groundwork',
     title: 'Groundwork',
-    tagline: 'For men who want something else',
-    description: 'A day with horses. No riding. No sharing circle. The horses show you things. Your only job is to notice.',
+    tagline: 'A half-day for men',
+    description: 'Four hours. A horse that doesn\'t care about your job title. No talking circle. No trust falls.',
     href: '/groundwork',
     icon: Compass,
     color: 'stone',
@@ -54,6 +44,16 @@ const programs = [
     icon: Building2,
     color: 'blue',
     schedule: 'By arrangement',
+  },
+  {
+    slug: 'mustang',
+    title: 'Mustang Immersion',
+    tagline: 'Three days with a wild horse',
+    description: 'Work directly with a BLM mustang learning to trust humans. Witness transformation—theirs and yours.',
+    href: '/mustang',
+    icon: HelpCircle,
+    color: 'red',
+    schedule: 'Limited availability',
   },
 ];
 
