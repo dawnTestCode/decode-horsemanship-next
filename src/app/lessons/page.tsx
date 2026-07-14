@@ -14,20 +14,97 @@ export default function LessonsPage() {
             Not all horse girls start as little girls.
           </h1>
           <div className="w-16 h-0.5 bg-[#9E1B32] mx-auto mb-8" />
-          <p className="text-lg md:text-xl text-stone-400 max-w-3xl mx-auto">
-            Some people have wanted this their whole life and never said it out loud. Some just brought a horse home last month and have no idea what they&apos;re doing. Both of you are in the right place.
-          </p>
+          <div className="text-lg md:text-xl text-stone-400 max-w-3xl mx-auto space-y-4">
+            <p>
+              Some people have wanted this their whole life and never said it out loud. Some just brought a horse home last month and have no idea what they&apos;re doing. Some don&apos;t even know if they want to <em>ride</em> — they just know they want to be around horses, and learn what that could look like.
+            </p>
+            <p className="text-stone-300 font-medium">
+              All of you are in the right place.
+            </p>
+          </div>
         </div>
       </section>
 
       {/* Main Content */}
       <div className="max-w-6xl mx-auto px-4">
 
+        {/* Who This Is For - Self-Select */}
+        <section className="py-16 border-b border-stone-800">
+          <h2 className="text-xs font-semibold tracking-[0.2em] text-[#9E1B32] mb-6">NOT SURE WHICH DOOR IS YOURS?</h2>
+          <p className="text-lg text-stone-300 mb-8">Start here.</p>
+
+          <div className="space-y-4 text-stone-400">
+            <p>
+              <span className="text-stone-300">Never touched a horse, but think about it more than you say out loud.</span>
+              <span className="mx-2">→</span>
+              <Link href="/lessons/new-to-horses" className="text-[#9E1B32] hover:text-[#b82e45] transition-colors">Decode the Desire</Link>
+            </p>
+            <p>
+              <span className="text-stone-300">Nervous, but curious. You don&apos;t need to get on a horse today to start.</span>
+              <span className="mx-2">→</span>
+              <Link href="/lessons/new-to-horses" className="text-[#9E1B32] hover:text-[#b82e45] transition-colors">Decode the Desire</Link>
+            </p>
+            <p>
+              <span className="text-stone-300">Already own a horse and drowning in advice from the internet, the barn aisle, and three different trainers.</span>
+              <span className="mx-2">→</span>
+              <Link href="/lessons/decode-the-noise" className="text-[#9E1B32] hover:text-[#b82e45] transition-colors">Decode the Noise</Link>
+            </p>
+            <p>
+              <span className="text-stone-300">Just want to understand what&apos;s possible before you commit to anything.</span>
+              <span className="mx-2">→</span>
+              <Link href="/contact" className="text-[#9E1B32] hover:text-[#b82e45] transition-colors">Book a Farm Tour</Link>
+            </p>
+          </div>
+        </section>
+
         {/* What It Is */}
         <section className="py-16 border-b border-stone-800">
           <h2 className="text-xs font-semibold tracking-[0.2em] text-[#9E1B32] mb-6">WHAT IT IS</h2>
-          <p className="text-lg text-stone-300 max-w-3xl">
-            Private, one-on-one lessons in natural horsemanship. Not a one-day event. Not a retreat. Ongoing instruction, roughly an hour at a time, built around wherever you actually are.
+          <div className="text-lg text-stone-300 max-w-3xl space-y-4">
+            <p>
+              Private, one-on-one lessons in natural horsemanship. Not a one-day event. Not a retreat. Ongoing instruction, roughly an hour at a time, built around wherever you actually are — on the ground, in the saddle, or figuring out which one comes first.
+            </p>
+            <p>
+              <strong className="text-stone-200">You do not have to already ride to start.</strong> A lot of what we do happens before anyone gets on a horse — building trust, reading body language, learning to lead and handle safely. If and when riding becomes part of it, that&apos;s a conversation we have together, at your pace.
+            </p>
+          </div>
+        </section>
+
+        {/* Meet The Horses */}
+        <section className="py-16 border-b border-stone-800">
+          <h2 className="text-xs font-semibold tracking-[0.2em] text-[#9E1B32] mb-6">MEET THE HORSES</h2>
+          <p className="text-lg text-stone-300 mb-8">
+            You&apos;re not just choosing an instructor — you&apos;re meeting a horse.
+          </p>
+
+          <div className="grid md:grid-cols-2 gap-8 mb-8">
+            <div className="bg-stone-900/50 border border-stone-800 rounded-lg overflow-hidden">
+              <div className="aspect-[4/3] bg-stone-800 flex items-center justify-center text-stone-600">
+                <span className="text-sm">Willow Photo</span>
+              </div>
+              <div className="p-6">
+                <h3 className="text-xl font-serif text-[#f5f0e8] mb-2">Willow</h3>
+                <p className="text-stone-400">
+                  Patient and intuitive. She reads nervous energy and responds with calm. Perfect for first-timers who need a horse that won&apos;t rush them.
+                </p>
+              </div>
+            </div>
+
+            <div className="bg-stone-900/50 border border-stone-800 rounded-lg overflow-hidden">
+              <div className="aspect-[4/3] bg-stone-800 flex items-center justify-center text-stone-600">
+                <span className="text-sm">Ethan Photo</span>
+              </div>
+              <div className="p-6">
+                <h3 className="text-xl font-serif text-[#f5f0e8] mb-2">Ethan</h3>
+                <p className="text-stone-400">
+                  Steady and forgiving. He&apos;s seen it all and doesn&apos;t spook easy. Great for building confidence on the ground or in the saddle.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <p className="text-stone-500 italic text-center">
+            Every beginner is matched with a horse suited to exactly where they are — not the other way around.
           </p>
         </section>
 
@@ -35,7 +112,7 @@ export default function LessonsPage() {
         <section className="py-16 border-b border-stone-800">
           <h2 className="text-xs font-semibold tracking-[0.2em] text-[#9E1B32] mb-10">TWO WAYS IN</h2>
 
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid md:grid-cols-2 gap-6 mb-8">
             {/* Door 1 - Already have a horse */}
             <Link
               href="/lessons/decode-the-noise"
@@ -68,12 +145,29 @@ export default function LessonsPage() {
                 Never had one, but you think about it more than you say out loud?
               </h3>
               <p className="text-stone-400 mb-8 leading-relaxed">
-                You don&apos;t have to already own a horse to start.
+                You don&apos;t have to already own a horse — or even know if you want to ride — to start.
               </p>
               <span className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#9E1B32] hover:bg-[#7a1527] text-white font-medium transition-colors">
-                Start Here
+                Decode the Desire
                 <ArrowRight size={18} />
               </span>
+            </Link>
+          </div>
+
+          {/* Farm Tour Option */}
+          <div className="text-center p-8 bg-stone-900/20 border border-stone-800">
+            <p className="text-stone-300 mb-4">
+              <strong className="text-stone-200">Not ready for either?</strong> Come see the farm.
+            </p>
+            <p className="text-stone-400 mb-6">
+              No commitment, no pressure. A 30-minute walk-through of the property and horses, and a conversation about what you&apos;d actually want to do here.
+            </p>
+            <Link
+              href="/contact"
+              className="inline-flex items-center gap-2 px-6 py-2.5 border border-[#9E1B32] text-[#9E1B32] hover:bg-[#9E1B32] hover:text-white font-medium transition-colors"
+            >
+              Book a Farm Tour
+              <ArrowRight size={18} />
             </Link>
           </div>
         </section>
@@ -90,37 +184,41 @@ export default function LessonsPage() {
         <section className="py-16 border-b border-stone-800">
           <h2 className="text-xs font-semibold tracking-[0.2em] text-[#9E1B32] mb-10">THE PRACTICAL PART</h2>
 
-          <div className="bg-[#9E1B32]/10 border-y border-[#9E1B32]/20 py-10 -mx-4 px-4 mb-10">
-            <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-              <div>
-                <div className="text-3xl md:text-4xl font-bold text-[#9E1B32] mb-2">~1 hr</div>
-                <div className="text-stone-400 text-sm">Per Lesson</div>
-              </div>
-              <div>
-                <div className="text-3xl md:text-4xl font-bold text-[#9E1B32] mb-2">Private</div>
-                <div className="text-stone-400 text-sm">One Household</div>
-              </div>
-              <div>
-                <div className="text-3xl md:text-4xl font-bold text-[#9E1B32] mb-2">Flexible</div>
-                <div className="text-stone-400 text-sm">Weekly / Biweekly</div>
-              </div>
-              <div>
-                <div className="text-3xl md:text-4xl font-bold text-[#9E1B32] mb-2">$125</div>
-                <div className="text-stone-400 text-sm">Per Lesson</div>
-              </div>
+          <div className="grid md:grid-cols-2 gap-8 mb-10">
+            {/* Private Lessons */}
+            <div className="bg-stone-900/30 border border-stone-800 p-8">
+              <h3 className="text-xl font-serif text-[#f5f0e8] mb-2">Private Lessons</h3>
+              <p className="text-stone-500 text-sm mb-4">~1 hour | Private | One household | Flexible scheduling</p>
+              <div className="text-3xl font-bold text-[#9E1B32] mb-4">$100 <span className="text-lg font-normal text-stone-500">per lesson</span></div>
+              <p className="text-stone-400 text-sm">
+                Packages available — see <Link href="/lessons/new-to-horses" className="text-[#9E1B32] hover:text-[#b82e45]">Decode the Desire</Link> for details.
+              </p>
+            </div>
+
+            {/* Decode the Noise */}
+            <div className="bg-stone-900/30 border border-stone-800 p-8">
+              <h3 className="text-xl font-serif text-[#f5f0e8] mb-2">Decode the Noise</h3>
+              <p className="text-stone-500 text-sm mb-4">2-hour session (2 lessons at $125/hr)</p>
+              <div className="text-3xl font-bold text-[#9E1B32] mb-4">Starting at $250</div>
+              <p className="text-stone-400 text-sm">
+                For horse owners who need an outside eye, not another opinion.
+              </p>
             </div>
           </div>
 
-          <p className="text-stone-400 text-center mb-10">
-            Packages available — see each door for details.
-          </p>
-
-          <div className="text-center">
+          <div className="flex flex-wrap justify-center gap-4">
             <Link
               href="/lessons/book"
               className="inline-flex items-center gap-2 px-8 py-3.5 bg-[#9E1B32] hover:bg-[#7a1527] text-white font-medium transition-colors"
             >
               Book a Lesson
+              <ArrowRight size={18} />
+            </Link>
+            <Link
+              href="/contact"
+              className="inline-flex items-center gap-2 px-8 py-3.5 border border-[#9E1B32] text-[#9E1B32] hover:bg-[#9E1B32] hover:text-white font-medium transition-colors"
+            >
+              Book a Farm Tour
               <ArrowRight size={18} />
             </Link>
           </div>
