@@ -140,7 +140,7 @@ const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {
                 </li>
                 <li>
                   <Link href="/no-reins" className="text-stone-500 hover:text-red-500 transition-colors text-sm">
-                    No Reins (Women)
+                    No Reins
                   </Link>
                 </li>
                 <li>
