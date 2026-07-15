@@ -11,7 +11,7 @@ export default function BookLessonPage() {
       <section className="relative py-16 md:py-20 px-4 bg-gradient-to-b from-stone-900 to-black">
         <div className="max-w-4xl mx-auto">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif text-[#f5f0e8] leading-tight mb-6">
-            Book a lesson.
+            Book time with us.
           </h1>
           <p className="text-lg md:text-xl text-stone-400 max-w-3xl">
             Tell us a little about where you are, and we&apos;ll go from there.
