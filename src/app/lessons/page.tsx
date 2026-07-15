@@ -34,27 +34,19 @@ export default function LessonsPage() {
           <h2 className="text-xs font-semibold tracking-[0.2em] text-[#9E1B32] mb-6">NOT SURE WHICH DOOR IS YOURS?</h2>
           <p className="text-lg text-stone-300 mb-8">Start here.</p>
 
-          <div className="space-y-4 text-stone-400">
-            <p>
-              <span className="text-stone-300">Never touched a horse, but think about it more than you say out loud.</span>
-              <span className="mx-2">→</span>
-              <Link href="/lessons/new-to-horses" className="text-[#9E1B32] hover:text-[#b82e45] transition-colors">Decode the Desire</Link>
-            </p>
-            <p>
-              <span className="text-stone-300">Nervous, but curious. You don&apos;t need to get on a horse today to start.</span>
-              <span className="mx-2">→</span>
-              <Link href="/lessons/new-to-horses" className="text-[#9E1B32] hover:text-[#b82e45] transition-colors">Decode the Desire</Link>
-            </p>
-            <p>
-              <span className="text-stone-300">Already own a horse and drowning in advice from the internet, the barn aisle, and three different trainers.</span>
-              <span className="mx-2">→</span>
-              <Link href="/lessons/decode-the-noise" className="text-[#9E1B32] hover:text-[#b82e45] transition-colors">Decode the Noise</Link>
-            </p>
-            <p>
-              <span className="text-stone-300">Just want to understand what&apos;s possible before you commit to anything.</span>
-              <span className="mx-2">→</span>
-              <Link href="/lessons/book" className="text-[#9E1B32] hover:text-[#b82e45] transition-colors">Book a Farm Tour</Link>
-            </p>
+          <div className="grid md:grid-cols-2 gap-8">
+            <Link href="/lessons/new-to-horses" className="bg-stone-900/50 p-8 rounded-xl border border-stone-800 hover:border-red-700 transition-colors">
+              <h3 className="text-xl font-bold text-stone-100 mb-3">Decode the Desire</h3>
+              <p className="text-stone-400">
+                Never had one, but you think about it more than you say out loud? You don&apos;t have to already own a horse to start.
+              </p>
+            </Link>
+            <Link href="/lessons/decode-the-noise" className="bg-stone-900/50 p-8 rounded-xl border border-stone-800 hover:border-red-700 transition-colors">
+              <h3 className="text-xl font-bold text-stone-100 mb-3">Decode the Noise</h3>
+              <p className="text-stone-400">
+                Already have a horse? You don&apos;t need one more opinion. You need someone to decode the noise.
+              </p>
+            </Link>
           </div>
         </section>
 

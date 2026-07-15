@@ -24,7 +24,7 @@ const LessonsLayout: React.FC<LessonsLayoutProps> = ({ children }) => {
   const navLinks = [
     { href: '/lessons', label: 'Lessons' },
     { href: '/lessons/decode-the-noise', label: 'Decode the Noise' },
-    { href: '/lessons/new-to-horses', label: 'New to Horses' },
+    { href: '/lessons/new-to-horses', label: 'Decode the Desire' },
     { href: '/lessons/book', label: 'Book' },
   ];
 
@@ -139,7 +139,7 @@ const LessonsLayout: React.FC<LessonsLayoutProps> = ({ children }) => {
                 </li>
                 <li>
                   <Link href="/lessons/new-to-horses" className="text-stone-500 hover:text-red-500 transition-colors text-sm">
-                    New to Horses
+                    Decode the Desire
                   </Link>
                 </li>
                 <li>
