@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { ArrowRight } from 'lucide-react';
 
 export default function LessonsPage() {
@@ -79,8 +80,13 @@ export default function LessonsPage() {
 
           <div className="grid md:grid-cols-2 gap-8 mb-8">
             <div className="bg-stone-900/50 border border-stone-800 rounded-lg overflow-hidden">
-              <div className="aspect-[4/3] bg-stone-800 flex items-center justify-center text-stone-600">
-                <span className="text-sm">Willow Photo</span>
+              <div className="aspect-[4/3] relative">
+                <Image
+                  src="/horses/willow.jpeg"
+                  alt="Willow, a black and white horse, being gently petted by a child"
+                  fill
+                  className="object-cover"
+                />
               </div>
               <div className="p-6">
                 <h3 className="text-xl font-serif text-[#f5f0e8] mb-2">Willow</h3>
@@ -91,8 +97,13 @@ export default function LessonsPage() {
             </div>
 
             <div className="bg-stone-900/50 border border-stone-800 rounded-lg overflow-hidden">
-              <div className="aspect-[4/3] bg-stone-800 flex items-center justify-center text-stone-600">
-                <span className="text-sm">Ethan Photo</span>
+              <div className="aspect-[4/3] relative">
+                <Image
+                  src="/horses/ethan.jpeg"
+                  alt="Ethan, a steady and forgiving horse"
+                  fill
+                  className="object-cover"
+                />
               </div>
               <div className="p-6">
                 <h3 className="text-xl font-serif text-[#f5f0e8] mb-2">Ethan</h3>
