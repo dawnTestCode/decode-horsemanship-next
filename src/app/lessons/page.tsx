@@ -108,7 +108,7 @@ export default function LessonsPage() {
               <div className="p-6">
                 <h3 className="text-xl font-serif text-[#f5f0e8] mb-2">Ethan</h3>
                 <p className="text-stone-400">
-                  Steady and forgiving. He&apos;s seen it all and doesn&apos;t spook easy. Great for building confidence on the ground or in the saddle.
+                  Steady and forgiving. He was born quiet and doesn&apos;t spook easy. Great for building confidence on the ground or in the saddle.
                 </p>
               </div>
             </div>
