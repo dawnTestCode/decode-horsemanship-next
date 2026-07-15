@@ -29,23 +29,66 @@ export default function LessonsPage() {
       {/* Main Content */}
       <div className="max-w-6xl mx-auto px-4">
 
-        {/* Who This Is For - Self-Select */}
+        {/* Two Ways In */}
         <section className="py-16 border-b border-stone-800">
-          <h2 className="text-xs font-semibold tracking-[0.2em] text-[#9E1B32] mb-6">NOT SURE WHICH DOOR IS YOURS?</h2>
-          <p className="text-lg text-stone-300 mb-8">Start here.</p>
+          <h2 className="text-xs font-semibold tracking-[0.2em] text-[#9E1B32] mb-10">TWO WAYS IN</h2>
 
-          <div className="grid md:grid-cols-2 gap-8">
-            <Link href="/lessons/new-to-horses" className="bg-stone-900/50 p-8 rounded-xl border border-stone-800 hover:border-red-700 transition-colors">
-              <h3 className="text-xl font-bold text-stone-100 mb-3">Decode the Desire</h3>
-              <p className="text-stone-400">
-                Never had one, but you think about it more than you say out loud? You don&apos;t have to already own a horse to start.
+          <div className="grid md:grid-cols-2 gap-6 mb-8">
+            {/* Door 1 - Never had one */}
+            <Link
+              href="/lessons/new-to-horses"
+              className="group relative block p-8 bg-stone-900/30 rounded-xl border-2 border-[#9E1B32]/30 hover:border-[#9E1B32] transition-all duration-300"
+            >
+              <span className="text-[10px] font-semibold tracking-[0.2em] text-[#9E1B32] uppercase mb-4 block">
+                Door One
+              </span>
+              <h3 className="text-xl md:text-2xl font-serif text-[#f5f0e8] mb-4 leading-snug">
+                Never had one, but you think about it more than you say out loud?
+              </h3>
+              <p className="text-stone-400 mb-8 leading-relaxed">
+                You don&apos;t have to already own a horse — or even know if you want to ride — to start. Maybe you think you&apos;re too old, or you&apos;re nervous, or you just don&apos;t know where to begin.
               </p>
+              <span className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#9E1B32] hover:bg-[#7a1527] text-white font-medium rounded-lg transition-colors">
+                Decode the Desire
+                <ArrowRight size={18} />
+              </span>
             </Link>
-            <Link href="/lessons/decode-the-noise" className="bg-stone-900/50 p-8 rounded-xl border border-stone-800 hover:border-red-700 transition-colors">
-              <h3 className="text-xl font-bold text-stone-100 mb-3">Decode the Noise</h3>
-              <p className="text-stone-400">
-                Already have a horse? You don&apos;t need one more opinion. You need someone to decode the noise.
+
+            {/* Door 2 - Already have a horse */}
+            <Link
+              href="/lessons/decode-the-noise"
+              className="group relative block p-8 bg-stone-900/30 rounded-xl border-2 border-[#9E1B32]/30 hover:border-[#9E1B32] transition-all duration-300"
+            >
+              <span className="text-[10px] font-semibold tracking-[0.2em] text-[#9E1B32] uppercase mb-4 block">
+                Door Two
+              </span>
+              <h3 className="text-xl md:text-2xl font-serif text-[#f5f0e8] mb-4 leading-snug">
+                Already have a horse?
+              </h3>
+              <p className="text-stone-400 mb-8 leading-relaxed">
+                Between the internet, the barn aisle, and three conflicting trainers, you don&apos;t need one more opinion. You need someone to decode the noise.
               </p>
+              <span className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#9E1B32] hover:bg-[#7a1527] text-white font-medium rounded-lg transition-colors">
+                Decode the Noise
+                <ArrowRight size={18} />
+              </span>
+            </Link>
+          </div>
+
+          {/* Farm Tour Option */}
+          <div className="text-center p-8 bg-stone-900/20 rounded-xl border border-stone-800">
+            <p className="text-stone-300 mb-4">
+              <strong className="text-stone-200">Not ready for either?</strong> Come see the farm.
+            </p>
+            <p className="text-stone-400 mb-6">
+              No commitment, no pressure. A 30-minute walk-through of the property and horses, and a conversation about what you&apos;d actually want to do here.
+            </p>
+            <Link
+              href="/lessons/book"
+              className="inline-flex items-center gap-2 px-6 py-2.5 bg-[#9E1B32] hover:bg-[#7a1527] text-white font-medium rounded-lg transition-colors"
+            >
+              Book a Farm Tour
+              <ArrowRight size={18} />
             </Link>
           </div>
         </section>
