@@ -162,50 +162,6 @@ export default function LessonsPage() {
           </p>
         </section>
 
-        {/* The Practical Part */}
-        <section className="py-16 border-b border-stone-800">
-          <h2 className="text-xs font-semibold tracking-[0.2em] text-[#9E1B32] mb-10">THE PRACTICAL PART</h2>
-
-          <div className="grid md:grid-cols-2 gap-8 mb-10">
-            {/* Private Lessons */}
-            <div className="bg-stone-900/30 border border-stone-800 p-8">
-              <h3 className="text-xl font-serif text-[#f5f0e8] mb-2">Private Lessons</h3>
-              <p className="text-stone-500 text-sm mb-4">~1 hour | Private | One household | Flexible scheduling</p>
-              <div className="text-3xl font-bold text-[#9E1B32] mb-4">$100 <span className="text-lg font-normal text-stone-500">per lesson</span></div>
-              <p className="text-stone-400 text-sm">
-                Packages available — see <Link href="/lessons/new-to-horses" className="text-[#9E1B32] hover:text-[#b82e45]">Decode the Desire</Link> for details.
-              </p>
-            </div>
-
-            {/* Decode the Noise */}
-            <div className="bg-stone-900/30 border border-stone-800 p-8">
-              <h3 className="text-xl font-serif text-[#f5f0e8] mb-2">Decode the Noise</h3>
-              <p className="text-stone-500 text-sm mb-4">2-hour session (2 lessons at $125/hr)</p>
-              <div className="text-3xl font-bold text-[#9E1B32] mb-4">Starting at $250</div>
-              <p className="text-stone-400 text-sm">
-                For horse owners who need an outside eye, not another opinion.
-              </p>
-            </div>
-          </div>
-
-          <div className="flex flex-wrap justify-center gap-4">
-            <Link
-              href="/lessons/book"
-              className="inline-flex items-center gap-2 px-8 py-3.5 bg-[#9E1B32] hover:bg-[#7a1527] text-white font-medium transition-colors"
-            >
-              Book a Lesson
-              <ArrowRight size={18} />
-            </Link>
-            <Link
-              href="/lessons/book"
-              className="inline-flex items-center gap-2 px-8 py-3.5 border border-[#9E1B32] text-[#9E1B32] hover:bg-[#9E1B32] hover:text-white font-medium transition-colors"
-            >
-              Book a Farm Tour
-              <ArrowRight size={18} />
-            </Link>
-          </div>
-        </section>
-
         {/* Other Ways to Start */}
         <section className="py-16">
           <h2 className="text-xs font-semibold tracking-[0.2em] text-[#9E1B32] mb-6">OTHER WAYS TO START</h2>
