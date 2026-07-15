@@ -68,7 +68,7 @@ export default function DecodeTheNoisePage() {
           <div className="bg-[#9E1B32]/10 border-y border-[#9E1B32]/20 py-10 -mx-4 px-4 mb-10">
             <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-3 gap-8 text-center">
               <div>
-                <div className="text-3xl md:text-4xl font-bold text-[#9E1B32] mb-2">~1 hr</div>
+                <div className="text-3xl md:text-4xl font-bold text-[#9E1B32] mb-2">~2 hrs</div>
                 <div className="text-stone-400 text-sm">Per Lesson</div>
               </div>
               <div>
@@ -84,21 +84,18 @@ export default function DecodeTheNoisePage() {
                 <div className="text-stone-400 text-sm">Weekly / Biweekly</div>
               </div>
               <div>
-                <div className="text-3xl md:text-4xl font-bold text-[#9E1B32] mb-2">$125</div>
+                <div className="text-3xl md:text-4xl font-bold text-[#9E1B32] mb-2">$250</div>
                 <div className="text-stone-400 text-sm">Per Lesson</div>
               </div>
               <div>
                 <div className="text-3xl md:text-4xl font-bold text-[#9E1B32] mb-2">$450</div>
-                <div className="text-stone-400 text-sm">4-Lesson Package</div>
+                <div className="text-stone-400 text-sm">2-Lesson Package</div>
               </div>
             </div>
           </div>
 
-          <p className="text-stone-400 text-center mb-4">
-            Travel: Free within 30 min of Chapel Hill. $25 (30–60 min), $50 (60–90 min), $75 (90–120 min).
-          </p>
           <p className="text-stone-400 text-center mb-10">
-            8-lesson package: $850.
+            Travel: Free within 30 min of Chapel Hill. $25 (30–60 min), $50 (60–90 min), $75 (90–120 min).
           </p>
 
           <div className="text-center">

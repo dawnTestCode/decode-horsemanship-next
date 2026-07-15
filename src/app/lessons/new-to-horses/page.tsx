@@ -91,21 +91,17 @@ export default function NewToHorsesPage() {
                 <div className="text-stone-400 text-sm">Start with One</div>
               </div>
               <div>
-                <div className="text-3xl md:text-4xl font-bold text-[#9E1B32] mb-2">$125</div>
+                <div className="text-3xl md:text-4xl font-bold text-[#9E1B32] mb-2">$100</div>
                 <div className="text-stone-400 text-sm">Per Lesson</div>
               </div>
               <div>
-                <div className="text-3xl md:text-4xl font-bold text-[#9E1B32] mb-2">$450</div>
+                <div className="text-3xl md:text-4xl font-bold text-[#9E1B32] mb-2">$360</div>
                 <div className="text-stone-400 text-sm">4-Lesson Package</div>
               </div>
             </div>
           </div>
 
-          <p className="text-stone-400 text-center mb-10">
-            8-lesson package: $850.
-          </p>
-
-          <div className="text-center">
+          <div className="text-center mt-10">
             <Link
               href="/lessons/book"
               className="inline-flex items-center gap-2 px-8 py-3.5 bg-[#9E1B32] hover:bg-[#7a1527] text-white font-medium transition-colors"
