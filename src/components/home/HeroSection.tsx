@@ -32,7 +32,7 @@ export default function HeroSection() {
             Book a Lesson
           </Link>
           <Link
-            href="/contact?tour=true"
+            href="/lessons/book"
             className="px-8 py-4 border-2 border-stone-600 hover:border-red-500 text-stone-200 hover:text-red-500 font-semibold rounded-lg transition-all"
           >
             Book a Free Farm Tour

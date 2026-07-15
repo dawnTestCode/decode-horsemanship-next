@@ -52,7 +52,7 @@ export default function LessonsPage() {
             <p>
               <span className="text-stone-300">Just want to understand what&apos;s possible before you commit to anything.</span>
               <span className="mx-2">→</span>
-              <Link href="/contact" className="text-[#9E1B32] hover:text-[#b82e45] transition-colors">Book a Farm Tour</Link>
+              <Link href="/lessons/book" className="text-[#9E1B32] hover:text-[#b82e45] transition-colors">Book a Farm Tour</Link>
             </p>
           </div>
         </section>
@@ -163,7 +163,7 @@ export default function LessonsPage() {
               No commitment, no pressure. A 30-minute walk-through of the property and horses, and a conversation about what you&apos;d actually want to do here.
             </p>
             <Link
-              href="/contact"
+              href="/lessons/book"
               className="inline-flex items-center gap-2 px-6 py-2.5 border border-[#9E1B32] text-[#9E1B32] hover:bg-[#9E1B32] hover:text-white font-medium transition-colors"
             >
               Book a Farm Tour
@@ -215,7 +215,7 @@ export default function LessonsPage() {
               <ArrowRight size={18} />
             </Link>
             <Link
-              href="/contact"
+              href="/lessons/book"
               className="inline-flex items-center gap-2 px-8 py-3.5 border border-[#9E1B32] text-[#9E1B32] hover:bg-[#9E1B32] hover:text-white font-medium transition-colors"
             >
               Book a Farm Tour
