@@ -5,10 +5,11 @@ import { supabase } from '@/lib/supabase';
 import { Horse, GalleryItem } from '@/types';
 import Navigation from '@/components/home/Navigation';
 import HeroSection from '@/components/home/HeroSection';
-import StatsBar from '@/components/home/StatsBar';
-import FrontDoorModule from '@/components/home/FrontDoorModule';
-import HorsesSection from '@/components/home/HorsesSection';
+import TwoWaysIn from '@/components/home/TwoWaysIn';
+import WhoRunsIt from '@/components/home/WhoRunsIt';
+import OtherWaysToStart from '@/components/home/FrontDoorModule';
 import MissionSection from '@/components/home/MissionSection';
+import HorsesSection from '@/components/home/HorsesSection';
 import GallerySection from '@/components/home/GallerySection';
 import ContactSection from '@/components/home/ContactSection';
 import Footer from '@/components/home/Footer';
@@ -89,16 +90,17 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-black text-stone-100">
       <Navigation activeSection={activeSection} onSectionClick={scrollToSection} />
-      <HeroSection onSectionClick={scrollToSection} />
-      <StatsBar />
-      <FrontDoorModule />
+      <HeroSection />
+      <TwoWaysIn />
+      <WhoRunsIt />
+      <OtherWaysToStart />
+      <MissionSection />
       <HorsesSection
         horses={horses}
         loading={loadingHorses}
         favorites={favorites}
         onToggleFavorite={toggleFavorite}
       />
-      <MissionSection />
       <GallerySection galleryItems={galleryItems} />
       <ContactSection horses={horses} />
       <Footer onSectionClick={scrollToSection} />

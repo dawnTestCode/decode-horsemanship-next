@@ -1,15 +1,28 @@
+import { siteConfig } from '@/config/siteConfig';
+
 export default function MissionSection() {
   return (
     <section id="mission" className="py-20 px-4 bg-stone-900/30">
       <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-16">
+        <div className="text-center mb-12">
           <h2 className="text-4xl md:text-5xl font-bold mb-4">
-            Our <span className="text-red-500">Mission</span>
+            Every horse deserves a <span className="text-red-500">chance</span>
           </h2>
-          <p className="text-stone-400 max-w-2xl mx-auto">
-            Every horse deserves a chance. We&apos;re committed to breaking the cycle of neglect and giving horses
-            the second chance they deserve.
+          <p className="text-stone-400 max-w-3xl mx-auto">
+            Decode Horsemanship also rescues horses from the auction and slaughter pipeline, rehabilitates them with patience and expertise, and matches them with loving forever homes.
           </p>
+        </div>
+
+        {/* Stats Bar */}
+        <div className="bg-red-900/20 border border-red-900/30 rounded-xl py-8 mb-16">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+            {siteConfig.stats.map((stat, index) => (
+              <div key={index}>
+                <div className="text-3xl md:text-4xl font-bold text-red-500 mb-2">{stat.value}</div>
+                <div className="text-stone-400 text-sm">{stat.label}</div>
+              </div>
+            ))}
+          </div>
         </div>
 
         <div className="grid md:grid-cols-3 gap-8 mb-16">

@@ -1,11 +1,11 @@
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Decode Horsemanship | Horse Rescue & Rehabilitation',
-  description: 'We rescue horses from the auction and slaughter pipeline, rehabilitate them with patience and expertise, and match them with loving forever homes. Chapel Hill, NC.',
+  title: 'Decode Horsemanship | Private Riding & Horsemanship Lessons — Chapel Hill, NC',
+  description: 'Private lessons in natural horsemanship for adults — never ridden, used to ride, or somewhere in between. No experience required. Chapel Hill, NC.',
   openGraph: {
-    title: 'Decode Horsemanship | Horse Rescue & Rehabilitation',
-    description: 'We rescue horses from the auction and slaughter pipeline, rehabilitate them with patience and expertise, and match them with loving forever homes.',
+    title: 'Decode Horsemanship | Private Riding & Horsemanship Lessons — Chapel Hill, NC',
+    description: 'Private, one-on-one horsemanship and riding lessons for adults. Not a one-day event — ongoing instruction built around wherever you actually are.',
     type: 'website',
     siteName: 'Decode Horsemanship',
   },

@@ -21,19 +21,46 @@ export default function Footer({ onSectionClick }: FooterProps) {
           <div>
             <h4 className="font-semibold text-stone-200 mb-4">Quick Links</h4>
             <ul className="space-y-2">
-              {['Home', 'Horses', 'Mission', 'Gallery', 'Contact'].map((link) => (
-                <li key={link}>
-                  <button
-                    onClick={() => onSectionClick(link.toLowerCase())}
-                    className="text-stone-500 hover:text-red-500 transition-colors text-sm"
-                  >
-                    {link}
-                  </button>
-                </li>
-              ))}
               <li>
                 <Link href="/lessons" className="text-stone-500 hover:text-red-500 transition-colors text-sm">
                   Lessons
+                </Link>
+              </li>
+              <li>
+                <button
+                  onClick={() => onSectionClick('home')}
+                  className="text-stone-500 hover:text-red-500 transition-colors text-sm"
+                >
+                  Home
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => onSectionClick('horses')}
+                  className="text-stone-500 hover:text-red-500 transition-colors text-sm"
+                >
+                  Horses
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => onSectionClick('mission')}
+                  className="text-stone-500 hover:text-red-500 transition-colors text-sm"
+                >
+                  Mission
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => onSectionClick('gallery')}
+                  className="text-stone-500 hover:text-red-500 transition-colors text-sm"
+                >
+                  Gallery
+                </button>
+              </li>
+              <li>
+                <Link href="/contact" className="text-stone-500 hover:text-red-500 transition-colors text-sm">
+                  Contact
                 </Link>
               </li>
               <li>

@@ -132,6 +132,7 @@ export default function ContactPage() {
                       className="w-full bg-stone-800 border border-stone-700 rounded-lg px-4 py-3 text-stone-200 focus:border-red-500 focus:outline-none transition-colors"
                     >
                       <option value="">Select a topic (optional)</option>
+                      <option value="lessons">Lessons</option>
                       <option value="experiences">Experiences (help me choose)</option>
                       <option value="groundwork">Groundwork</option>
                       <option value="no-reins">No Reins</option>
