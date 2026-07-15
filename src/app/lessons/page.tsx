@@ -75,7 +75,7 @@ export default function LessonsPage() {
         <section className="py-16 border-b border-stone-800">
           <h2 className="text-xs font-semibold tracking-[0.2em] text-[#9E1B32] mb-6">MEET THE HORSES</h2>
           <p className="text-lg text-stone-300 mb-8">
-            You&apos;re not just choosing an instructor — you&apos;re meeting a horse.
+            You&apos;re not just choosing an instructor — you&apos;re meeting a horse. Here are just 2 of our herd.
           </p>
 
           <div className="grid md:grid-cols-2 gap-8 mb-8">
