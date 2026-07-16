@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { supabase } from '@/lib/supabase';
 import { ChevronLeft, Plus, Check, X, Calendar, BarChart3, Users, Pencil, Trash2, Settings, Minus } from 'lucide-react';
 
-type View = 'main' | 'bought' | 'horses' | 'stats' | 'addHorse' | 'editHorse' | 'settings' | 'missedFeeding';
+type View = 'main' | 'bought' | 'horses' | 'stats' | 'addHorse' | 'editHorse' | 'settings' | 'missedFeeding' | 'activity';
 type GrainType = 'strategy' | 'omelene' | 'enrich';
 type ItemType = 'grain' | 'vitamin';
 
@@ -801,7 +801,15 @@ export default function GrainTraxPage() {
             {/* Recent activity */}
             {transactions.length > 0 && (
               <div className="mt-8">
-                <h2 className="text-lg font-semibold text-emerald-900 mb-3">Recent Activity</h2>
+                <div className="flex items-center justify-between mb-3">
+                  <h2 className="text-lg font-semibold text-emerald-900">Recent Activity</h2>
+                  <button
+                    onClick={() => setView('activity')}
+                    className="text-sm text-emerald-600 hover:text-emerald-800 transition-colors"
+                  >
+                    See All ({transactions.length})
+                  </button>
+                </div>
                 <div className="space-y-2">
                   {transactions.slice(0, 8).map(tx => {
                     const isBought = tx.transaction_type === 'bought';
@@ -1617,6 +1625,102 @@ export default function GrainTraxPage() {
             {stats.activeHorses.length === 0 && (
               <div className="text-center py-8 text-emerald-600">
                 No active horses.
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Activity view - all transactions */}
+        {view === 'activity' && (
+          <div className="space-y-6">
+            <button
+              onClick={handleBack}
+              className="flex items-center gap-2 text-emerald-700 hover:text-emerald-900 transition-colors"
+            >
+              <ChevronLeft size={20} />
+              Back
+            </button>
+
+            <h2 className="text-xl font-semibold text-emerald-900">All Activity ({transactions.length})</h2>
+
+            <div className="space-y-2">
+              {transactions.map(tx => {
+                const isBought = tx.transaction_type === 'bought';
+                const isHorseAdded = tx.transaction_type === 'horse_added';
+                const isHorseUpdated = tx.transaction_type === 'horse_updated';
+                const isHorseRemoved = tx.transaction_type === 'horse_removed';
+                const isHalfFeeding = tx.transaction_type === 'half_feeding';
+
+                return (
+                  <div
+                    key={tx.id}
+                    className="bg-white rounded-lg border border-emerald-200 p-3 flex items-center gap-3"
+                  >
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                      isBought ? 'bg-green-100 text-green-700' :
+                      isHorseAdded ? 'bg-blue-100 text-blue-700' :
+                      isHorseUpdated ? 'bg-amber-100 text-amber-700' :
+                      isHorseRemoved ? 'bg-red-100 text-red-700' :
+                      isHalfFeeding ? 'bg-orange-100 text-orange-700' :
+                      'bg-gray-100 text-gray-700'
+                    }`}>
+                      {isBought && <Plus size={16} />}
+                      {isHorseAdded && <Users size={16} />}
+                      {isHorseUpdated && <Pencil size={16} />}
+                      {isHorseRemoved && <Trash2 size={16} />}
+                      {isHalfFeeding && <Minus size={16} />}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      {isBought && (
+                        <div className="text-sm text-emerald-900">
+                          <span className="font-medium">+{tx.quantity}</span>
+                          {' '}
+                          {tx.item_type === 'grain'
+                            ? getGrainTypeLabel(tx.grain_type, true)
+                            : 'Vitamin'
+                          }
+                          {' bag'}{tx.quantity > 1 ? 's' : ''}
+                        </div>
+                      )}
+                      {isHorseAdded && (
+                        <div className="text-sm text-emerald-900">
+                          <span className="font-medium">Added {tx.horse_name}</span>
+                          {tx.details && <span className="text-emerald-600"> ({tx.details})</span>}
+                        </div>
+                      )}
+                      {isHorseUpdated && (
+                        <div className="text-sm text-emerald-900">
+                          <span className="font-medium">Updated {tx.horse_name}</span>
+                          {tx.details && <span className="text-emerald-600"> ({tx.details})</span>}
+                        </div>
+                      )}
+                      {isHorseRemoved && (
+                        <div className="text-sm text-emerald-900">
+                          <span className="font-medium">Removed {tx.horse_name}</span>
+                        </div>
+                      )}
+                      {isHalfFeeding && (
+                        <div className="text-sm text-emerald-900">
+                          <span className="font-medium">Missed feeding</span>
+                          {tx.details === 'Horses fed once' ? (
+                            <span className="text-emerald-600"> (all horses)</span>
+                          ) : tx.details && (
+                            <span className="text-emerald-600"> ({tx.details.replace(' missed feeding', '')})</span>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                    <div className="text-xs text-emerald-500 whitespace-nowrap">
+                      {formatDate(tx.created_at)}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {transactions.length === 0 && (
+              <div className="text-center py-8 text-emerald-600">
+                No activity yet.
               </div>
             )}
           </div>
