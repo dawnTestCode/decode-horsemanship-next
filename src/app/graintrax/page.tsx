@@ -117,10 +117,6 @@ function getLastSevenDays(): { date: Date; label: string; value: string }[] {
 
 export default function GrainTraxPage() {
   const [view, setView] = useState<View>('main');
-  const [inventory, setInventory] = useState<Inventory>({
-    grain: { strategy: 0, omelene: 0, enrich: 0 },
-    vitamin: 0,
-  });
   const [horses, setHorses] = useState<Horse[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [settings, setSettings] = useState<GrainSettings>(DEFAULT_SETTINGS);
@@ -151,31 +147,6 @@ export default function GrainTraxPage() {
 
   const fetchData = useCallback(async () => {
     try {
-      // Fetch inventory
-      const { data: invData, error: invError } = await supabase
-        .from('grain_inventory')
-        .select('item_type, grain_type, quantity');
-
-      if (invError) throw invError;
-
-      const inv: Inventory = {
-        grain: { strategy: 0, omelene: 0, enrich: 0 },
-        vitamin: 0,
-      };
-
-      invData?.forEach((row: { item_type: string; grain_type: string | null; quantity: number }) => {
-        if (row.item_type === 'grain' && row.grain_type) {
-          const grainType = row.grain_type as GrainType;
-          if (grainType in inv.grain) {
-            inv.grain[grainType] = row.quantity;
-          }
-        } else if (row.item_type === 'vitamin') {
-          inv.vitamin = row.quantity;
-        }
-      });
-
-      setInventory(inv);
-
       // Fetch horses
       const { data: horseData, error: horseError } = await supabase
         .from('grain_horses')
@@ -186,14 +157,10 @@ export default function GrainTraxPage() {
 
       setHorses(horseData as Horse[] || []);
 
-      // Fetch recent transactions (last 30 days)
-      const thirtyDaysAgo = new Date();
-      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-
+      // Fetch ALL transactions (for calculating inventory from purchases)
       const { data: txData, error: txError } = await supabase
         .from('grain_transactions')
         .select('id, item_type, grain_type, transaction_type, quantity, horse_id, horse_name, details, created_at')
-        .gte('created_at', thirtyDaysAgo.toISOString())
         .order('created_at', { ascending: false });
 
       if (txError) throw txError;
@@ -576,7 +543,7 @@ export default function GrainTraxPage() {
     }
   }, [settings]);
 
-  // Calculate daily usage and runway stats
+  // Calculate daily usage, inventory, and runway stats
   const stats = useMemo(() => {
     const activeHorses = horses.filter(h => h.active);
 
@@ -610,13 +577,44 @@ export default function GrainTraxPage() {
 
     const vitaminBagsPerDay = dailyVitaminLbs / settings.bag_size_vitamin;
 
-    // Calculate grain saved from missed feedings (in lbs)
-    const savedGrainLbs: Record<GrainType, number> = {
+    // === CALCULATE INVENTORY FROM TRANSACTIONS ===
+
+    // Sum all purchases
+    const purchasedBags: Record<GrainType, number> = {
       strategy: 0,
       omelene: 0,
       enrich: 0,
     };
-    let savedVitaminScoops = 0;
+    let purchasedVitaminBags = 0;
+    let earliestPurchaseDate: Date | null = null;
+
+    transactions
+      .filter(tx => tx.transaction_type === 'bought')
+      .forEach(tx => {
+        const txDate = new Date(tx.created_at);
+        if (!earliestPurchaseDate || txDate < earliestPurchaseDate) {
+          earliestPurchaseDate = txDate;
+        }
+        if (tx.item_type === 'grain' && tx.grain_type) {
+          purchasedBags[tx.grain_type as GrainType] += tx.quantity;
+        } else if (tx.item_type === 'vitamin') {
+          purchasedVitaminBags += tx.quantity;
+        }
+      });
+
+    // Calculate days since first purchase
+    const now = new Date();
+    const daysSinceFirstPurchase = earliestPurchaseDate !== null
+      ? Math.max(0, (now.getTime() - (earliestPurchaseDate as Date).getTime()) / (1000 * 60 * 60 * 24))
+      : 0;
+
+    // Calculate grain saved from missed feedings (in bags)
+    let savedGrainBags: Record<GrainType, number> = {
+      strategy: 0,
+      omelene: 0,
+      enrich: 0,
+    };
+    let savedVitaminBags = 0;
 
     transactions
       .filter(tx => tx.transaction_type === 'half_feeding')
@@ -624,46 +622,48 @@ export default function GrainTraxPage() {
         if (tx.details === 'Horses fed once') {
           // All horses missed a feeding - add one feeding worth for each horse
           activeHorses.forEach(horse => {
-            savedGrainLbs[horse.grain_type] += horse.cans_per_feeding * getLbsPerCan(horse.grain_type);
-            savedVitaminScoops += horse.vitamin_scoops;
+            const lbsSaved = horse.cans_per_feeding * getLbsPerCan(horse.grain_type);
+            savedGrainBags[horse.grain_type] += lbsSaved / settings.bag_size_grain;
+            savedVitaminBags += (horse.vitamin_scoops * settings.lbs_per_scoop_vitamin) / settings.bag_size_vitamin;
           });
         } else if (tx.details) {
           // Specific horse(s) missed a feeding - parse horse name from details
           const horseName = tx.details.replace(' missed feeding', '');
           const horse = horses.find(h => h.name === horseName);
           if (horse) {
-            savedGrainLbs[horse.grain_type] += horse.cans_per_feeding * getLbsPerCan(horse.grain_type);
-            savedVitaminScoops += horse.vitamin_scoops;
+            const lbsSaved = horse.cans_per_feeding * getLbsPerCan(horse.grain_type);
+            savedGrainBags[horse.grain_type] += lbsSaved / settings.bag_size_grain;
+            savedVitaminBags += (horse.vitamin_scoops * settings.lbs_per_scoop_vitamin) / settings.bag_size_vitamin;
           }
         }
       });
 
-    // Convert saved grain to bags
-    const savedGrainBags: Record<GrainType, number> = {
-      strategy: savedGrainLbs.strategy / settings.bag_size_grain,
-      omelene: savedGrainLbs.omelene / settings.bag_size_grain,
-      enrich: savedGrainLbs.enrich / settings.bag_size_grain,
+    // Calculate consumed bags since first purchase
+    const consumedBags: Record<GrainType, number> = {
+      strategy: bagsPerDay.strategy * daysSinceFirstPurchase,
+      omelene: bagsPerDay.omelene * daysSinceFirstPurchase,
+      enrich: bagsPerDay.enrich * daysSinceFirstPurchase,
     };
-    const savedVitaminBags = (savedVitaminScoops * settings.lbs_per_scoop_vitamin) / settings.bag_size_vitamin;
+    const consumedVitaminBags = vitaminBagsPerDay * daysSinceFirstPurchase;
 
-    // Effective inventory = actual inventory + saved grain from missed feedings
-    const effectiveInventory = {
+    // Current inventory = purchased - consumed + saved from missed feedings
+    const calculatedInventory = {
       grain: {
-        strategy: inventory.grain.strategy + savedGrainBags.strategy,
-        omelene: inventory.grain.omelene + savedGrainBags.omelene,
-        enrich: inventory.grain.enrich + savedGrainBags.enrich,
+        strategy: Math.max(0, purchasedBags.strategy - consumedBags.strategy + savedGrainBags.strategy),
+        omelene: Math.max(0, purchasedBags.omelene - consumedBags.omelene + savedGrainBags.omelene),
+        enrich: Math.max(0, purchasedBags.enrich - consumedBags.enrich + savedGrainBags.enrich),
       },
-      vitamin: inventory.vitamin + savedVitaminBags,
+      vitamin: Math.max(0, purchasedVitaminBags - consumedVitaminBags + savedVitaminBags),
     };
 
-    // Calculate runway in days using effective inventory
+    // Calculate runway in days using calculated inventory
     const runwayDays: Record<GrainType, number> = {
-      strategy: bagsPerDay.strategy > 0 ? Math.floor(effectiveInventory.grain.strategy / bagsPerDay.strategy) : Infinity,
-      omelene: bagsPerDay.omelene > 0 ? Math.floor(effectiveInventory.grain.omelene / bagsPerDay.omelene) : Infinity,
-      enrich: bagsPerDay.enrich > 0 ? Math.floor(effectiveInventory.grain.enrich / bagsPerDay.enrich) : Infinity,
+      strategy: bagsPerDay.strategy > 0 ? Math.floor(calculatedInventory.grain.strategy / bagsPerDay.strategy) : Infinity,
+      omelene: bagsPerDay.omelene > 0 ? Math.floor(calculatedInventory.grain.omelene / bagsPerDay.omelene) : Infinity,
+      enrich: bagsPerDay.enrich > 0 ? Math.floor(calculatedInventory.grain.enrich / bagsPerDay.enrich) : Infinity,
     };
 
-    const vitaminRunwayDays = vitaminBagsPerDay > 0 ? Math.floor(effectiveInventory.vitamin / vitaminBagsPerDay) : Infinity;
+    const vitaminRunwayDays = vitaminBagsPerDay > 0 ? Math.floor(calculatedInventory.vitamin / vitaminBagsPerDay) : Infinity;
 
     // Calculate weekly and monthly grain usage in bags
     const weeklyBags: Record<GrainType, number> = {
@@ -697,8 +697,9 @@ export default function GrainTraxPage() {
       weeklyBags,
       monthlyBags,
       horseConsumption,
+      calculatedInventory,
     };
-  }, [horses, inventory, settings, getLbsPerCan]);
+  }, [horses, transactions, settings, getLbsPerCan]);
 
   if (loading) {
     return (
@@ -708,7 +709,9 @@ export default function GrainTraxPage() {
     );
   }
 
-  const totalGrainBags = inventory.grain.strategy + inventory.grain.omelene + inventory.grain.enrich;
+  // Use calculated inventory from stats
+  const inventory = stats.calculatedInventory;
+  const totalGrainBags = Math.round((inventory.grain.strategy + inventory.grain.omelene + inventory.grain.enrich) * 10) / 10;
 
   return (
     <div className="min-h-screen bg-emerald-50">
@@ -717,15 +720,15 @@ export default function GrainTraxPage() {
         <h1 className="text-2xl font-bold text-center mb-4">GrainTrax</h1>
         <div className="flex justify-center gap-6">
           <div className="text-center">
-            <div className="text-4xl font-bold">{totalGrainBags}</div>
+            <div className="text-4xl font-bold">{totalGrainBags.toFixed(1)}</div>
             <div className="text-emerald-200 text-sm">Grain Bags</div>
             <div className="text-emerald-300 text-xs mt-1">
-              {inventory.grain.strategy}S / {inventory.grain.omelene}O / {inventory.grain.enrich}E
+              {inventory.grain.strategy.toFixed(1)}S / {inventory.grain.omelene.toFixed(1)}O / {inventory.grain.enrich.toFixed(1)}E
             </div>
           </div>
           <div className="w-px bg-emerald-700" />
           <div className="text-center">
-            <div className="text-4xl font-bold">{inventory.vitamin}</div>
+            <div className="text-4xl font-bold">{inventory.vitamin.toFixed(1)}</div>
             <div className="text-emerald-200 text-sm">Vitamin Bag{inventory.vitamin !== 1 ? 's' : ''}</div>
           </div>
           <div className="w-px bg-emerald-700" />
@@ -1409,7 +1412,7 @@ export default function GrainTraxPage() {
                       <div className="text-xs text-emerald-500">days</div>
                       <div className="text-sm text-emerald-700">{type.shortLabel}</div>
                       <div className="text-xs text-emerald-500 mt-1">
-                        {bags} bag{bags !== 1 ? 's' : ''}
+                        {bags.toFixed(1)} bag{bags !== 1 ? 's' : ''}
                       </div>
                     </div>
                   );
@@ -1427,7 +1430,7 @@ export default function GrainTraxPage() {
                   <div className="text-xs text-emerald-500">days</div>
                   <div className="text-sm text-emerald-700">Vitamins</div>
                   <div className="text-xs text-emerald-500 mt-1">
-                    {inventory.vitamin} bag{inventory.vitamin !== 1 ? 's' : ''}
+                    {inventory.vitamin.toFixed(1)} bag{inventory.vitamin !== 1 ? 's' : ''}
                   </div>
                 </div>
               </div>
