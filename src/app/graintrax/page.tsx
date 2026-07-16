@@ -144,6 +144,7 @@ export default function GrainTraxPage() {
 
   // For missed feeding selection
   const [selectedHorseIds, setSelectedHorseIds] = useState<Set<string>>(new Set());
+  const [missedFeedingDate, setMissedFeedingDate] = useState<string>('');
 
   const fetchData = useCallback(async () => {
     try {
@@ -209,6 +210,7 @@ export default function GrainTraxPage() {
     setHorseCansPerFeeding('1');
     setHorseVitaminScoops('0');
     setSelectedHorseIds(new Set());
+    setMissedFeedingDate('');
     setError(null);
     setSuccess(null);
   };
@@ -491,9 +493,14 @@ export default function GrainTraxPage() {
     setSubmitting(true);
     setError(null);
 
+    // Convert date string to ISO timestamp if provided
+    const feedingDate = missedFeedingDate ? new Date(missedFeedingDate + 'T12:00:00').toISOString() : null;
+
     try {
       if (horseIds === 'all') {
-        const { error } = await supabase.rpc('record_half_feeding');
+        const { error } = await supabase.rpc('record_half_feeding', {
+          p_date: feedingDate,
+        });
         if (error) throw error;
         setSuccess('Marked missed feeding for all horses');
       } else {
@@ -501,6 +508,7 @@ export default function GrainTraxPage() {
         for (const horseId of horseIds) {
           const { error } = await supabase.rpc('record_half_feeding_for_horse', {
             p_horse_id: horseId,
+            p_date: feedingDate,
           });
           if (error) throw error;
         }
@@ -1559,7 +1567,22 @@ export default function GrainTraxPage() {
             </button>
 
             <h2 className="text-xl font-semibold text-emerald-900">Missed Feeding</h2>
-            <p className="text-emerald-600 text-sm">Select which horses missed a feeding today.</p>
+            <p className="text-emerald-600 text-sm">Select which horses missed a feeding.</p>
+
+            {/* Date picker */}
+            <div className="space-y-2">
+              <label className="block text-emerald-900 font-medium">Date</label>
+              <input
+                type="date"
+                value={missedFeedingDate}
+                onChange={(e) => setMissedFeedingDate(e.target.value)}
+                max={new Date().toISOString().split('T')[0]}
+                className="w-full px-4 py-3 rounded-lg border-2 border-emerald-200 bg-white text-emerald-900 focus:border-emerald-500 focus:outline-none"
+              />
+              <p className="text-xs text-emerald-500">
+                {missedFeedingDate ? `Recording for ${new Date(missedFeedingDate + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}` : 'Leave blank for today'}
+              </p>
+            </div>
 
             {/* All Horses button */}
             <button
