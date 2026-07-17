@@ -65,13 +65,29 @@ interface DustLeatherSession {
   capacity: number;
 }
 
+interface CopperLaceSession {
+  id: string;
+  session_date: string;
+  status: string;
+  enrolled: number;
+  capacity: number;
+}
+
+interface NoReinsSession {
+  id: string;
+  start_date: string;
+  status: string;
+  enrolled: number;
+  capacity: number;
+}
+
 // Unified calendar event type
 interface CalendarEvent {
   id: string;
   date: string;
   endDate?: string;
   title: string;
-  type: 'eal' | 'groundwork' | 'summercamp' | 'dustleather';
+  type: 'eal' | 'groundwork' | 'summercamp' | 'dustleather' | 'copperlace' | 'noreins';
   category?: string;
   status: string;
   enrolled: number;
@@ -104,6 +120,18 @@ const typeColors: Record<string, { bg: string; border: string; text: string; dot
     text: 'text-orange-300',
     dot: 'bg-orange-500',
   },
+  copperlace: {
+    bg: 'bg-rose-900/40',
+    border: 'border-rose-700',
+    text: 'text-rose-300',
+    dot: 'bg-rose-500',
+  },
+  noreins: {
+    bg: 'bg-pink-900/40',
+    border: 'border-pink-700',
+    text: 'text-pink-300',
+    dot: 'bg-pink-500',
+  },
 };
 
 // Category colors for Workshops
@@ -119,7 +147,7 @@ const ProgramCalendar: React.FC = () => {
   const [programs, setPrograms] = useState<Program[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
-  const [filterType, setFilterType] = useState<'all' | 'eal' | 'groundwork' | 'summercamp' | 'dustleather'>('all');
+  const [filterType, setFilterType] = useState<'all' | 'eal' | 'groundwork' | 'summercamp' | 'dustleather' | 'copperlace' | 'noreins'>('all');
 
   useEffect(() => {
     fetchAllData();
@@ -160,14 +188,26 @@ const ProgramCalendar: React.FC = () => {
         .select('*')
         .order('session_date');
 
+      // Fetch Copper & Lace sessions
+      const { data: copperLaceSessions } = await supabase
+        .from('copper_and_lace_sessions')
+        .select('*')
+        .order('session_date');
+
+      // Fetch No Reins sessions (from program_dates for no-reins program)
+      const noReinsProgram = programsData?.find((p: Program) => p.slug === 'no-reins');
+      const noReinsDates = noReinsProgram
+        ? programDates?.filter((pd: ProgramDate) => pd.program_id === noReinsProgram.id)
+        : [];
+
       // Convert all to unified CalendarEvent format
       const allEvents: CalendarEvent[] = [];
 
-      // Workshop dates
+      // Workshop dates (exclude no-reins as it has its own type)
       if (programDates && programsData) {
         programDates.forEach((pd: ProgramDate) => {
           const program = programsData.find((p: Program) => p.id === pd.program_id);
-          if (program) {
+          if (program && program.slug !== 'no-reins') {
             allEvents.push({
               id: `eal-${pd.id}`,
               date: pd.start_date,
@@ -225,6 +265,37 @@ const ProgramCalendar: React.FC = () => {
             status: dl.status,
             enrolled: dl.enrolled,
             capacity: dl.capacity,
+          });
+        });
+      }
+
+      // Copper & Lace sessions
+      if (copperLaceSessions) {
+        copperLaceSessions.forEach((cl: CopperLaceSession) => {
+          allEvents.push({
+            id: `copperlace-${cl.id}`,
+            date: cl.session_date,
+            title: 'Copper & Lace',
+            type: 'copperlace',
+            status: cl.status,
+            enrolled: cl.enrolled,
+            capacity: cl.capacity,
+          });
+        });
+      }
+
+      // No Reins sessions (exclude from eal type, show as separate)
+      if (noReinsDates && noReinsDates.length > 0) {
+        noReinsDates.forEach((nr: ProgramDate) => {
+          allEvents.push({
+            id: `noreins-${nr.id}`,
+            date: nr.start_date,
+            endDate: nr.end_date || undefined,
+            title: 'No Reins',
+            type: 'noreins',
+            status: nr.status,
+            enrolled: nr.enrolled,
+            capacity: nr.capacity || 8,
           });
         });
       }
@@ -369,6 +440,28 @@ const ProgramCalendar: React.FC = () => {
             <span className="w-2 h-2 rounded-full bg-orange-500" />
             Dust & Leather
           </button>
+          <button
+            onClick={() => setFilterType('copperlace')}
+            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
+              filterType === 'copperlace'
+                ? 'bg-rose-700 text-white'
+                : 'bg-stone-800 text-stone-400 hover:bg-stone-700'
+            }`}
+          >
+            <span className="w-2 h-2 rounded-full bg-rose-500" />
+            Copper & Lace
+          </button>
+          <button
+            onClick={() => setFilterType('noreins')}
+            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
+              filterType === 'noreins'
+                ? 'bg-pink-700 text-white'
+                : 'bg-stone-800 text-stone-400 hover:bg-stone-700'
+            }`}
+          >
+            <span className="w-2 h-2 rounded-full bg-pink-500" />
+            No Reins
+          </button>
         </div>
       </div>
 
@@ -389,6 +482,14 @@ const ProgramCalendar: React.FC = () => {
         <div className="flex items-center gap-2">
           <span className="w-3 h-3 rounded-full bg-orange-500" />
           <span className="text-stone-400">Dust & Leather</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="w-3 h-3 rounded-full bg-rose-500" />
+          <span className="text-stone-400">Copper & Lace</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="w-3 h-3 rounded-full bg-pink-500" />
+          <span className="text-stone-400">No Reins</span>
         </div>
         <div className="ml-4 flex items-center gap-4 text-xs text-stone-500">
           <span className="flex items-center gap-1">
@@ -499,6 +600,10 @@ const ProgramCalendar: React.FC = () => {
                       ? 'Groundwork'
                       : selectedEvent.type === 'dustleather'
                       ? 'Dust & Leather'
+                      : selectedEvent.type === 'copperlace'
+                      ? 'Copper & Lace'
+                      : selectedEvent.type === 'noreins'
+                      ? 'No Reins'
                       : 'Summer Camp'}
                   </span>
                 </div>
