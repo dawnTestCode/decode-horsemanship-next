@@ -4,7 +4,7 @@
 // Admin UI for managing program dates
 
 import React, { useState, useEffect } from 'react';
-import { X, Plus, Trash2, Loader2, Calendar, Users, Clock, AlertCircle } from 'lucide-react';
+import { X, Plus, Trash2, Loader2, Calendar, Users, Clock, AlertCircle, Edit2 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
 interface Program {
@@ -48,6 +48,17 @@ const ProgramDatesEditor: React.FC<ProgramDatesEditorProps> = ({ onClose, embedd
   const [showAddForm, setShowAddForm] = useState(false);
   const [newDate, setNewDate] = useState({
     program_id: '',
+    start_date: '',
+    end_date: '',
+    start_time: '',
+    end_time: '',
+    capacity: '',
+    notes: '',
+  });
+
+  // Edit date form
+  const [editingDate, setEditingDate] = useState<ProgramDate | null>(null);
+  const [editForm, setEditForm] = useState({
     start_date: '',
     end_date: '',
     start_time: '',
@@ -175,6 +186,49 @@ const ProgramDatesEditor: React.FC<ProgramDatesEditorProps> = ({ onClose, embedd
     } catch (err: any) {
       console.error('Error updating status:', err);
       setError('Failed to update status');
+    }
+  };
+
+  const handleStartEdit = (date: ProgramDate) => {
+    setEditingDate(date);
+    setEditForm({
+      start_date: date.start_date,
+      end_date: date.end_date || '',
+      start_time: date.start_time?.substring(0, 5) || '',
+      end_time: date.end_time?.substring(0, 5) || '',
+      capacity: date.capacity?.toString() || '',
+      notes: date.notes || '',
+    });
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingDate) return;
+
+    setSaving(true);
+    setError(null);
+
+    try {
+      const { error } = await supabase
+        .from('program_dates')
+        .update({
+          start_date: editForm.start_date,
+          end_date: editForm.end_date || null,
+          start_time: editForm.start_time || null,
+          end_time: editForm.end_time || null,
+          capacity: editForm.capacity ? parseInt(editForm.capacity) : null,
+          notes: editForm.notes || null,
+        })
+        .eq('id', editingDate.id);
+
+      if (error) throw error;
+
+      setEditingDate(null);
+      await fetchData();
+    } catch (err: any) {
+      console.error('Error updating date:', err);
+      setError('Failed to update program date');
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -406,6 +460,104 @@ const ProgramDatesEditor: React.FC<ProgramDatesEditorProps> = ({ onClose, embedd
         </div>
       )}
 
+      {/* Edit Form Modal */}
+      {editingDate && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <div className="bg-stone-900 rounded-xl w-full max-w-lg border border-stone-700 p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-semibold text-stone-100 text-lg">Edit Program Date</h3>
+              <button
+                onClick={() => setEditingDate(null)}
+                className="p-2 hover:bg-stone-800 rounded-lg transition-colors"
+              >
+                <X size={20} className="text-stone-400" />
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm text-stone-400 mb-1">Start Date *</label>
+                <input
+                  type="date"
+                  value={editForm.start_date}
+                  onChange={(e) => setEditForm({ ...editForm, start_date: e.target.value })}
+                  className="w-full bg-stone-800 border border-stone-700 rounded-lg px-3 py-2 text-stone-200"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm text-stone-400 mb-1">End Date (optional)</label>
+                <input
+                  type="date"
+                  value={editForm.end_date}
+                  onChange={(e) => setEditForm({ ...editForm, end_date: e.target.value })}
+                  className="w-full bg-stone-800 border border-stone-700 rounded-lg px-3 py-2 text-stone-200"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm text-stone-400 mb-1">Start Time</label>
+                <input
+                  type="time"
+                  value={editForm.start_time}
+                  onChange={(e) => setEditForm({ ...editForm, start_time: e.target.value })}
+                  className="w-full bg-stone-800 border border-stone-700 rounded-lg px-3 py-2 text-stone-200"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm text-stone-400 mb-1">End Time</label>
+                <input
+                  type="time"
+                  value={editForm.end_time}
+                  onChange={(e) => setEditForm({ ...editForm, end_time: e.target.value })}
+                  className="w-full bg-stone-800 border border-stone-700 rounded-lg px-3 py-2 text-stone-200"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm text-stone-400 mb-1">Capacity (override)</label>
+                <input
+                  type="number"
+                  placeholder="Uses program default if empty"
+                  value={editForm.capacity}
+                  onChange={(e) => setEditForm({ ...editForm, capacity: e.target.value })}
+                  className="w-full bg-stone-800 border border-stone-700 rounded-lg px-3 py-2 text-stone-200"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm text-stone-400 mb-1">Notes (optional)</label>
+                <input
+                  type="text"
+                  placeholder="e.g., Special location"
+                  value={editForm.notes}
+                  onChange={(e) => setEditForm({ ...editForm, notes: e.target.value })}
+                  className="w-full bg-stone-800 border border-stone-700 rounded-lg px-3 py-2 text-stone-200"
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={() => setEditingDate(null)}
+                className="flex-1 px-4 py-2 border border-stone-600 hover:border-stone-500 text-stone-300 rounded-lg text-sm"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSaveEdit}
+                disabled={saving || !editForm.start_date}
+                className="flex-1 px-4 py-2 bg-blue-700 hover:bg-blue-600 disabled:bg-stone-700 disabled:text-stone-500 text-white rounded-lg text-sm font-medium flex items-center justify-center gap-2"
+              >
+                {saving && <Loader2 size={16} className="animate-spin" />}
+                Save Changes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Loading */}
       {loading ? (
         <div className="flex items-center justify-center py-12">
@@ -486,6 +638,15 @@ const ProgramDatesEditor: React.FC<ProgramDatesEditorProps> = ({ onClose, embedd
                         <option value="closed">Closed</option>
                         <option value="cancelled">Cancelled</option>
                       </select>
+
+                      {/* Edit */}
+                      <button
+                        onClick={() => handleStartEdit(date)}
+                        className="p-2 text-stone-500 hover:text-blue-400 hover:bg-blue-900/30 rounded-lg transition-colors"
+                        title="Edit"
+                      >
+                        <Edit2 size={18} />
+                      </button>
 
                       {/* Delete */}
                       <button
