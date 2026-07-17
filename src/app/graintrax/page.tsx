@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { supabase } from '@/lib/supabase';
 import { ChevronLeft, Plus, Check, X, Calendar, BarChart3, Users, Pencil, Trash2, Settings, Minus } from 'lucide-react';
 
-type View = 'main' | 'bought' | 'horses' | 'stats' | 'addHorse' | 'editHorse' | 'settings' | 'missedFeeding' | 'activity';
+type View = 'main' | 'bought' | 'horses' | 'stats' | 'addHorse' | 'editHorse' | 'settings' | 'missedFeeding' | 'activity' | 'setInventory';
 type GrainType = 'strategy' | 'omelene' | 'enrich';
 type ItemType = 'grain' | 'vitamin';
 
@@ -146,6 +146,20 @@ export default function GrainTraxPage() {
   const [selectedHorseIds, setSelectedHorseIds] = useState<Set<string>>(new Set());
   const [missedFeedingDate, setMissedFeedingDate] = useState<string>('');
 
+  // For stored inventory (in lbs from database)
+  const [storedInventoryLbs, setStoredInventoryLbs] = useState<Inventory>({
+    grain: { strategy: 0, omelene: 0, enrich: 0 },
+    vitamin: 0,
+  });
+
+  // For set inventory form
+  const [setInventoryValues, setSetInventoryValues] = useState({
+    strategy: '',
+    omelene: '',
+    enrich: '',
+    vitamin: '',
+  });
+
   const fetchData = useCallback(async () => {
     try {
       // Fetch horses
@@ -186,6 +200,28 @@ export default function GrainTraxPage() {
         setSettings(loadedSettings);
         setEditSettings(loadedSettings);
       }
+
+      // Fetch stored inventory from grain_inventory table (in lbs)
+      const { data: invData, error: invError } = await supabase
+        .from('grain_inventory')
+        .select('item_type, grain_type, quantity');
+
+      if (invError) throw invError;
+
+      if (invData) {
+        const inv: Inventory = {
+          grain: { strategy: 0, omelene: 0, enrich: 0 },
+          vitamin: 0,
+        };
+        invData.forEach((row: { item_type: string; grain_type: string | null; quantity: number }) => {
+          if (row.item_type === 'grain' && row.grain_type) {
+            inv.grain[row.grain_type as GrainType] = Number(row.quantity);
+          } else if (row.item_type === 'vitamin') {
+            inv.vitamin = Number(row.quantity);
+          }
+        });
+        setStoredInventoryLbs(inv);
+      }
     } catch (err) {
       console.error('Error fetching data:', err);
       setError('Failed to load data');
@@ -211,6 +247,7 @@ export default function GrainTraxPage() {
     setHorseVitaminScoops('0');
     setSelectedHorseIds(new Set());
     setMissedFeedingDate('');
+    setSetInventoryValues({ strategy: '', omelene: '', enrich: '', vitamin: '' });
     setError(null);
     setSuccess(null);
   };
@@ -489,6 +526,66 @@ export default function GrainTraxPage() {
     }
   };
 
+  const handleSetInventory = async () => {
+    setSubmitting(true);
+    setError(null);
+
+    try {
+      const updates = [];
+
+      // Update each grain type if a value is provided
+      for (const grainType of ['strategy', 'omelene', 'enrich'] as GrainType[]) {
+        const value = setInventoryValues[grainType];
+        if (value !== '') {
+          const bags = parseFloat(value);
+          if (!isNaN(bags) && bags >= 0) {
+            updates.push(
+              supabase.rpc('set_grain_inventory_bags', {
+                p_grain_type: grainType,
+                p_bags: bags,
+                p_bag_size_lbs: settings.bag_size_grain,
+              })
+            );
+          }
+        }
+      }
+
+      // Update vitamin if a value is provided
+      if (setInventoryValues.vitamin !== '') {
+        const bags = parseFloat(setInventoryValues.vitamin);
+        if (!isNaN(bags) && bags >= 0) {
+          updates.push(
+            supabase.rpc('set_vitamin_inventory_bags', {
+              p_bags: bags,
+              p_bag_size_lbs: settings.bag_size_vitamin,
+            })
+          );
+        }
+      }
+
+      if (updates.length === 0) {
+        setError('Please enter at least one inventory value');
+        setSubmitting(false);
+        return;
+      }
+
+      const results = await Promise.all(updates);
+      const errors = results.filter(r => r.error);
+      if (errors.length > 0) throw errors[0].error;
+
+      setSuccess('Inventory updated');
+      await fetchData();
+      setTimeout(() => {
+        handleBack();
+      }, 1500);
+    } catch (err) {
+      console.error('Error setting inventory:', err);
+      setError('Failed to set inventory');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   const handleMissedFeeding = async (horseIds: string[] | 'all') => {
     setSubmitting(true);
     setError(null);
@@ -585,86 +682,17 @@ export default function GrainTraxPage() {
 
     const vitaminBagsPerDay = dailyVitaminLbs / settings.bag_size_vitamin;
 
-    // === CALCULATE INVENTORY FROM TRANSACTIONS ===
-
-    // Sum all purchases
-    const purchasedBags: Record<GrainType, number> = {
-      strategy: 0,
-      omelene: 0,
-      enrich: 0,
-    };
-    let purchasedVitaminBags = 0;
-    let earliestPurchaseDate: Date | null = null;
-
-    transactions
-      .filter(tx => tx.transaction_type === 'bought')
-      .forEach(tx => {
-        const txDate = new Date(tx.created_at);
-        if (!earliestPurchaseDate || txDate < earliestPurchaseDate) {
-          earliestPurchaseDate = txDate;
-        }
-        if (tx.item_type === 'grain' && tx.grain_type) {
-          purchasedBags[tx.grain_type as GrainType] += tx.quantity;
-        } else if (tx.item_type === 'vitamin') {
-          purchasedVitaminBags += tx.quantity;
-        }
-      });
-
-    // Calculate days since first purchase
-    const now = new Date();
-    const daysSinceFirstPurchase = earliestPurchaseDate !== null
-      ? Math.max(0, (now.getTime() - (earliestPurchaseDate as Date).getTime()) / (1000 * 60 * 60 * 24))
-      : 0;
-
-    // Calculate grain saved from missed feedings (in bags)
-    let savedGrainBags: Record<GrainType, number> = {
-      strategy: 0,
-      omelene: 0,
-      enrich: 0,
-    };
-    let savedVitaminBags = 0;
-
-    transactions
-      .filter(tx => tx.transaction_type === 'half_feeding')
-      .forEach(tx => {
-        if (tx.details === 'Horses fed once') {
-          // All horses missed a feeding - add one feeding worth for each horse
-          activeHorses.forEach(horse => {
-            const lbsSaved = horse.cans_per_feeding * getLbsPerCan(horse.grain_type);
-            savedGrainBags[horse.grain_type] += lbsSaved / settings.bag_size_grain;
-            savedVitaminBags += (horse.vitamin_scoops * settings.lbs_per_scoop_vitamin) / settings.bag_size_vitamin;
-          });
-        } else if (tx.details) {
-          // Specific horse(s) missed a feeding - parse horse name from details
-          const horseName = tx.details.replace(' missed feeding', '');
-          const horse = horses.find(h => h.name === horseName);
-          if (horse) {
-            const lbsSaved = horse.cans_per_feeding * getLbsPerCan(horse.grain_type);
-            savedGrainBags[horse.grain_type] += lbsSaved / settings.bag_size_grain;
-            savedVitaminBags += (horse.vitamin_scoops * settings.lbs_per_scoop_vitamin) / settings.bag_size_vitamin;
-          }
-        }
-      });
-
-    // Calculate consumed bags since first purchase
-    const consumedBags: Record<GrainType, number> = {
-      strategy: bagsPerDay.strategy * daysSinceFirstPurchase,
-      omelene: bagsPerDay.omelene * daysSinceFirstPurchase,
-      enrich: bagsPerDay.enrich * daysSinceFirstPurchase,
-    };
-    const consumedVitaminBags = vitaminBagsPerDay * daysSinceFirstPurchase;
-
-    // Current inventory = purchased - consumed + saved from missed feedings
+    // === USE STORED INVENTORY (in lbs) converted to bags ===
     const calculatedInventory = {
       grain: {
-        strategy: Math.max(0, purchasedBags.strategy - consumedBags.strategy + savedGrainBags.strategy),
-        omelene: Math.max(0, purchasedBags.omelene - consumedBags.omelene + savedGrainBags.omelene),
-        enrich: Math.max(0, purchasedBags.enrich - consumedBags.enrich + savedGrainBags.enrich),
+        strategy: storedInventoryLbs.grain.strategy / settings.bag_size_grain,
+        omelene: storedInventoryLbs.grain.omelene / settings.bag_size_grain,
+        enrich: storedInventoryLbs.grain.enrich / settings.bag_size_grain,
       },
-      vitamin: Math.max(0, purchasedVitaminBags - consumedVitaminBags + savedVitaminBags),
+      vitamin: storedInventoryLbs.vitamin / settings.bag_size_vitamin,
     };
 
-    // Calculate runway in days using calculated inventory
+    // Calculate runway in days using stored inventory
     const runwayDays: Record<GrainType, number> = {
       strategy: bagsPerDay.strategy > 0 ? Math.floor(calculatedInventory.grain.strategy / bagsPerDay.strategy) : Infinity,
       omelene: bagsPerDay.omelene > 0 ? Math.floor(calculatedInventory.grain.omelene / bagsPerDay.omelene) : Infinity,
@@ -707,7 +735,7 @@ export default function GrainTraxPage() {
       horseConsumption,
       calculatedInventory,
     };
-  }, [horses, transactions, settings, getLbsPerCan]);
+  }, [horses, settings, getLbsPerCan, storedInventoryLbs]);
 
   if (loading) {
     return (
@@ -727,18 +755,30 @@ export default function GrainTraxPage() {
       <header className="bg-emerald-900 text-emerald-50 px-4 pb-6 pt-6" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 1.5rem)' }}>
         <h1 className="text-2xl font-bold text-center mb-4">GrainTrax</h1>
         <div className="flex justify-center gap-6">
-          <div className="text-center">
-            <div className="text-4xl font-bold">{totalGrainBags.toFixed(1)}</div>
+          <button
+            onClick={() => setView('setInventory')}
+            className="text-center hover:bg-emerald-800/50 rounded-lg px-3 py-2 -mx-3 -my-2 transition-colors"
+          >
+            <div className="text-4xl font-bold flex items-center justify-center gap-2">
+              {totalGrainBags.toFixed(1)}
+              <Pencil size={14} className="text-emerald-400" />
+            </div>
             <div className="text-emerald-200 text-sm">Grain Bags</div>
             <div className="text-emerald-300 text-xs mt-1">
               {inventory.grain.strategy.toFixed(1)}S / {inventory.grain.omelene.toFixed(1)}O / {inventory.grain.enrich.toFixed(1)}E
             </div>
-          </div>
+          </button>
           <div className="w-px bg-emerald-700" />
-          <div className="text-center">
-            <div className="text-4xl font-bold">{inventory.vitamin.toFixed(1)}</div>
+          <button
+            onClick={() => setView('setInventory')}
+            className="text-center hover:bg-emerald-800/50 rounded-lg px-3 py-2 -mx-3 -my-2 transition-colors"
+          >
+            <div className="text-4xl font-bold flex items-center justify-center gap-2">
+              {inventory.vitamin.toFixed(1)}
+              <Pencil size={14} className="text-emerald-400" />
+            </div>
             <div className="text-emerald-200 text-sm">Vitamin Bag{inventory.vitamin !== 1 ? 's' : ''}</div>
-          </div>
+          </button>
           <div className="w-px bg-emerald-700" />
           <div className="text-center">
             <div className="text-4xl font-bold">{stats.activeHorses.length}</div>
@@ -1850,6 +1890,97 @@ export default function GrainTraxPage() {
               className="w-full py-4 bg-emerald-700 hover:bg-emerald-800 disabled:bg-emerald-400 text-white text-lg font-semibold rounded-xl shadow-lg transition-colors"
             >
               {submitting ? 'Saving...' : 'Save Settings'}
+            </button>
+          </div>
+        )}
+
+        {/* Set Inventory view */}
+        {view === 'setInventory' && (
+          <div className="space-y-6">
+            <button
+              onClick={handleBack}
+              className="flex items-center gap-2 text-emerald-700 hover:text-emerald-900 transition-colors"
+            >
+              <ChevronLeft size={20} />
+              Back
+            </button>
+
+            <h2 className="text-xl font-semibold text-emerald-900">Set Current Inventory</h2>
+            <p className="text-sm text-emerald-600">
+              Enter the current number of bags you have on hand. Leave blank to keep existing values.
+            </p>
+
+            {error && (
+              <div className="p-3 bg-red-100 text-red-700 rounded-lg text-sm">
+                {error}
+              </div>
+            )}
+
+            {success && (
+              <div className="p-3 bg-emerald-100 text-emerald-700 rounded-lg text-sm">
+                {success}
+              </div>
+            )}
+
+            {/* Grain inventory */}
+            <div className="bg-white rounded-xl border border-emerald-200 p-4">
+              <h3 className="text-sm font-medium text-emerald-600 mb-4">Grain Inventory (bags)</h3>
+              <div className="space-y-4">
+                {GRAIN_TYPES.map(type => (
+                  <div key={type.value} className="flex items-center justify-between gap-4">
+                    <label className="text-emerald-900 flex-1">{type.shortLabel}</label>
+                    <div className="text-sm text-emerald-500 mr-2">
+                      Current: {(storedInventoryLbs.grain[type.value] / settings.bag_size_grain).toFixed(1)}
+                    </div>
+                    <input
+                      type="number"
+                      value={setInventoryValues[type.value]}
+                      onChange={(e) => setSetInventoryValues({
+                        ...setInventoryValues,
+                        [type.value]: e.target.value,
+                      })}
+                      placeholder="—"
+                      step="0.5"
+                      min="0"
+                      className="w-24 px-3 py-2 rounded-lg border-2 border-emerald-200 bg-white text-emerald-900 text-right focus:border-emerald-500 focus:outline-none"
+                    />
+                    <span className="text-emerald-600 text-sm w-12">bags</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Vitamin inventory */}
+            <div className="bg-white rounded-xl border border-emerald-200 p-4">
+              <h3 className="text-sm font-medium text-emerald-600 mb-4">Vitamin Inventory</h3>
+              <div className="flex items-center justify-between gap-4">
+                <label className="text-emerald-900 flex-1">Vitamins</label>
+                <div className="text-sm text-emerald-500 mr-2">
+                  Current: {(storedInventoryLbs.vitamin / settings.bag_size_vitamin).toFixed(1)}
+                </div>
+                <input
+                  type="number"
+                  value={setInventoryValues.vitamin}
+                  onChange={(e) => setSetInventoryValues({
+                    ...setInventoryValues,
+                    vitamin: e.target.value,
+                  })}
+                  placeholder="—"
+                  step="0.5"
+                  min="0"
+                  className="w-24 px-3 py-2 rounded-lg border-2 border-emerald-200 bg-white text-emerald-900 text-right focus:border-emerald-500 focus:outline-none"
+                />
+                <span className="text-emerald-600 text-sm w-12">bags</span>
+              </div>
+            </div>
+
+            {/* Save button */}
+            <button
+              onClick={handleSetInventory}
+              disabled={submitting}
+              className="w-full py-4 bg-emerald-700 hover:bg-emerald-800 disabled:bg-emerald-400 text-white text-lg font-semibold rounded-xl shadow-lg transition-colors"
+            >
+              {submitting ? 'Saving...' : 'Set Inventory'}
             </button>
           </div>
         )}
