@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { supabase } from '@/lib/supabase';
-import { ChevronLeft, Plus, Check, X, Calendar, BarChart3, Users, Pencil, Trash2, Settings, Minus } from 'lucide-react';
+import { ChevronLeft, Plus, Check, X, Calendar, BarChart3, Users, Pencil, Trash2, Settings, Minus, ClipboardEdit } from 'lucide-react';
 
 type View = 'main' | 'bought' | 'horses' | 'stats' | 'addHorse' | 'editHorse' | 'settings' | 'missedFeeding' | 'activity' | 'setInventory';
 type GrainType = 'strategy' | 'omelene' | 'enrich';
@@ -19,7 +19,7 @@ interface Horse {
   updated_at: string;
 }
 
-type TransactionType = 'bought' | 'horse_added' | 'horse_updated' | 'horse_removed' | 'half_feeding';
+type TransactionType = 'bought' | 'horse_added' | 'horse_updated' | 'horse_removed' | 'half_feeding' | 'inventory_set';
 
 interface Transaction {
   id: string;
@@ -578,9 +578,12 @@ export default function GrainTraxPage() {
       setTimeout(() => {
         handleBack();
       }, 1500);
-    } catch (err) {
+    } catch (err: unknown) {
       console.error('Error setting inventory:', err);
-      setError('Failed to set inventory');
+      const errorMessage = err && typeof err === 'object' && 'message' in err
+        ? String(err.message)
+        : JSON.stringify(err);
+      setError(`Failed: ${errorMessage}`);
     } finally {
       setSubmitting(false);
     }
@@ -865,6 +868,7 @@ export default function GrainTraxPage() {
                     const isHorseUpdated = tx.transaction_type === 'horse_updated';
                     const isHorseRemoved = tx.transaction_type === 'horse_removed';
                     const isHalfFeeding = tx.transaction_type === 'half_feeding';
+                    const isInventorySet = tx.transaction_type === 'inventory_set';
 
                     return (
                       <div
@@ -877,6 +881,7 @@ export default function GrainTraxPage() {
                           isHorseUpdated ? 'bg-amber-100 text-amber-700' :
                           isHorseRemoved ? 'bg-red-100 text-red-700' :
                           isHalfFeeding ? 'bg-orange-100 text-orange-700' :
+                          isInventorySet ? 'bg-purple-100 text-purple-700' :
                           'bg-gray-100 text-gray-700'
                         }`}>
                           {isBought && <Plus size={16} />}
@@ -884,6 +889,7 @@ export default function GrainTraxPage() {
                           {isHorseUpdated && <Pencil size={16} />}
                           {isHorseRemoved && <Trash2 size={16} />}
                           {isHalfFeeding && <Minus size={16} />}
+                          {isInventorySet && <ClipboardEdit size={16} />}
                         </div>
                         <div className="flex-1 min-w-0">
                           {isBought && (
@@ -921,6 +927,14 @@ export default function GrainTraxPage() {
                                 <span className="text-emerald-600"> (all horses)</span>
                               ) : tx.details && (
                                 <span className="text-emerald-600"> ({tx.details.replace(' missed feeding', '')})</span>
+                              )}
+                            </div>
+                          )}
+                          {isInventorySet && (
+                            <div className="text-sm text-emerald-900">
+                              <span className="font-medium">Set inventory</span>
+                              {tx.details && (
+                                <span className="text-emerald-600"> ({tx.item_type === 'grain' ? getGrainTypeLabel(tx.grain_type, true) : 'Vitamin'}: {tx.details.replace('Inventory set to ', '')})</span>
                               )}
                             </div>
                           )}
@@ -1713,6 +1727,7 @@ export default function GrainTraxPage() {
                 const isHorseUpdated = tx.transaction_type === 'horse_updated';
                 const isHorseRemoved = tx.transaction_type === 'horse_removed';
                 const isHalfFeeding = tx.transaction_type === 'half_feeding';
+                const isInventorySet = tx.transaction_type === 'inventory_set';
 
                 return (
                   <div
@@ -1725,6 +1740,7 @@ export default function GrainTraxPage() {
                       isHorseUpdated ? 'bg-amber-100 text-amber-700' :
                       isHorseRemoved ? 'bg-red-100 text-red-700' :
                       isHalfFeeding ? 'bg-orange-100 text-orange-700' :
+                      isInventorySet ? 'bg-purple-100 text-purple-700' :
                       'bg-gray-100 text-gray-700'
                     }`}>
                       {isBought && <Plus size={16} />}
@@ -1732,6 +1748,7 @@ export default function GrainTraxPage() {
                       {isHorseUpdated && <Pencil size={16} />}
                       {isHorseRemoved && <Trash2 size={16} />}
                       {isHalfFeeding && <Minus size={16} />}
+                      {isInventorySet && <ClipboardEdit size={16} />}
                     </div>
                     <div className="flex-1 min-w-0">
                       {isBought && (
@@ -1769,6 +1786,14 @@ export default function GrainTraxPage() {
                             <span className="text-emerald-600"> (all horses)</span>
                           ) : tx.details && (
                             <span className="text-emerald-600"> ({tx.details.replace(' missed feeding', '')})</span>
+                          )}
+                        </div>
+                      )}
+                      {isInventorySet && (
+                        <div className="text-sm text-emerald-900">
+                          <span className="font-medium">Set inventory</span>
+                          {tx.details && (
+                            <span className="text-emerald-600"> ({tx.item_type === 'grain' ? getGrainTypeLabel(tx.grain_type, true) : 'Vitamin'}: {tx.details.replace('Inventory set to ', '')})</span>
                           )}
                         </div>
                       )}
