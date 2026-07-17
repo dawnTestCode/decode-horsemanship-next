@@ -19,8 +19,9 @@ import SummerCampSessionsEditor from '@/components/admin/SummerCampSessionsEdito
 import GroundworkSessionsEditor from '@/components/admin/GroundworkSessionsEditor';
 import DustLeatherSessionsEditor from '@/components/admin/DustLeatherSessionsEditor';
 import CopperLaceSessionsEditor from '@/components/admin/CopperLaceSessionsEditor';
+import NoReinsSessionsEditor from '@/components/admin/NoReinsSessionsEditor';
 import ProgramCalendar from '@/components/admin/ProgramCalendar';
-import { Flame, Gem } from 'lucide-react';
+import { Flame, Heart, Gem } from 'lucide-react';
 import { formatPrice } from '@/lib/utils';
 
 interface VolunteerContent {
@@ -36,7 +37,7 @@ interface VolunteerContent {
 
 // Sub-component for unified Programs tab with program selector
 const UnifiedProgramsTab: React.FC = () => {
-  const [programTab, setProgramTab] = useState<'groundwork' | 'dustleather' | 'copperlace' | 'eal'>('groundwork');
+  const [programTab, setProgramTab] = useState<'groundwork' | 'dustleather' | 'copperlace' | 'noreins' | 'eal'>('groundwork');
   const [ealSubTab, setEalSubTab] = useState<'dates' | 'registrations' | 'programs'>('dates');
 
   return (
@@ -77,6 +78,17 @@ const UnifiedProgramsTab: React.FC = () => {
           Copper & Lace
         </button>
         <button
+          onClick={() => setProgramTab('noreins')}
+          className={`px-5 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
+            programTab === 'noreins'
+              ? 'bg-pink-700 text-white'
+              : 'bg-stone-800/50 text-stone-400 hover:bg-stone-800 hover:text-stone-300'
+          }`}
+        >
+          <Heart size={16} />
+          No Reins
+        </button>
+        <button
           onClick={() => setProgramTab('eal')}
           className={`px-5 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
             programTab === 'eal'
@@ -104,6 +116,10 @@ const UnifiedProgramsTab: React.FC = () => {
         <CopperLaceSessionsEditor embedded />
       )}
 
+      {/* No Reins content */}
+      {programTab === 'noreins' && (
+        <NoReinsSessionsEditor embedded />
+      )}
 
       {/* Workshops content with sub-tabs */}
       {programTab === 'eal' && (
