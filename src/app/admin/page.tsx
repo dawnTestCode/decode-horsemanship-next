@@ -37,7 +37,7 @@ interface VolunteerContent {
 
 // Sub-component for unified Programs tab with program selector
 const UnifiedProgramsTab: React.FC = () => {
-  const [programTab, setProgramTab] = useState<'groundwork' | 'dustleather' | 'copperlace' | 'noreins' | 'eal'>('groundwork');
+  const [programTab, setProgramTab] = useState<'groundwork' | 'dustleather' | 'copperlace' | 'noreins' | 'summercamp' | 'eal'>('groundwork');
   const [ealSubTab, setEalSubTab] = useState<'dates' | 'registrations' | 'programs'>('dates');
 
   return (
@@ -89,6 +89,17 @@ const UnifiedProgramsTab: React.FC = () => {
           No Reins
         </button>
         <button
+          onClick={() => setProgramTab('summercamp')}
+          className={`px-5 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
+            programTab === 'summercamp'
+              ? 'bg-amber-700 text-white'
+              : 'bg-stone-800/50 text-stone-400 hover:bg-stone-800 hover:text-stone-300'
+          }`}
+        >
+          <Calendar size={16} />
+          Summer Camp
+        </button>
+        <button
           onClick={() => setProgramTab('eal')}
           className={`px-5 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
             programTab === 'eal'
@@ -119,6 +130,11 @@ const UnifiedProgramsTab: React.FC = () => {
       {/* No Reins content */}
       {programTab === 'noreins' && (
         <NoReinsSessionsEditor embedded />
+      )}
+
+      {/* Summer Camp content */}
+      {programTab === 'summercamp' && (
+        <SummerCampSessionsEditor embedded />
       )}
 
       {/* Workshops content with sub-tabs */}
@@ -188,8 +204,8 @@ export default function AdminPage() {
   const [showInquiries, setShowInquiries] = useState(false);
   const [unreadInquiriesCount, setUnreadInquiriesCount] = useState(0);
 
-  // Admin tabs (removed separate 'groundwork' - now unified under 'programs')
-  const [activeTab, setActiveTab] = useState<'horses' | 'gallery' | 'volunteers' | 'eal' | 'programs' | 'summercamp' | 'calendar'>('horses');
+  // Admin tabs (removed separate 'groundwork' and 'summercamp' - now unified under 'programs')
+  const [activeTab, setActiveTab] = useState<'horses' | 'gallery' | 'volunteers' | 'eal' | 'programs' | 'calendar'>('horses');
 
   // Gallery state
   const [galleryItems, setGalleryItems] = useState<GalleryItem[]>([]);
@@ -847,17 +863,6 @@ export default function AdminPage() {
             <span>Programs</span>
           </button>
           <button
-            onClick={() => setActiveTab('summercamp')}
-            className={`px-6 py-3 rounded-lg font-medium transition-colors flex items-center gap-2 ${
-              activeTab === 'summercamp'
-                ? 'bg-amber-700 text-white'
-                : 'bg-stone-800 text-stone-400 hover:bg-stone-700 hover:text-stone-200'
-            }`}
-          >
-            <Calendar size={18} />
-            <span>Summer Camp</span>
-          </button>
-          <button
             onClick={() => setActiveTab('calendar')}
             className={`px-6 py-3 rounded-lg font-medium transition-colors flex items-center gap-2 ${
               activeTab === 'calendar'
@@ -1437,14 +1442,9 @@ export default function AdminPage() {
           </>
         )}
 
-        {/* Programs Tab Content (unified: Groundwork, Dust & Leather, Workshops) */}
+        {/* Programs Tab Content (unified: Groundwork, Dust & Leather, Summer Camp, Workshops) */}
         {activeTab === 'programs' && (
           <UnifiedProgramsTab />
-        )}
-
-        {/* Summer Camp Tab Content */}
-        {activeTab === 'summercamp' && (
-          <SummerCampSessionsEditor embedded />
         )}
 
         {/* Calendar Tab Content */}
