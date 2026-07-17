@@ -19,7 +19,7 @@ interface NoReinsSession {
   id: string;
   start_date: string;
   end_date: string | null;
-  max_capacity: number;
+  capacity: number;
   enrolled: number;
   status: 'open' | 'full' | 'closed' | 'cancelled';
   notes: string | null;
@@ -158,7 +158,7 @@ const NoReinsSessionsEditor: React.FC<{ embedded?: boolean }> = ({ embedded }) =
           program_id: noReinsProgramId,
           start_date: newSession.session_date,
           end_date: newSession.session_date,
-          max_capacity: newSession.capacity,
+          capacity: newSession.capacity,
           enrolled: 0,
           status: newSession.status,
           notes: newSession.notes || null,
@@ -186,7 +186,7 @@ const NoReinsSessionsEditor: React.FC<{ embedded?: boolean }> = ({ embedded }) =
         .update({
           start_date: session.start_date,
           end_date: session.start_date,
-          max_capacity: session.max_capacity,
+          capacity: session.capacity,
           status: session.status,
           notes: session.notes,
         })
@@ -425,7 +425,7 @@ const NoReinsSessionsEditor: React.FC<{ embedded?: boolean }> = ({ embedded }) =
           ) : (
             <div className="space-y-3">
               {sessions.map((session) => {
-                const spotsLeft = session.max_capacity - session.enrolled;
+                const spotsLeft = session.capacity - session.enrolled;
                 const isPast = new Date(session.start_date) < new Date(new Date().toDateString());
 
                 return (
@@ -466,12 +466,12 @@ const NoReinsSessionsEditor: React.FC<{ embedded?: boolean }> = ({ embedded }) =
                               type="number"
                               min={1}
                               max={20}
-                              value={session.max_capacity}
+                              value={session.capacity}
                               onChange={(e) =>
                                 setSessions((prev) =>
                                   prev.map((s) =>
                                     s.id === session.id
-                                      ? { ...s, max_capacity: parseInt(e.target.value) || 12 }
+                                      ? { ...s, capacity: parseInt(e.target.value) || 12 }
                                       : s
                                   )
                                 )
@@ -584,7 +584,7 @@ const NoReinsSessionsEditor: React.FC<{ embedded?: boolean }> = ({ embedded }) =
                               spotsLeft <= 0 ? 'text-red-400' :
                               spotsLeft <= 2 ? 'text-pink-400' : 'text-stone-200'
                             }`}>
-                              {session.enrolled} / {session.max_capacity}
+                              {session.enrolled} / {session.capacity}
                             </p>
                             <p className="text-stone-500 text-xs">Registered</p>
                           </div>
