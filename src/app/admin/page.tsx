@@ -97,7 +97,7 @@ const UnifiedProgramsTab: React.FC = () => {
           }`}
         >
           <Sparkles size={16} />
-          Workshops
+          All Workshops
         </button>
       </div>
 
