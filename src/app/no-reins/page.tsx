@@ -6,11 +6,14 @@ import { Calendar, Users, MapPin, Clock, ArrowRight } from 'lucide-react';
 import { usePrograms } from '@/hooks/usePrograms';
 
 export default function NoReinsPage() {
+  // Support both slugs for backwards compatibility during migration
   const { loading, getProgram, formatDate, formatTime, getSpotsRemaining } = usePrograms([
+    'no-reins',
     'womens-retreat',
   ]);
 
-  const womensRetreat = getProgram('womens-retreat');
+  // Try new slug first, fallback to old slug
+  const noReins = getProgram('no-reins') || getProgram('womens-retreat');
 
   return (
     <div className="bg-[#1a1d24]">
@@ -245,10 +248,10 @@ export default function NoReinsPage() {
             <div className="sticky top-8">
               <h3 className="text-xs font-semibold tracking-[0.2em] text-amber-600 mb-6">UPCOMING DATES</h3>
 
-              {!loading && womensRetreat?.dates && womensRetreat.dates.length > 0 ? (
+              {!loading && noReins?.dates && noReins.dates.length > 0 ? (
                 <div className="space-y-4">
-                  {womensRetreat.dates.slice(0, 3).map((date) => {
-                    const spotsRemaining = getSpotsRemaining(date, womensRetreat);
+                  {noReins.dates.slice(0, 3).map((date) => {
+                    const spotsRemaining = getSpotsRemaining(date, noReins);
                     const isFull = spotsRemaining <= 0;
                     return (
                       <div

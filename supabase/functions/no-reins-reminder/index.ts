@@ -207,7 +207,7 @@ serve(async (req) => {
 
     // Find registrations with sessions 2-4 days away that haven't received a reminder
     const { data: registrations, error: fetchError } = await supabase
-      .from('womens_retreat_registrations')
+      .from('no_reins_registrations')
       .select('*')
       .gte('session_date', twoDaysOut.toISOString().split('T')[0])
       .lte('session_date', fourDaysOut.toISOString().split('T')[0])
@@ -240,7 +240,7 @@ serve(async (req) => {
 
         // Mark reminder as sent
         await supabase
-          .from('womens_retreat_registrations')
+          .from('no_reins_registrations')
           .update({ reminder_sent_at: new Date().toISOString() })
           .eq('id', registration.id);
 

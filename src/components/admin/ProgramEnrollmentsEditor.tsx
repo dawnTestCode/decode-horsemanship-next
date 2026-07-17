@@ -70,10 +70,10 @@ const ProgramEnrollmentsEditor: React.FC<{ embedded?: boolean }> = ({ embedded }
         .order('name');
 
       if (programsError) throw programsError;
-      // Add a virtual "Women's Retreat" program for filtering
+      // Add a virtual "No Reins" program for filtering
       const allPrograms = [
         ...(programsData || []),
-        { id: 'womens-retreat', name: "Women's Retreat (No Reins)", slug: 'womens-retreat' }
+        { id: 'no-reins', name: "No Reins", slug: 'no-reins' }
       ];
       setPrograms(allPrograms);
 
@@ -98,50 +98,62 @@ const ProgramEnrollmentsEditor: React.FC<{ embedded?: boolean }> = ({ embedded }
         date_end: e.program_dates?.end_date,
       }));
 
-      // Also fetch Women's Retreat registrations
-      const { data: womensRetreatData, error: womensRetreatError } = await supabase
-        .from('womens_retreat_registrations')
+      // Also fetch No Reins registrations (try new table name first, fallback to old)
+      let noReinsData = null;
+      const { data: newTable, error: newTableError } = await supabase
+        .from('no_reins_registrations')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (womensRetreatError) {
-        console.error('Error fetching womens retreat:', womensRetreatError);
+      if (newTableError) {
+        // Fallback to old table name if migration hasn't run yet
+        const { data: oldTable, error: oldTableError } = await supabase
+          .from('womens_retreat_registrations')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (oldTableError) {
+          console.error('Error fetching no reins registrations:', oldTableError);
+        }
+        noReinsData = oldTable;
+      } else {
+        noReinsData = newTable;
       }
 
-      // Map Women's Retreat registrations to the enrollment format
-      const womensRetreatEnrollments = (womensRetreatData || []).map((wr: any) => ({
-        id: wr.id,
-        program_id: 'womens-retreat',
-        program_date_id: wr.program_date_id,
-        participant_name: `${wr.first_name} ${wr.last_name}`,
-        participant_email: wr.email,
-        participant_phone: wr.phone,
+      // Map No Reins registrations to the enrollment format
+      const noReinsEnrollments = (noReinsData || []).map((nr: any) => ({
+        id: nr.id,
+        program_id: 'no-reins',
+        program_date_id: nr.program_date_id,
+        participant_name: `${nr.first_name} ${nr.last_name}`,
+        participant_email: nr.email,
+        participant_phone: nr.phone,
         participant_age: null,
         guardian_name: null,
         guardian_email: null,
         guardian_phone: null,
         guardian_relationship: null,
-        referral_source: wr.referral_source,
-        notes: wr.dietary_restrictions || wr.special_requests,
+        referral_source: nr.referral_source,
+        notes: nr.dietary_restrictions || nr.special_requests,
         payment_type: 'full',
-        amount_paid: wr.amount_paid || 22500, // Default to $225
+        amount_paid: nr.amount_paid || 22500, // Default to $225
         balance_due: 0,
         balance_due_date: null,
-        status: wr.status || 'confirmed',
-        confirmation_code: wr.confirmation_code,
-        confirmed_at: wr.confirmed_at,
-        created_at: wr.created_at,
-        program_name: "Women's Retreat (No Reins)",
-        program_slug: 'womens-retreat',
-        date_start: wr.session_date,
-        date_end: wr.session_date,
+        status: nr.status || 'confirmed',
+        confirmation_code: nr.confirmation_code,
+        confirmed_at: nr.confirmed_at,
+        created_at: nr.created_at,
+        program_name: "No Reins",
+        program_slug: 'no-reins',
+        date_start: nr.session_date,
+        date_end: nr.session_date,
         // Keep original data for reference
-        _source: 'womens_retreat',
-        _original: wr,
+        _source: 'no_reins',
+        _original: nr,
       }));
 
       // Combine both sets of enrollments
-      const allEnrollments = [...flattenedEnrollments, ...womensRetreatEnrollments];
+      const allEnrollments = [...flattenedEnrollments, ...noReinsEnrollments];
       // Sort by created_at descending
       allEnrollments.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 

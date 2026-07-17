@@ -6,10 +6,12 @@ import {
   sendGroundworkOwnerNotification,
   sendDustLeatherConfirmation,
   sendDustLeatherOwnerNotification,
+  sendCopperLaceConfirmation,
+  sendCopperLaceOwnerNotification,
   sendSummerCampConfirmation,
   sendSummerCampOwnerNotification,
-  sendWomensRetreatConfirmation,
-  sendWomensRetreatOwnerNotification,
+  sendNoReinsConfirmation,
+  sendNoReinsOwnerNotification,
   sendLessonReceipt,
 } from '@/lib/email';
 
@@ -279,12 +281,82 @@ export async function POST(request: Request) {
       return NextResponse.json({ received: true });
     }
 
-    // ─── Women's Retreat Registration ─────────────────────────────────────────
-    if (meta.program === 'womens-retreat') {
+    // ─── Copper & Lace Booking ────────────────────────────────────────────────
+    if (meta.program === 'copper-and-lace') {
       try {
-        // Write to womens_retreat_registrations table
+        // Write to copper_and_lace_bookings table
+        const { data: booking, error: bookingError } = await supabase
+          .from('copper_and_lace_bookings')
+          .insert({
+            session_id: meta.sessionId || null,
+            booked_date: meta.sessionDate,
+            confirmation_code: meta.confirmationCode,
+            name: meta.name,
+            email: meta.email,
+            phone: meta.phone || null,
+            party_size: parseInt(meta.partySize),
+            package_type: meta.packageType,
+            message: meta.message || null,
+            amount_paid: parseInt(meta.amount),
+            paid_at: new Date().toISOString(),
+            status: 'paid',
+            stripe_session_id: session.id,
+            stripe_payment_intent_id: session.payment_intent as string,
+          })
+          .select()
+          .single();
+
+        if (bookingError) {
+          console.error('Failed to create Copper & Lace booking:', bookingError);
+          throw bookingError;
+        }
+
+        // Increment enrolled count on the session
+        if (meta.sessionId) {
+          const { error: sessionError } = await supabase.rpc('increment_copper_lace_enrolled', {
+            p_session_id: meta.sessionId,
+            p_party_size: parseInt(meta.partySize),
+          });
+
+          if (sessionError) {
+            console.error('Failed to update session enrolled count:', sessionError);
+            // Don't throw - booking was created successfully
+          }
+        }
+
+        // Send confirmation email to customer
+        await sendCopperLaceConfirmation({
+          booking,
+          confirmationCode: meta.confirmationCode,
+        });
+
+        // Send notification to the horsewoman
+        await sendCopperLaceOwnerNotification({
+          booking,
+        });
+
+        // Mark confirmation sent
+        await supabase
+          .from('copper_and_lace_bookings')
+          .update({ confirmation_sent: true })
+          .eq('id', booking.id);
+
+        console.log(`Copper & Lace booking confirmed: ${meta.confirmationCode}`);
+
+      } catch (err: unknown) {
+        console.error('Copper & Lace webhook error:', err);
+      }
+
+      return NextResponse.json({ received: true });
+    }
+
+    // ─── No Reins Registration ──────────────────────────────────────────────────
+    // Also handles legacy 'womens-retreat' program name for backwards compatibility
+    if (meta.program === 'no-reins' || meta.program === 'womens-retreat') {
+      try {
+        // Write to no_reins_registrations table
         const { data: registration, error: regError } = await supabase
-          .from('womens_retreat_registrations')
+          .from('no_reins_registrations')
           .insert({
             confirmation_code: meta.confirmationCode,
             program_date_id: meta.programDateId,
@@ -308,7 +380,7 @@ export async function POST(request: Request) {
           .single();
 
         if (regError) {
-          console.error('Failed to create Women\'s Retreat registration:', regError);
+          console.error('Failed to create No Reins registration:', regError);
           throw regError;
         }
 
@@ -323,26 +395,26 @@ export async function POST(request: Request) {
         }
 
         // Send confirmation email
-        await sendWomensRetreatConfirmation({
+        await sendNoReinsConfirmation({
           registration,
           confirmationCode: meta.confirmationCode,
         });
 
         // Send owner notification
-        await sendWomensRetreatOwnerNotification({
+        await sendNoReinsOwnerNotification({
           registration,
         });
 
         // Mark confirmation sent
         await supabase
-          .from('womens_retreat_registrations')
+          .from('no_reins_registrations')
           .update({ confirmation_sent: true })
           .eq('id', registration.id);
 
-        console.log(`Women's Retreat registration confirmed: ${meta.confirmationCode}`);
+        console.log(`No Reins registration confirmed: ${meta.confirmationCode}`);
 
       } catch (err: unknown) {
-        console.error('Women\'s Retreat webhook error:', err);
+        console.error('No Reins webhook error:', err);
       }
 
       return NextResponse.json({ received: true });

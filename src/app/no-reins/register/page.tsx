@@ -293,7 +293,7 @@ function NoReinsRegisterForm() {
         const { data: programData, error: programError } = await supabase
           .from('programs')
           .select('id, full_price, max_capacity')
-          .eq('slug', 'womens-retreat')
+          .in('slug', ['no-reins', 'womens-retreat'])
           .single();
 
         if (programError || !programData) {
@@ -408,7 +408,7 @@ function NoReinsRegisterForm() {
     setError(null);
 
     try {
-      const response = await fetch('/api/womens-retreat-checkout', {
+      const response = await fetch('/api/no-reins-checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

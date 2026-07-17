@@ -3,7 +3,7 @@ import Stripe from 'stripe';
 
 function generateConfirmationCode(): string {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  return 'WR-' + Array.from({ length: 6 }, () =>
+  return 'NR-' + Array.from({ length: 6 }, () =>
     chars[Math.floor(Math.random() * chars.length)]
   ).join('');
 }
@@ -68,7 +68,7 @@ export async function POST(request: Request) {
         },
       ],
       metadata: {
-        program: 'womens-retreat',
+        program: 'no-reins',
         confirmationCode,
         programDateId,
         sessionDate,
@@ -85,15 +85,15 @@ export async function POST(request: Request) {
         digitalSignature,
         amount: String(amount),
       },
-      success_url: `${siteUrl}/eal/womens-retreat/success?code=${confirmationCode}&session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${siteUrl}/eal/womens-retreat/register`,
+      success_url: `${siteUrl}/no-reins/success?code=${confirmationCode}&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${siteUrl}/no-reins/register`,
       expires_at: Math.floor(Date.now() / 1000) + 30 * 60,
     });
 
     return NextResponse.json({ url: session.url, sessionId: session.id });
 
   } catch (err: unknown) {
-    console.error('Women\'s retreat checkout error:', err);
+    console.error('No Reins checkout error:', err);
     const message = err instanceof Error ? err.message : 'Failed to create checkout session';
     return NextResponse.json({ error: message }, { status: 500 });
   }

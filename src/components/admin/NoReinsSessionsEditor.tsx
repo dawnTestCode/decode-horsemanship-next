@@ -61,22 +61,35 @@ const NoReinsSessionsEditor: React.FC<{ embedded?: boolean }> = ({ embedded }) =
   const [showAddForm, setShowAddForm] = useState(false);
   const [newSession, setNewSession] = useState(emptyNewSession);
 
-  // Get the womens-retreat program ID for querying program_dates
-  const [womensRetreatProgramId, setWomensRetreatProgramId] = useState<string | null>(null);
+  // Get the no-reins program ID for querying program_dates
+  const [noReinsProgramId, setNoReinsProgramId] = useState<string | null>(null);
 
   // Fetch sessions and registrations
   const fetchData = async () => {
     setLoading(true);
     try {
-      // First, get the womens-retreat program ID
-      const { data: programData } = await supabase
+      // First, get the no-reins program ID (try both slugs for backwards compatibility)
+      let programData = null;
+      const { data: newSlug } = await supabase
         .from('programs')
         .select('id')
-        .eq('slug', 'womens-retreat')
+        .eq('slug', 'no-reins')
         .single();
 
+      if (newSlug) {
+        programData = newSlug;
+      } else {
+        // Fallback to old slug if migration hasn't run yet
+        const { data: oldSlug } = await supabase
+          .from('programs')
+          .select('id')
+          .eq('slug', 'womens-retreat')
+          .single();
+        programData = oldSlug;
+      }
+
       if (programData) {
-        setWomensRetreatProgramId(programData.id);
+        setNoReinsProgramId(programData.id);
 
         // Fetch sessions from program_dates for womens-retreat
         const { data: sessionsData, error: sessionsError } = await supabase
@@ -95,15 +108,28 @@ const NoReinsSessionsEditor: React.FC<{ embedded?: boolean }> = ({ embedded }) =
         setSessions([]);
       }
 
-      // Fetch registrations
-      const { data: registrationsData, error: registrationsError } = await supabase
-        .from('womens_retreat_registrations')
+      // Fetch registrations (try new table name first, fallback to old)
+      let registrationsData = null;
+      const { data: newTable, error: newTableError } = await supabase
+        .from('no_reins_registrations')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (registrationsError) {
-        console.log('Registrations error:', registrationsError);
+      if (newTableError) {
+        // Fallback to old table name if migration hasn't run yet
+        const { data: oldTable, error: oldTableError } = await supabase
+          .from('womens_retreat_registrations')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (oldTableError) {
+          console.log('Registrations error:', oldTableError);
+        }
+        registrationsData = oldTable;
+      } else {
+        registrationsData = newTable;
       }
+
       setRegistrations(registrationsData || []);
     } catch (err) {
       console.error('Error fetching No Reins data:', err);
@@ -118,7 +144,7 @@ const NoReinsSessionsEditor: React.FC<{ embedded?: boolean }> = ({ embedded }) =
 
   // Add a new session
   const addSession = async () => {
-    if (!newSession.session_date || !womensRetreatProgramId) {
+    if (!newSession.session_date || !noReinsProgramId) {
       setError('Please select a date');
       return;
     }
@@ -129,7 +155,7 @@ const NoReinsSessionsEditor: React.FC<{ embedded?: boolean }> = ({ embedded }) =
       const { error } = await supabase
         .from('program_dates')
         .insert({
-          program_id: womensRetreatProgramId,
+          program_id: noReinsProgramId,
           start_date: newSession.session_date,
           end_date: newSession.session_date,
           max_capacity: newSession.capacity,
