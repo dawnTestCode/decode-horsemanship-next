@@ -164,6 +164,22 @@
   --ember:        #C47A52;
   --oxblood:      #5A2818;
   --hearth:       #3A2A1F;
+
+  /* ============================================
+     Copper & Lace Design System
+     ============================================ */
+  --cl-black:         #0c0a09;
+  --cl-black-soft:    #150f0e;
+  --cl-panel:         #1a1312;
+  --cl-crimson:       #8f1c2e;
+  --cl-crimson-bright:#b4283f;
+  --cl-copper:        #b7793f;
+  --cl-copper-light:  #d9a877;
+  --cl-copper-dim:    #7a5230;
+  --cl-ivory:         #ede4d8;
+  --cl-ink:           #f4efe6;
+  --cl-muted:         #a8998a;
+  --cl-hairline:      rgba(237,228,216,0.14);
 }
 
 /* Paper grain overlay */

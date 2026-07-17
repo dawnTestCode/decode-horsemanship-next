@@ -1,0 +1,735 @@
+'use client';
+
+import React, { useState, useEffect, Suspense } from 'react';
+import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
+import { ArrowLeft, ArrowRight, Check, Loader2, ChevronDown } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
+
+// ─── Types ───────────────────────────────────────────────────────────────────
+
+interface FormData {
+  sessionId: string;
+  sessionDate: string;
+  name: string;
+  email: string;
+  phone: string;
+  partySize: string;
+  packageType: 'day-pass' | 'stay-till-moonrise' | '';
+  message: string;
+  agreeTerms: boolean;
+}
+
+const initialFormData: FormData = {
+  sessionId: '',
+  sessionDate: '',
+  name: '',
+  email: '',
+  phone: '',
+  partySize: '',
+  packageType: '',
+  message: '',
+  agreeTerms: false,
+};
+
+interface CopperLaceSession {
+  id: string;
+  session_date: string;
+  capacity: number;
+  enrolled: number;
+  status: string;
+}
+
+interface PackagePricing {
+  'day-pass': number;
+  'stay-till-moonrise': number;
+}
+
+// ─── Styled Form Components ──────────────────────────────────────────────────
+
+function Input({
+  label,
+  value,
+  onChange,
+  type = 'text',
+  required,
+  placeholder,
+  hint,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  type?: string;
+  required?: boolean;
+  placeholder?: string;
+  hint?: string;
+}) {
+  return (
+    <div>
+      <label className="block font-[var(--font-cl-sans)] uppercase tracking-[0.25em] text-[var(--cl-copper-light)] text-xs mb-2">
+        {label}
+        {required && <span className="text-[var(--cl-crimson)] ml-1">*</span>}
+      </label>
+      <input
+        type={type}
+        required={required}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        className="w-full bg-[var(--cl-panel)] border border-[var(--cl-copper-dim)]/40 text-[var(--cl-ivory)] font-[var(--font-cl-sans)] px-4 py-3
+          placeholder-[var(--cl-muted)]/50
+          focus:outline-none focus:border-[var(--cl-copper-light)] transition-colors"
+      />
+      {hint && <p className="font-[var(--font-cl-sans)] text-[var(--cl-muted)] text-sm mt-1.5">{hint}</p>}
+    </div>
+  );
+}
+
+function Select({
+  label,
+  value,
+  onChange,
+  options,
+  required,
+  placeholder = 'Select one',
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  options: { value: string; label: string; disabled?: boolean }[];
+  required?: boolean;
+  placeholder?: string;
+}) {
+  return (
+    <div>
+      <label className="block font-[var(--font-cl-sans)] uppercase tracking-[0.25em] text-[var(--cl-copper-light)] text-xs mb-2">
+        {label}
+        {required && <span className="text-[var(--cl-crimson)] ml-1">*</span>}
+      </label>
+      <div className="relative">
+        <select
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          required={required}
+          className="w-full appearance-none bg-[var(--cl-panel)] border border-[var(--cl-copper-dim)]/40 text-[var(--cl-ivory)] font-[var(--font-cl-sans)]
+            px-4 py-3 focus:outline-none focus:border-[var(--cl-copper-light)] transition-colors cursor-pointer"
+        >
+          <option value="">{placeholder}</option>
+          {options.map((opt) => (
+            <option key={opt.value} value={opt.value} disabled={opt.disabled}>
+              {opt.label}
+            </option>
+          ))}
+        </select>
+        <ChevronDown
+          size={16}
+          className="absolute right-4 top-1/2 -translate-y-1/2 text-[var(--cl-copper-light)] pointer-events-none"
+        />
+      </div>
+    </div>
+  );
+}
+
+function Textarea({
+  label,
+  value,
+  onChange,
+  placeholder,
+  rows = 3,
+  hint,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  placeholder?: string;
+  rows?: number;
+  hint?: string;
+}) {
+  return (
+    <div>
+      <label className="block font-[var(--font-cl-sans)] uppercase tracking-[0.25em] text-[var(--cl-copper-light)] text-xs mb-2">
+        {label}
+      </label>
+      <textarea
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        rows={rows}
+        className="w-full bg-[var(--cl-panel)] border border-[var(--cl-copper-dim)]/40 text-[var(--cl-ivory)] font-[var(--font-cl-sans)] px-4 py-3
+          placeholder-[var(--cl-muted)]/50 resize-none
+          focus:outline-none focus:border-[var(--cl-copper-light)] transition-colors"
+      />
+      {hint && <p className="font-[var(--font-cl-sans)] text-[var(--cl-muted)] text-sm mt-1.5">{hint}</p>}
+    </div>
+  );
+}
+
+function Checkbox({
+  label,
+  checked,
+  onChange,
+}: {
+  label: React.ReactNode;
+  checked: boolean;
+  onChange: (v: boolean) => void;
+}) {
+  return (
+    <label className="flex items-start gap-3 cursor-pointer group">
+      <div className="relative flex-shrink-0 mt-0.5">
+        <input
+          type="checkbox"
+          checked={checked}
+          onChange={(e) => onChange(e.target.checked)}
+          className="sr-only"
+        />
+        <div
+          className={`w-5 h-5 border-2 transition-colors flex items-center justify-center ${
+            checked
+              ? 'bg-[var(--cl-crimson)] border-[var(--cl-crimson)]'
+              : 'bg-transparent border-[var(--cl-copper-dim)]/60 group-hover:border-[var(--cl-copper-light)]'
+          }`}
+        >
+          {checked && <Check size={14} className="text-[var(--cl-ivory)]" strokeWidth={3} />}
+        </div>
+      </div>
+      <span className="font-[var(--font-cl-sans)] text-[var(--cl-ivory)] text-sm">{label}</span>
+    </label>
+  );
+}
+
+function RadioOption({
+  label,
+  description,
+  price,
+  value,
+  checked,
+  onChange,
+}: {
+  label: string;
+  description: string;
+  price: string;
+  value: string;
+  checked: boolean;
+  onChange: (v: string) => void;
+}) {
+  return (
+    <label
+      className={`block p-4 border cursor-pointer transition-colors ${
+        checked
+          ? 'border-[var(--cl-crimson)] bg-[var(--cl-crimson)]/10'
+          : 'border-[var(--cl-copper-dim)]/30 hover:border-[var(--cl-copper-dim)]/60'
+      }`}
+    >
+      <div className="flex items-start gap-3">
+        <div className="relative flex-shrink-0 mt-1">
+          <input
+            type="radio"
+            checked={checked}
+            onChange={() => onChange(value)}
+            className="sr-only"
+          />
+          <div
+            className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+              checked ? 'border-[var(--cl-crimson)]' : 'border-[var(--cl-copper-dim)]/60'
+            }`}
+          >
+            {checked && <div className="w-2.5 h-2.5 rounded-full bg-[var(--cl-crimson)]" />}
+          </div>
+        </div>
+        <div className="flex-1">
+          <div className="flex items-baseline justify-between">
+            <span className="font-[var(--font-cl-sans)] font-semibold text-[var(--cl-ivory)]">{label}</span>
+            <span className="font-[var(--font-cl-serif)] text-[var(--cl-ivory)] text-xl">{price}</span>
+          </div>
+          <p className="font-[var(--font-cl-serif)] italic text-[var(--cl-muted)] text-sm mt-1">{description}</p>
+        </div>
+      </div>
+    </label>
+  );
+}
+
+function StepIndicator({ current, total }: { current: number; total: number }) {
+  return (
+    <div className="flex items-center gap-2 mb-8">
+      {Array.from({ length: total }).map((_, i) => (
+        <React.Fragment key={i}>
+          <div
+            className={`
+              w-8 h-8 rounded-full flex items-center justify-center font-[var(--font-cl-sans)] text-sm
+              transition-all duration-200
+              ${
+                i < current
+                  ? 'bg-[var(--cl-crimson)] text-[var(--cl-ivory)]'
+                  : i === current
+                  ? 'bg-[var(--cl-crimson)] text-[var(--cl-ivory)] ring-2 ring-[var(--cl-crimson)]/30 ring-offset-2 ring-offset-[var(--cl-black)]'
+                  : 'bg-[var(--cl-copper-dim)]/30 text-[var(--cl-muted)]'
+              }
+            `}
+          >
+            {i < current ? <Check size={14} strokeWidth={3} /> : i + 1}
+          </div>
+          {i < total - 1 && (
+            <div
+              className={`flex-1 h-0.5 ${
+                i < current ? 'bg-[var(--cl-crimson)]' : 'bg-[var(--cl-copper-dim)]/30'
+              }`}
+            />
+          )}
+        </React.Fragment>
+      ))}
+    </div>
+  );
+}
+
+// ─── Main Form Component ─────────────────────────────────────────────────────
+
+function CopperLaceRegisterForm() {
+  const searchParams = useSearchParams();
+  const [step, setStep] = useState(0);
+  const [form, setForm] = useState<FormData>(initialFormData);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [sessions, setSessions] = useState<CopperLaceSession[]>([]);
+  const [loadingSessions, setLoadingSessions] = useState(true);
+  const [packagePricing, setPackagePricing] = useState<PackagePricing>({
+    'day-pass': 72500,
+    'stay-till-moonrise': 89500,
+  });
+
+  const steps = ['Date', 'Details', 'Confirm'];
+
+  // Fetch package pricing
+  useEffect(() => {
+    const fetchPricing = async () => {
+      const { data } = await supabase
+        .from('copper_lace_packages')
+        .select('slug, price')
+        .eq('active', true);
+
+      if (data && data.length > 0) {
+        const newPricing: PackagePricing = { 'day-pass': 72500, 'stay-till-moonrise': 89500 };
+        data.forEach((pkg) => {
+          if (pkg.slug === 'day-pass') {
+            newPricing['day-pass'] = pkg.price;
+          } else if (pkg.slug === 'stay-till-moonrise') {
+            newPricing['stay-till-moonrise'] = pkg.price;
+          }
+        });
+        setPackagePricing(newPricing);
+      }
+    };
+
+    fetchPricing();
+  }, []);
+
+  // Fetch available sessions
+  useEffect(() => {
+    const fetchSessions = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('copper_and_lace_sessions')
+          .select('*')
+          .eq('status', 'open')
+          .gte('session_date', new Date().toISOString().split('T')[0])
+          .order('session_date', { ascending: true });
+
+        if (error) {
+          console.log('Sessions not available:', error);
+          setSessions([]);
+        } else {
+          setSessions(data || []);
+          // Pre-select date from URL if provided
+          const dateParam = searchParams.get('date');
+          if (dateParam) {
+            const session = data?.find(s => s.session_date === dateParam);
+            if (session) {
+              setForm(prev => ({
+                ...prev,
+                sessionId: session.id,
+                sessionDate: dateParam,
+              }));
+            }
+          }
+        }
+      } catch (err) {
+        console.error('Error fetching sessions:', err);
+      } finally {
+        setLoadingSessions(false);
+      }
+    };
+
+    fetchSessions();
+  }, [searchParams]);
+
+  // Format session for display
+  const formatSessionDate = (dateStr: string) => {
+    return new Date(dateStr + 'T12:00:00').toLocaleDateString('en-US', {
+      weekday: 'long',
+      month: 'long',
+      day: 'numeric',
+    });
+  };
+
+  // Build session options
+  const sessionOptions = sessions.map((s) => {
+    const spotsLeft = s.capacity - s.enrolled;
+    return {
+      value: s.id,
+      label: `${formatSessionDate(s.session_date)}${spotsLeft < s.capacity ? ` (${spotsLeft} spot${spotsLeft !== 1 ? 's' : ''} left)` : ''}`,
+      disabled: spotsLeft <= 0,
+    };
+  });
+
+  const handleSessionChange = (sessionId: string) => {
+    const session = sessions.find(s => s.id === sessionId);
+    setForm(prev => ({
+      ...prev,
+      sessionId,
+      sessionDate: session?.session_date || '',
+    }));
+  };
+
+  const updateForm = <K extends keyof FormData>(key: K, value: FormData[K]) => {
+    setForm((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const getPrice = () => {
+    const partySize = parseInt(form.partySize) || 1;
+    if (form.packageType === 'day-pass') return packagePricing['day-pass'] * partySize;
+    if (form.packageType === 'stay-till-moonrise') return packagePricing['stay-till-moonrise'] * partySize;
+    return 0;
+  };
+
+  const formatPrice = (cents: number): string => `$${(cents / 100).toFixed(0)}`;
+
+  const canProceed = (): boolean => {
+    switch (step) {
+      case 0:
+        return !!form.sessionId && !!form.partySize && !!form.packageType;
+      case 1:
+        return !!form.name && !!form.email;
+      case 2:
+        return form.agreeTerms;
+      default:
+        return true;
+    }
+  };
+
+  const handleSubmit = async () => {
+    setSubmitting(true);
+    setError(null);
+
+    try {
+      const response = await fetch('/api/copper-and-lace/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sessionId: form.sessionId,
+          sessionDate: form.sessionDate,
+          name: form.name,
+          email: form.email,
+          phone: form.phone,
+          partySize: form.partySize,
+          packageType: form.packageType,
+          message: form.message,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Something went wrong');
+      }
+
+      window.location.href = data.url;
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Something went wrong. Please try again.';
+      setError(message);
+      setSubmitting(false);
+    }
+  };
+
+  // ─── Step Content ──────────────────────────────────────────────────────────
+
+  const stepDate = (
+    <div className="space-y-8">
+      <div>
+        <h2 className="font-[var(--font-cl-serif)] font-medium text-[var(--cl-ivory)] text-2xl mb-2">Pick Your Day</h2>
+        <p className="font-[var(--font-cl-serif)] italic text-[var(--cl-muted)]">
+          Choose when you want to come and what kind of day you want.
+        </p>
+      </div>
+
+      {loadingSessions ? (
+        <div className="flex items-center gap-2 text-[var(--cl-muted)]">
+          <Loader2 className="animate-spin" size={18} />
+          <span className="font-[var(--font-cl-sans)] text-sm">Loading available dates...</span>
+        </div>
+      ) : sessions.length === 0 ? (
+        <div className="p-6 border border-[var(--cl-copper-dim)]/30 text-center">
+          <p className="font-[var(--font-cl-sans)] text-[var(--cl-ivory)] mb-2">No dates currently available.</p>
+          <p className="font-[var(--font-cl-serif)] italic text-[var(--cl-muted)] text-sm">
+            Text the horsewoman at (919) 244-2647 to request a date.
+          </p>
+        </div>
+      ) : (
+        <Select
+          label="Date"
+          value={form.sessionId}
+          onChange={handleSessionChange}
+          options={sessionOptions}
+          required
+          placeholder="Select a Saturday"
+        />
+      )}
+
+      <Select
+        label="How many women"
+        value={form.partySize}
+        onChange={(v) => updateForm('partySize', v)}
+        options={[
+          { value: '1', label: '1 (just me)' },
+          { value: '2', label: '2 women' },
+          { value: '3', label: '3 women' },
+          { value: '4', label: '4 women' },
+          { value: '5', label: '5 women' },
+          { value: '6', label: '6 women' },
+        ]}
+        required
+        placeholder="Select party size"
+      />
+
+      <div>
+        <p className="font-[var(--font-cl-sans)] uppercase tracking-[0.25em] text-[var(--cl-copper-light)] text-xs mb-3">
+          Package <span className="text-[var(--cl-crimson)]">*</span>
+        </p>
+        <div className="space-y-3">
+          <RadioOption
+            label="Day Pass"
+            description="From sunup to four-thirty. Lunch and bracelet included."
+            price={`${formatPrice(packagePricing['day-pass'])}/person`}
+            value="day-pass"
+            checked={form.packageType === 'day-pass'}
+            onChange={(v) => updateForm('packageType', v as 'day-pass')}
+          />
+          <RadioOption
+            label="Stay Till Moonrise"
+            description="Day Pass plus Dutch oven supper, tea, and lantern light."
+            price={`${formatPrice(packagePricing['stay-till-moonrise'])}/person`}
+            value="stay-till-moonrise"
+            checked={form.packageType === 'stay-till-moonrise'}
+            onChange={(v) => updateForm('packageType', v as 'stay-till-moonrise')}
+          />
+        </div>
+      </div>
+    </div>
+  );
+
+  const stepDetails = (
+    <div className="space-y-6">
+      <div>
+        <h2 className="font-[var(--font-cl-serif)] font-medium text-[var(--cl-ivory)] text-2xl mb-2">Your Details</h2>
+        <p className="font-[var(--font-cl-serif)] italic text-[var(--cl-muted)]">
+          Who&apos;s booking this day?
+        </p>
+      </div>
+
+      <Input
+        label="Name"
+        value={form.name}
+        onChange={(v) => updateForm('name', v)}
+        required
+        placeholder="Your full name"
+      />
+
+      <Input
+        label="Email"
+        type="email"
+        value={form.email}
+        onChange={(v) => updateForm('email', v)}
+        required
+        placeholder="you@example.com"
+      />
+
+      <Input
+        label="Phone"
+        type="tel"
+        value={form.phone}
+        onChange={(v) => updateForm('phone', v)}
+        placeholder="Optional, but helpful"
+        hint="We may text to confirm details"
+      />
+
+      <Textarea
+        label="Anything we should know?"
+        value={form.message}
+        onChange={(v) => updateForm('message', v)}
+        placeholder="Dietary restrictions, occasion, or anything else"
+        hint="Optional"
+        rows={3}
+      />
+    </div>
+  );
+
+  const selectedSession = sessions.find(s => s.id === form.sessionId);
+
+  const stepConfirm = (
+    <div className="space-y-8">
+      <div>
+        <h2 className="font-[var(--font-cl-serif)] font-medium text-[var(--cl-ivory)] text-2xl mb-2">Confirm & Pay</h2>
+        <p className="font-[var(--font-cl-serif)] italic text-[var(--cl-muted)]">
+          Review your booking and complete payment.
+        </p>
+      </div>
+
+      {/* Summary */}
+      <div className="border border-[var(--cl-copper-dim)]/30 divide-y divide-[var(--cl-copper-dim)]/20">
+        <div className="p-4 flex justify-between">
+          <span className="font-[var(--font-cl-sans)] uppercase tracking-[0.2em] text-[var(--cl-copper-light)] text-xs">Date</span>
+          <span className="font-[var(--font-cl-sans)] text-[var(--cl-ivory)]">
+            {selectedSession ? formatSessionDate(selectedSession.session_date) : '—'}
+          </span>
+        </div>
+        <div className="p-4 flex justify-between">
+          <span className="font-[var(--font-cl-sans)] uppercase tracking-[0.2em] text-[var(--cl-copper-light)] text-xs">Party</span>
+          <span className="font-[var(--font-cl-sans)] text-[var(--cl-ivory)]">{form.partySize} women</span>
+        </div>
+        <div className="p-4 flex justify-between">
+          <span className="font-[var(--font-cl-sans)] uppercase tracking-[0.2em] text-[var(--cl-copper-light)] text-xs">Package</span>
+          <span className="font-[var(--font-cl-sans)] text-[var(--cl-ivory)]">
+            {form.packageType === 'day-pass' ? 'Day Pass' : 'Stay Till Moonrise'}
+          </span>
+        </div>
+        <div className="p-4 flex justify-between items-baseline">
+          <span className="font-[var(--font-cl-sans)] uppercase tracking-[0.2em] text-[var(--cl-copper-light)] text-xs">Total</span>
+          <span className="font-[var(--font-cl-serif)] text-[var(--cl-ivory)] text-2xl">
+            ${(getPrice() / 100).toLocaleString()}
+          </span>
+        </div>
+      </div>
+
+      <Checkbox
+        label={
+          <span>
+            I understand payment is due in full today and the horsewoman will reach out to confirm details.
+          </span>
+        }
+        checked={form.agreeTerms}
+        onChange={(v) => updateForm('agreeTerms', v)}
+      />
+
+      {error && (
+        <div className="bg-[var(--cl-crimson)]/10 border border-[var(--cl-crimson)]/30 p-4">
+          <p className="font-[var(--font-cl-sans)] text-[var(--cl-crimson)] text-sm">{error}</p>
+        </div>
+      )}
+    </div>
+  );
+
+  const stepContent = [stepDate, stepDetails, stepConfirm];
+  const isLastStep = step === steps.length - 1;
+
+  return (
+    <div className="min-h-screen" style={{ background: 'var(--cl-black)' }}>
+      {/* Header */}
+      <div className="py-3 border-b border-[var(--cl-copper-dim)]/20">
+        <div className="max-w-lg mx-auto px-6">
+          <p className="font-[var(--font-cl-sans)] uppercase tracking-[0.2em] sm:tracking-[0.4em] text-[var(--cl-muted)] text-[10px] sm:text-xs text-center">
+            Decode Horsemanship · Chapel Hill, NC
+          </p>
+        </div>
+      </div>
+
+      <section className="py-10 px-6">
+        <div className="max-w-lg mx-auto">
+          {/* Back link */}
+          <Link
+            href="/copper-and-lace"
+            className="inline-flex items-center gap-2 font-[var(--font-cl-sans)] text-sm text-[var(--cl-muted)] hover:text-[var(--cl-ivory)] transition-colors mb-8"
+          >
+            <ArrowLeft size={16} />
+            Back to Copper & Lace
+          </Link>
+
+          {/* Title */}
+          <h1 className="font-[var(--font-cl-serif)] font-medium text-[var(--cl-ivory)] text-3xl sm:text-4xl mb-8">
+            Book the Day
+          </h1>
+
+          {/* Progress */}
+          <StepIndicator current={step} total={steps.length} />
+
+          {/* Form content */}
+          <div>
+            {stepContent[step]}
+
+            {/* Navigation */}
+            <div className="flex items-center gap-3 mt-10 pt-8 border-t border-[var(--cl-copper-dim)]/20">
+              {step > 0 && (
+                <button
+                  onClick={() => setStep((s) => s - 1)}
+                  disabled={submitting}
+                  className="flex items-center gap-2 px-5 py-2.5 border border-[var(--cl-copper-dim)]/40
+                    hover:border-[var(--cl-copper-light)] text-[var(--cl-muted)] hover:text-[var(--cl-ivory)]
+                    font-[var(--font-cl-sans)] uppercase tracking-[0.2em] text-xs transition-colors"
+                >
+                  <ArrowLeft size={16} />
+                  Back
+                </button>
+              )}
+
+              {isLastStep ? (
+                <button
+                  onClick={handleSubmit}
+                  disabled={submitting || !canProceed()}
+                  className="flex-1 flex items-center justify-center gap-2
+                    px-6 py-3 bg-[var(--cl-crimson)] hover:bg-[var(--cl-crimson-bright)]
+                    disabled:bg-[var(--cl-copper-dim)]/30 disabled:text-[var(--cl-muted)] disabled:cursor-not-allowed
+                    text-[var(--cl-ivory)] font-[var(--font-cl-sans)] uppercase tracking-[0.2em] text-sm transition-colors"
+                >
+                  {submitting ? (
+                    <>
+                      <Loader2 size={18} className="animate-spin" />
+                      Redirecting...
+                    </>
+                  ) : (
+                    <>
+                      Pay ${(getPrice() / 100).toLocaleString()}
+                      <ArrowRight size={18} />
+                    </>
+                  )}
+                </button>
+              ) : (
+                <button
+                  onClick={() => setStep((s) => s + 1)}
+                  disabled={!canProceed()}
+                  className="flex-1 flex items-center justify-center gap-2
+                    px-6 py-3 bg-[var(--cl-crimson)] hover:bg-[var(--cl-crimson-bright)]
+                    disabled:bg-[var(--cl-copper-dim)]/30 disabled:text-[var(--cl-muted)] disabled:cursor-not-allowed
+                    text-[var(--cl-ivory)] font-[var(--font-cl-sans)] uppercase tracking-[0.2em] text-sm transition-colors"
+                >
+                  Continue
+                  <ArrowRight size={18} />
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+export default function CopperLaceRegisterPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--cl-black)' }}>
+          <Loader2 className="animate-spin text-[var(--cl-copper-light)]" size={32} />
+        </div>
+      }
+    >
+      <CopperLaceRegisterForm />
+    </Suspense>
+  );
+}
