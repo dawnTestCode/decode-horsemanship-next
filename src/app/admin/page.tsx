@@ -156,7 +156,7 @@ const UnifiedProgramsTab: React.FC = () => {
               Programs & Pricing
             </button>
           </div>
-          {ealSubTab === 'dates' && <ProgramDatesEditor onClose={() => {}} embedded />}
+          {ealSubTab === 'dates' && <ProgramDatesEditor onClose={() => {}} embedded excludeSlugs={['no-reins']} />}
           {ealSubTab === 'registrations' && <ProgramEnrollmentsEditor embedded />}
           {ealSubTab === 'programs' && <ProgramsEditor embedded />}
         </div>

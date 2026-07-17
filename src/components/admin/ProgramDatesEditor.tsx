@@ -34,9 +34,10 @@ interface ProgramDate {
 interface ProgramDatesEditorProps {
   onClose: () => void;
   embedded?: boolean;
+  excludeSlugs?: string[];
 }
 
-const ProgramDatesEditor: React.FC<ProgramDatesEditorProps> = ({ onClose, embedded = false }) => {
+const ProgramDatesEditor: React.FC<ProgramDatesEditorProps> = ({ onClose, embedded = false, excludeSlugs = [] }) => {
   const [programs, setPrograms] = useState<Program[]>([]);
   const [dates, setDates] = useState<ProgramDate[]>([]);
   const [loading, setLoading] = useState(true);
@@ -85,7 +86,17 @@ const ProgramDatesEditor: React.FC<ProgramDatesEditorProps> = ({ onClose, embedd
         .order('category, name');
 
       if (programsError) throw programsError;
-      setPrograms(programsData || []);
+
+      // Filter out excluded slugs
+      const filteredPrograms = (programsData || []).filter(
+        (p: Program) => !excludeSlugs.includes(p.slug)
+      );
+      setPrograms(filteredPrograms);
+
+      // Get IDs of excluded programs for filtering dates
+      const excludedProgramIds = (programsData || [])
+        .filter((p: Program) => excludeSlugs.includes(p.slug))
+        .map((p: Program) => p.id);
 
       // Fetch all program dates
       const { data: datesData, error: datesError } = await supabase
@@ -94,7 +105,12 @@ const ProgramDatesEditor: React.FC<ProgramDatesEditorProps> = ({ onClose, embedd
         .order('start_date', { ascending: true });
 
       if (datesError) throw datesError;
-      setDates(datesData || []);
+
+      // Filter out dates for excluded programs
+      const filteredDates = (datesData || []).filter(
+        (d: ProgramDate) => !excludedProgramIds.includes(d.program_id)
+      );
+      setDates(filteredDates);
     } catch (err: any) {
       console.error('Error fetching data:', err);
       setError('Failed to load data');
