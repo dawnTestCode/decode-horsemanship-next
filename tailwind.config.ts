@@ -18,6 +18,20 @@ export default {
     },
     extend: {
       colors: {
+        // Foaling Watch crimson palette
+        crimson: {
+          50: '#fdf2f4',
+          100: '#fce7ea',
+          200: '#f9d2d9',
+          300: '#f4adb9',
+          400: '#ec7d93',
+          500: '#df4e6f',
+          600: '#c9305a',
+          700: '#a8234a',
+          800: '#8c2042',
+          900: '#761e3d',
+          950: '#420b1e',
+        },
         // Groundwork color palette
         groundwork: {
           cream: '#f5f1ea',
