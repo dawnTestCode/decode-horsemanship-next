@@ -18,9 +18,10 @@ import ProgramEnrollmentsEditor from '@/components/admin/ProgramEnrollmentsEdito
 import SummerCampSessionsEditor from '@/components/admin/SummerCampSessionsEditor';
 import GroundworkSessionsEditor from '@/components/admin/GroundworkSessionsEditor';
 import DustLeatherSessionsEditor from '@/components/admin/DustLeatherSessionsEditor';
+import CopperLaceSessionsEditor from '@/components/admin/CopperLaceSessionsEditor';
 import NoReinsSessionsEditor from '@/components/admin/NoReinsSessionsEditor';
 import ProgramCalendar from '@/components/admin/ProgramCalendar';
-import { Flame, Heart } from 'lucide-react';
+import { Flame, Heart, Gem } from 'lucide-react';
 import { formatPrice } from '@/lib/utils';
 
 interface VolunteerContent {
@@ -36,13 +37,13 @@ interface VolunteerContent {
 
 // Sub-component for unified Programs tab with program selector
 const UnifiedProgramsTab: React.FC = () => {
-  const [programTab, setProgramTab] = useState<'groundwork' | 'dustleather' | 'noreins' | 'eal'>('groundwork');
+  const [programTab, setProgramTab] = useState<'groundwork' | 'dustleather' | 'copperlace' | 'noreins' | 'eal'>('groundwork');
   const [ealSubTab, setEalSubTab] = useState<'dates' | 'registrations' | 'programs'>('dates');
 
   return (
     <div>
       {/* Program selector */}
-      <div className="flex gap-2 mb-6 pb-4 border-b border-stone-800">
+      <div className="flex gap-2 mb-6 pb-4 border-b border-stone-800 flex-wrap">
         <button
           onClick={() => setProgramTab('groundwork')}
           className={`px-5 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
@@ -64,6 +65,17 @@ const UnifiedProgramsTab: React.FC = () => {
         >
           <Flame size={16} />
           Dust & Leather
+        </button>
+        <button
+          onClick={() => setProgramTab('copperlace')}
+          className={`px-5 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
+            programTab === 'copperlace'
+              ? 'bg-rose-700 text-white'
+              : 'bg-stone-800/50 text-stone-400 hover:bg-stone-800 hover:text-stone-300'
+          }`}
+        >
+          <Gem size={16} />
+          Copper & Lace
         </button>
         <button
           onClick={() => setProgramTab('noreins')}
@@ -97,6 +109,11 @@ const UnifiedProgramsTab: React.FC = () => {
       {/* Dust & Leather content */}
       {programTab === 'dustleather' && (
         <DustLeatherSessionsEditor embedded />
+      )}
+
+      {/* Copper & Lace content */}
+      {programTab === 'copperlace' && (
+        <CopperLaceSessionsEditor embedded />
       )}
 
       {/* No Reins content */}

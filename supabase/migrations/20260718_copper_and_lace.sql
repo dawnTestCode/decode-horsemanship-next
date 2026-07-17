@@ -154,16 +154,3 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 
--- Add Copper & Lace to programs table if it exists
-DO $$
-BEGIN
-  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'programs') THEN
-    INSERT INTO programs (slug, name, audience, description, deposit_only, deposit_amount, full_price, price_label, active, booking_type)
-    VALUES ('copper-and-lace', 'Copper & Lace', 'womens', 'A woman''s day at Decode Horsemanship', false, NULL, 72500, 'From $725', true, 'preset')
-    ON CONFLICT (slug) DO UPDATE SET
-      deposit_only = EXCLUDED.deposit_only,
-      deposit_amount = EXCLUDED.deposit_amount,
-      full_price = EXCLUDED.full_price,
-      price_label = EXCLUDED.price_label;
-  END IF;
-END $$;
