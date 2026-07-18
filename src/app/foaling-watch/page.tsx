@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
-import { Loader2, ChevronDown, ChevronUp, Camera, X } from 'lucide-react';
+import { Loader2, Camera, X, Plus } from 'lucide-react';
 import Image from 'next/image';
 
 // Types
@@ -69,8 +69,14 @@ function getBehaviorLabel(value: string): string {
 }
 
 export default function FoalingWatchPage() {
+  // Auth state
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [showPasscodePrompt, setShowPasscodePrompt] = useState(false);
+  const [passcode, setPasscode] = useState('');
+  const [passcodeError, setPasscodeError] = useState(false);
+
   // Form state
-  const [formExpanded, setFormExpanded] = useState(false);
   const [checkerName, setCheckerName] = useState('');
   const [udderStatus, setUdderStatus] = useState('none');
   const [vulvaStatus, setVulvaStatus] = useState('same');
@@ -90,8 +96,10 @@ export default function FoalingWatchPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
 
-  // Remember checker name in localStorage
+  // Check for saved auth and checker name on mount
   useEffect(() => {
+    const savedAuth = localStorage.getItem('foaling-watch-auth');
+    if (savedAuth === 'true') setIsAuthenticated(true);
     const savedName = localStorage.getItem('foaling-watch-name');
     if (savedName) setCheckerName(savedName);
   }, []);
@@ -132,15 +140,38 @@ export default function FoalingWatchPage() {
     };
   }, [fetchChecks]);
 
+  // Handle "Log a Check" button click
+  const handleLogCheckClick = () => {
+    if (isAuthenticated) {
+      setShowModal(true);
+    } else {
+      setShowPasscodePrompt(true);
+    }
+  };
+
+  // Handle passcode submission
+  const handlePasscodeSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Check against env var (client-side check - simple gate, not high security)
+    const correctPasscode = process.env.NEXT_PUBLIC_FOALING_WATCH_PASSCODE || 'cali2026';
+    if (passcode === correctPasscode) {
+      setIsAuthenticated(true);
+      localStorage.setItem('foaling-watch-auth', 'true');
+      setShowPasscodePrompt(false);
+      setShowModal(true);
+      setPasscode('');
+      setPasscodeError(false);
+    } else {
+      setPasscodeError(true);
+    }
+  };
+
   // Handle file selection
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     if (files.length === 0) return;
 
-    // Add new files to existing selection
     setSelectedFiles(prev => [...prev, ...files]);
-
-    // Create preview URLs
     const newUrls = files.map(file => URL.createObjectURL(file));
     setPreviewUrls(prev => [...prev, ...newUrls]);
   };
@@ -205,11 +236,9 @@ export default function FoalingWatchPage() {
     setUploadProgress(null);
 
     try {
-      // Upload photos first
       const photoUrls = await uploadPhotos();
       setUploadProgress(null);
 
-      // Insert check record
       const { error: insertError } = await supabase
         .from('foaling_checks')
         .insert({
@@ -225,10 +254,9 @@ export default function FoalingWatchPage() {
         throw new Error(insertError.message);
       }
 
-      // Save name to localStorage for next time
       localStorage.setItem('foaling-watch-name', checkerName.trim());
 
-      // Reset form (but keep checker name)
+      // Reset form
       setUdderStatus('none');
       setVulvaStatus('same');
       setBehaviorFlags([]);
@@ -238,11 +266,11 @@ export default function FoalingWatchPage() {
       setPreviewUrls([]);
       setSubmitSuccess(true);
 
-      // Clear success message after a few seconds
-      setTimeout(() => setSubmitSuccess(false), 3000);
-
-      // Collapse form after successful submission
-      setFormExpanded(false);
+      // Close modal after brief success message
+      setTimeout(() => {
+        setSubmitSuccess(false);
+        setShowModal(false);
+      }, 1500);
     } catch (error) {
       console.error('Submission error:', error);
       setSubmitError(error instanceof Error ? error.message : 'Failed to submit check');
@@ -252,46 +280,204 @@ export default function FoalingWatchPage() {
     }
   };
 
+  // Close modal and reset state
+  const closeModal = () => {
+    setShowModal(false);
+    setSubmitError(null);
+    setSubmitSuccess(false);
+  };
+
   return (
     <div className="min-h-screen bg-stone-950 text-stone-100">
       {/* Header */}
       <header className="bg-stone-900 border-b border-stone-800 px-4 py-6">
-        <div className="max-w-2xl mx-auto flex items-center gap-4">
-          <div className="w-16 h-16 rounded-full overflow-hidden bg-stone-800 flex-shrink-0 border-2 border-crimson-600">
-            <Image
-              src="/cali.png"
-              alt="Cali"
-              width={64}
-              height={64}
-              className="w-full h-full object-cover"
-              priority
-            />
+        <div className="max-w-2xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="w-16 h-16 rounded-full overflow-hidden bg-stone-800 flex-shrink-0 border-2 border-crimson-600">
+              <Image
+                src="/cali.png"
+                alt="Cali"
+                width={64}
+                height={64}
+                className="w-full h-full object-cover"
+                priority
+              />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-stone-100">Foaling Watch</h1>
+              <p className="text-stone-400 text-sm">Cali — Grulla Gypsy Vanner (maiden)</p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-2xl font-bold text-stone-100">Foaling Watch</h1>
-            <p className="text-stone-400 text-sm">Cali — Grulla Gypsy Vanner (maiden)</p>
-          </div>
+          <button
+            type="button"
+            onClick={handleLogCheckClick}
+            className="flex items-center gap-2 px-4 py-2.5 bg-crimson-700 hover:bg-crimson-600 text-white font-medium rounded-lg transition-colors"
+          >
+            <Plus size={18} />
+            <span className="hidden sm:inline">Log a Check</span>
+          </button>
         </div>
       </header>
 
-      <main className="max-w-2xl mx-auto px-4 py-6 space-y-6">
-        {/* Log a Check Form */}
-        <section className="bg-stone-900 rounded-xl border border-stone-800 overflow-hidden">
-          <button
-            type="button"
-            onClick={() => setFormExpanded(!formExpanded)}
-            className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-stone-800/50 transition-colors"
-          >
-            <span className="font-semibold text-lg">Log a Check</span>
-            {formExpanded ? (
-              <ChevronUp className="text-stone-400" size={20} />
-            ) : (
-              <ChevronDown className="text-stone-400" size={20} />
-            )}
-          </button>
+      <main className="max-w-2xl mx-auto px-4 py-6">
+        {/* Recent Checks Feed */}
+        <section>
+          <h2 className="text-lg font-semibold text-stone-200 mb-4">Recent Checks</h2>
 
-          {formExpanded && (
-            <form onSubmit={handleSubmit} className="px-6 pb-6 space-y-5">
+          {isLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="animate-spin text-stone-500" size={32} />
+            </div>
+          ) : checks.length === 0 ? (
+            <div className="text-center py-12 text-stone-500">
+              No checks logged yet.
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {checks.map(check => (
+                <article
+                  key={check.id}
+                  className="bg-stone-900 rounded-xl border border-stone-800 p-4 space-y-3"
+                >
+                  {/* Header */}
+                  <div className="flex items-center justify-between">
+                    <span className="font-medium text-stone-200">{check.checker_name}</span>
+                    <span className="text-sm text-stone-500">{formatTimestamp(check.created_at)}</span>
+                  </div>
+
+                  {/* Status Badges */}
+                  <div className="flex flex-wrap gap-2">
+                    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-stone-800 text-stone-300 border border-stone-700">
+                      Udder: {getUdderLabel(check.udder_status)}
+                    </span>
+                    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-stone-800 text-stone-300 border border-stone-700">
+                      Vulva: {getVulvaLabel(check.vulva_status)}
+                    </span>
+                  </div>
+
+                  {/* Behavior Flags */}
+                  {check.behavior_flags.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5">
+                      {check.behavior_flags.map(flag => (
+                        <span
+                          key={flag}
+                          className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-crimson-900/40 text-crimson-300 border border-crimson-800"
+                        >
+                          {getBehaviorLabel(flag)}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Notes */}
+                  {check.notes && (
+                    <p className="text-stone-400 text-sm whitespace-pre-wrap">{check.notes}</p>
+                  )}
+
+                  {/* Photos */}
+                  {check.photo_urls.length > 0 && (
+                    <div className="grid grid-cols-3 gap-2">
+                      {check.photo_urls.map((url, index) => (
+                        <button
+                          key={index}
+                          type="button"
+                          onClick={() => setLightboxUrl(url)}
+                          className="relative aspect-square rounded-lg overflow-hidden bg-stone-800 hover:opacity-90 transition-opacity"
+                        >
+                          <Image
+                            src={url}
+                            alt={`Photo ${index + 1}`}
+                            fill
+                            className="object-cover"
+                            sizes="(max-width: 768px) 33vw, 200px"
+                          />
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </article>
+              ))}
+            </div>
+          )}
+        </section>
+      </main>
+
+      {/* Passcode Prompt Modal */}
+      {showPasscodePrompt && (
+        <div
+          className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"
+          onClick={() => setShowPasscodePrompt(false)}
+        >
+          <div
+            className="bg-stone-900 rounded-xl border border-stone-800 p-6 w-full max-w-sm"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 className="text-xl font-bold text-stone-100 mb-4">Enter Passcode</h2>
+            <form onSubmit={handlePasscodeSubmit} className="space-y-4">
+              <div>
+                <input
+                  type="password"
+                  value={passcode}
+                  onChange={(e) => {
+                    setPasscode(e.target.value);
+                    setPasscodeError(false);
+                  }}
+                  placeholder="Passcode"
+                  autoFocus
+                  className={`w-full bg-stone-800 border rounded-lg px-4 py-3 text-stone-200 focus:outline-none transition-colors ${
+                    passcodeError
+                      ? 'border-red-500 focus:border-red-500'
+                      : 'border-stone-700 focus:border-crimson-500'
+                  }`}
+                />
+                {passcodeError && (
+                  <p className="text-red-400 text-sm mt-2">Incorrect passcode</p>
+                )}
+              </div>
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => setShowPasscodePrompt(false)}
+                  className="flex-1 px-4 py-3 bg-stone-800 hover:bg-stone-700 text-stone-300 font-medium rounded-lg transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 px-4 py-3 bg-crimson-700 hover:bg-crimson-600 text-white font-medium rounded-lg transition-colors"
+                >
+                  Submit
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Log Check Modal */}
+      {showModal && (
+        <div
+          className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 overflow-y-auto"
+          onClick={closeModal}
+        >
+          <div
+            className="bg-stone-900 rounded-xl border border-stone-800 w-full max-w-lg my-8"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-stone-800">
+              <h2 className="text-xl font-bold text-stone-100">Log a Check</h2>
+              <button
+                type="button"
+                onClick={closeModal}
+                className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-stone-800 transition-colors"
+              >
+                <X size={20} className="text-stone-400" />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <form onSubmit={handleSubmit} className="px-6 py-5 space-y-5 max-h-[70vh] overflow-y-auto">
               {/* Success Message */}
               {submitSuccess && (
                 <div className="p-4 bg-crimson-900/30 border border-crimson-700 rounded-lg text-crimson-300 text-sm">
@@ -398,7 +584,6 @@ export default function FoalingWatchPage() {
               <div>
                 <label className="block text-sm text-stone-400 mb-2">Photos (optional)</label>
 
-                {/* Preview Grid */}
                 {previewUrls.length > 0 && (
                   <div className="grid grid-cols-3 gap-2 mb-3">
                     {previewUrls.map((url, index) => (
@@ -421,7 +606,6 @@ export default function FoalingWatchPage() {
                   </div>
                 )}
 
-                {/* Upload Button */}
                 <label className="flex items-center justify-center gap-2 px-4 py-3 bg-stone-800 border border-stone-700 border-dashed rounded-lg cursor-pointer hover:bg-stone-700/50 transition-colors">
                   <Camera size={20} className="text-stone-400" />
                   <span className="text-stone-300 text-sm">Add Photos</span>
@@ -459,90 +643,9 @@ export default function FoalingWatchPage() {
                 )}
               </button>
             </form>
-          )}
-        </section>
-
-        {/* Recent Checks Feed */}
-        <section>
-          <h2 className="text-lg font-semibold text-stone-200 mb-4">Recent Checks</h2>
-
-          {isLoading ? (
-            <div className="flex items-center justify-center py-12">
-              <Loader2 className="animate-spin text-stone-500" size={32} />
-            </div>
-          ) : checks.length === 0 ? (
-            <div className="text-center py-12 text-stone-500">
-              No checks logged yet. Be the first!
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {checks.map(check => (
-                <article
-                  key={check.id}
-                  className="bg-stone-900 rounded-xl border border-stone-800 p-4 space-y-3"
-                >
-                  {/* Header */}
-                  <div className="flex items-center justify-between">
-                    <span className="font-medium text-stone-200">{check.checker_name}</span>
-                    <span className="text-sm text-stone-500">{formatTimestamp(check.created_at)}</span>
-                  </div>
-
-                  {/* Status Badges */}
-                  <div className="flex flex-wrap gap-2">
-                    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-stone-800 text-stone-300 border border-stone-700">
-                      Udder: {getUdderLabel(check.udder_status)}
-                    </span>
-                    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-stone-800 text-stone-300 border border-stone-700">
-                      Vulva: {getVulvaLabel(check.vulva_status)}
-                    </span>
-                  </div>
-
-                  {/* Behavior Flags */}
-                  {check.behavior_flags.length > 0 && (
-                    <div className="flex flex-wrap gap-1.5">
-                      {check.behavior_flags.map(flag => (
-                        <span
-                          key={flag}
-                          className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-crimson-900/40 text-crimson-300 border border-crimson-800"
-                        >
-                          {getBehaviorLabel(flag)}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* Notes */}
-                  {check.notes && (
-                    <p className="text-stone-400 text-sm whitespace-pre-wrap">{check.notes}</p>
-                  )}
-
-                  {/* Photos */}
-                  {check.photo_urls.length > 0 && (
-                    <div className="grid grid-cols-3 gap-2">
-                      {check.photo_urls.map((url, index) => (
-                        <button
-                          key={index}
-                          type="button"
-                          onClick={() => setLightboxUrl(url)}
-                          className="relative aspect-square rounded-lg overflow-hidden bg-stone-800 hover:opacity-90 transition-opacity"
-                        >
-                          <Image
-                            src={url}
-                            alt={`Photo ${index + 1}`}
-                            fill
-                            className="object-cover"
-                            sizes="(max-width: 768px) 33vw, 200px"
-                          />
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </article>
-              ))}
-            </div>
-          )}
-        </section>
-      </main>
+          </div>
+        </div>
+      )}
 
       {/* Lightbox */}
       {lightboxUrl && (
