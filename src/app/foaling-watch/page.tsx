@@ -41,20 +41,17 @@ const BEHAVIOR_FLAGS = [
   { value: 'separated-from-herd', label: 'Separated from herd' },
 ];
 
-// Format relative time
-function formatRelativeTime(dateString: string): string {
+// Format timestamp as "July 17, 9:36pm"
+function formatTimestamp(dateString: string): string {
   const date = new Date(dateString);
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffMins = Math.floor(diffMs / 60000);
-  const diffHours = Math.floor(diffMins / 60);
-  const diffDays = Math.floor(diffHours / 24);
-
-  if (diffMins < 1) return 'just now';
-  if (diffMins < 60) return `${diffMins} min ago`;
-  if (diffHours < 24) return `${diffHours} hr ago`;
-  if (diffDays === 1) return 'yesterday';
-  return `${diffDays} days ago`;
+  const month = date.toLocaleDateString('en-US', { month: 'long' });
+  const day = date.getDate();
+  const hours = date.getHours();
+  const minutes = date.getMinutes();
+  const ampm = hours >= 12 ? 'pm' : 'am';
+  const hour12 = hours % 12 || 12;
+  const minStr = minutes.toString().padStart(2, '0');
+  return `${month} ${day}, ${hour12}:${minStr}${ampm}`;
 }
 
 // Get display label for status values
@@ -486,7 +483,7 @@ export default function FoalingWatchPage() {
                   {/* Header */}
                   <div className="flex items-center justify-between">
                     <span className="font-medium text-stone-200">{check.checker_name}</span>
-                    <span className="text-sm text-stone-500">{formatRelativeTime(check.created_at)}</span>
+                    <span className="text-sm text-stone-500">{formatTimestamp(check.created_at)}</span>
                   </div>
 
                   {/* Status Badges */}
