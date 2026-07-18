@@ -71,8 +71,25 @@ export default function HomePage() {
     fetchGallery();
   }, []);
 
+  // Handle URL hash on page load
+  useEffect(() => {
+    const hash = window.location.hash.slice(1); // Remove the #
+    if (hash) {
+      // Small delay to ensure DOM is ready
+      setTimeout(() => {
+        const element = document.getElementById(hash);
+        if (element) {
+          setActiveSection(hash);
+          element.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 100);
+    }
+  }, []);
+
   const scrollToSection = (sectionId: string) => {
     setActiveSection(sectionId);
+    // Update URL hash for bookmarking
+    window.history.pushState(null, '', `#${sectionId}`);
     const element = document.getElementById(sectionId);
     if (element) {
       element.scrollIntoView({ behavior: 'smooth' });
