@@ -33,12 +33,13 @@ const VULVA_OPTIONS = [
 ];
 
 const BEHAVIOR_FLAGS = [
-  { value: 'restless', label: 'Restless' },
+  { value: 'restless', label: 'Restless / pacing' },
   { value: 'lying-down-repeatedly', label: 'Lying down repeatedly' },
   { value: 'pawing', label: 'Pawing' },
   { value: 'watching-flank', label: 'Biting at flank' },
   { value: 'sweating', label: 'Sweating' },
-  { value: 'separated-from-herd', label: 'Separated from herd' },
+  { value: 'loose-stool', label: 'Loose stool' },
+  { value: 'refusing-grain', label: 'Refusing grain' },
 ];
 
 // Format timestamp as "July 17, 9:36pm"
