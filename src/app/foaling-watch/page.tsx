@@ -70,7 +70,7 @@ function getBehaviorLabel(value: string): string {
 
 export default function FoalingWatchPage() {
   // Form state
-  const [formExpanded, setFormExpanded] = useState(true);
+  const [formExpanded, setFormExpanded] = useState(false);
   const [checkerName, setCheckerName] = useState('');
   const [udderStatus, setUdderStatus] = useState('none');
   const [vulvaStatus, setVulvaStatus] = useState('same');
