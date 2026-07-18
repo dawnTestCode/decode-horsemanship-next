@@ -36,7 +36,7 @@ const BEHAVIOR_FLAGS = [
   { value: 'restless', label: 'Restless' },
   { value: 'lying-down-repeatedly', label: 'Lying down repeatedly' },
   { value: 'pawing', label: 'Pawing' },
-  { value: 'watching-flank', label: 'Watching flank' },
+  { value: 'watching-flank', label: 'Biting at flank' },
   { value: 'sweating', label: 'Sweating' },
   { value: 'separated-from-herd', label: 'Separated from herd' },
 ];
