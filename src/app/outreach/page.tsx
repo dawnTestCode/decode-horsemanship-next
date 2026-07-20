@@ -2,6 +2,8 @@
 
 import { useEffect, useState, useMemo } from 'react';
 import { supabase } from '@/lib/supabase';
+import AdminLogin from '@/components/admin/AdminLogin';
+import { Lock, Eye, EyeOff, Loader2 } from 'lucide-react';
 
 type ContactType = 'visited' | 'cold_called' | 'emailed' | 'other';
 
@@ -9,7 +11,8 @@ type CommunityRow = {
   id: string;
   name: string;
   coordinator_name: string | null;
-  coordinator_contact: string | null;
+  coordinator_email: string | null;
+  coordinator_phone: string | null;
   notes: string | null;
   last_contact_type: ContactType | null;
   last_contact_date: string | null;
@@ -31,6 +34,9 @@ const CONTACT_STYLES: Record<ContactType, string> = {
 };
 
 export default function CommunityCRM() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [authLoading, setAuthLoading] = useState(true);
+
   const [rows, setRows] = useState<CommunityRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -40,6 +46,44 @@ export default function CommunityCRM() {
   const [editingCommunity, setEditingCommunity] = useState<CommunityRow | null>(null);
 
   const [logModalFor, setLogModalFor] = useState<CommunityRow | null>(null);
+
+  // Check for existing session on mount
+  useEffect(() => {
+    checkExistingSession();
+  }, []);
+
+  const checkExistingSession = async () => {
+    const storedToken = localStorage.getItem('admin_token');
+    const expiresAt = localStorage.getItem('admin_token_expires');
+
+    if (storedToken && expiresAt) {
+      if (new Date(expiresAt) > new Date()) {
+        try {
+          const { data } = await supabase.functions.invoke('admin-auth', {
+            body: { action: 'verify', token: storedToken }
+          });
+
+          if (data?.valid) {
+            setIsAuthenticated(true);
+          } else {
+            localStorage.removeItem('admin_token');
+            localStorage.removeItem('admin_token_expires');
+          }
+        } catch {
+          localStorage.removeItem('admin_token');
+          localStorage.removeItem('admin_token_expires');
+        }
+      } else {
+        localStorage.removeItem('admin_token');
+        localStorage.removeItem('admin_token_expires');
+      }
+    }
+    setAuthLoading(false);
+  };
+
+  const handleLoginSuccess = () => {
+    setIsAuthenticated(true);
+  };
 
   async function loadRows() {
     setLoading(true);
@@ -52,8 +96,10 @@ export default function CommunityCRM() {
   }
 
   useEffect(() => {
-    loadRows();
-  }, []);
+    if (isAuthenticated) {
+      loadRows();
+    }
+  }, [isAuthenticated]);
 
   const filtered = useMemo(() => {
     return rows.filter((r) => {
@@ -70,6 +116,32 @@ export default function CommunityCRM() {
     if (!confirm('Remove this community and its contact history? This cannot be undone.')) return;
     await supabase.from('communities').delete().eq('id', id);
     loadRows();
+  }
+
+  // Show loading state while checking auth
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-[#F5F3F0] flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-[#9E1B32]" />
+      </div>
+    );
+  }
+
+  // Show login form if not authenticated
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-[#F5F3F0]">
+        <div className="pt-12 pb-6 text-center">
+          <h1 className="text-2xl font-semibold tracking-tight text-black">
+            Community Outreach
+          </h1>
+          <p className="text-sm text-[#6B6B6B] mt-1">
+            Admin access required
+          </p>
+        </div>
+        <AdminLogin onLoginSuccess={handleLoginSuccess} />
+      </div>
+    );
   }
 
   return (
@@ -141,8 +213,11 @@ export default function CommunityCRM() {
                     <td className="px-4 py-3 font-medium">{r.name}</td>
                     <td className="px-4 py-3 text-[#3A3A3A]">
                       {r.coordinator_name || <span className="text-[#B0ABA3]">Unknown</span>}
-                      {r.coordinator_contact && (
-                        <div className="text-xs text-[#6B6B6B]">{r.coordinator_contact}</div>
+                      {r.coordinator_email && (
+                        <div className="text-xs text-[#6B6B6B]">{r.coordinator_email}</div>
+                      )}
+                      {r.coordinator_phone && (
+                        <div className="text-xs text-[#6B6B6B]">{r.coordinator_phone}</div>
                       )}
                     </td>
                     <td className="px-4 py-3">
@@ -241,7 +316,8 @@ function CommunityModal({
 }) {
   const [name, setName] = useState(community?.name ?? '');
   const [coordinatorName, setCoordinatorName] = useState(community?.coordinator_name ?? '');
-  const [coordinatorContact, setCoordinatorContact] = useState(community?.coordinator_contact ?? '');
+  const [coordinatorEmail, setCoordinatorEmail] = useState(community?.coordinator_email ?? '');
+  const [coordinatorPhone, setCoordinatorPhone] = useState(community?.coordinator_phone ?? '');
   const [notes, setNotes] = useState(community?.notes ?? '');
   const [saving, setSaving] = useState(false);
 
@@ -251,7 +327,8 @@ function CommunityModal({
     const payload = {
       name: name.trim(),
       coordinator_name: coordinatorName.trim() || null,
-      coordinator_contact: coordinatorContact.trim() || null,
+      coordinator_email: coordinatorEmail.trim() || null,
+      coordinator_phone: coordinatorPhone.trim() || null,
       notes: notes.trim() || null,
     };
     if (community) {
@@ -272,8 +349,11 @@ function CommunityModal({
         <Field label="Event coordinator (if known)">
           <input value={coordinatorName} onChange={(e) => setCoordinatorName(e.target.value)} className="w-full border border-[#D8D3CC] rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#9E1B32]" placeholder="Name" />
         </Field>
-        <Field label="Coordinator email or phone">
-          <input value={coordinatorContact} onChange={(e) => setCoordinatorContact(e.target.value)} className="w-full border border-[#D8D3CC] rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#9E1B32]" placeholder="Email or phone" />
+        <Field label="Coordinator email">
+          <input type="email" value={coordinatorEmail} onChange={(e) => setCoordinatorEmail(e.target.value)} className="w-full border border-[#D8D3CC] rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#9E1B32]" placeholder="email@example.com" />
+        </Field>
+        <Field label="Coordinator phone">
+          <input type="tel" value={coordinatorPhone} onChange={(e) => setCoordinatorPhone(e.target.value)} className="w-full border border-[#D8D3CC] rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#9E1B32]" placeholder="(555) 123-4567" />
         </Field>
         <Field label="Notes">
           <textarea value={notes} onChange={(e) => setNotes(e.target.value)} className="w-full border border-[#D8D3CC] rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#9E1B32]" rows={3} placeholder="Anything standing/general about this community" />
