@@ -3,9 +3,11 @@
 import { useEffect, useState, useMemo, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
 import AdminLogin from '@/components/admin/AdminLogin';
-import { Loader2, Star, Bold, List } from 'lucide-react';
+import { Loader2, Star, Bold, List, CalendarCheck, PhoneIncoming, PhoneOutgoing } from 'lucide-react';
 
 type ContactType = 'visited' | 'cold_called' | 'emailed' | 'other';
+
+type ContactDirection = 'inbound' | 'outbound';
 
 type CommunityStatus = 'prospect' | 'active';
 
@@ -19,9 +21,11 @@ type CommunityRow = {
   notes: string | null;
   status: CommunityStatus;
   priority: boolean;
+  scheduled: boolean;
   last_contact_type: ContactType | null;
   last_contact_date: string | null;
   last_contact_summary: string | null;
+  last_contact_direction: ContactDirection | null;
 };
 
 type ContactLog = {
@@ -31,6 +35,7 @@ type ContactLog = {
   contacted_by: string | null;
   contact_date: string;
   summary: string;
+  direction: ContactDirection;
   created_at: string;
 };
 
@@ -58,6 +63,29 @@ const CONTACT_STYLES: Record<ContactType, string> = {
   emailed: 'bg-[#E9E4DE] text-[#1A1A1A]',
   other: 'bg-white text-[#6B6B6B] border border-[#D8D3CC]',
 };
+
+function getBusinessDaysSince(dateStr: string): number {
+  const date = new Date(dateStr);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  date.setHours(0, 0, 0, 0);
+
+  let count = 0;
+  const current = new Date(date);
+
+  while (current < today) {
+    current.setDate(current.getDate() + 1);
+    const day = current.getDay();
+    if (day !== 0 && day !== 6) count++;
+  }
+
+  return count;
+}
+
+function isContactStale(lastContactDate: string | null, scheduled: boolean): boolean {
+  if (!lastContactDate || scheduled) return false;
+  return getBusinessDaysSince(lastContactDate) > 3;
+}
 
 export default function CommunityCRM() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -204,6 +232,17 @@ export default function CommunityCRM() {
       // Revert on error
       setRows(prev => prev.map(r => r.id === id ? { ...r, priority: currentPriority } : r));
       console.error('Failed to update priority:', error);
+    }
+  }
+
+  async function toggleScheduled(id: string, currentScheduled: boolean) {
+    // Optimistically update local state to avoid scroll reset
+    setRows(prev => prev.map(r => r.id === id ? { ...r, scheduled: !currentScheduled } : r));
+    const { error } = await supabase.from('communities').update({ scheduled: !currentScheduled }).eq('id', id);
+    if (error) {
+      // Revert on error
+      setRows(prev => prev.map(r => r.id === id ? { ...r, scheduled: currentScheduled } : r));
+      console.error('Failed to update scheduled:', error);
     }
   }
 
@@ -359,6 +398,9 @@ export default function CommunityCRM() {
                   {statusTab === 'prospect' && (
                     <th className="px-4 py-3 font-medium w-10"></th>
                   )}
+                  {statusTab === 'active' && (
+                    <th className="px-4 py-3 font-medium w-10"></th>
+                  )}
                   <th className="px-4 py-3 font-medium">Community</th>
                   {statusTab === 'active' && (
                     <>
@@ -379,13 +421,16 @@ export default function CommunityCRM() {
               <tbody>
                 {filtered.map((r, idx) => {
                   const showDivider = statusTab === 'prospect' && idx > 0 && filtered[idx - 1].priority && !r.priority;
+                  const stale = statusTab === 'active' && isContactStale(r.last_contact_date, r.scheduled);
                   return (
                   <tr
                     key={r.id}
                     onClick={() => setViewModalFor(r)}
                     className={`align-top cursor-pointer hover:bg-[#F5F3F0] transition-colors ${
                       showDivider ? 'border-t-2 border-[#D8D3CC]' : 'border-t border-[#E3E0DB]'
-                    } ${statusTab === 'prospect' && r.priority ? 'bg-amber-50 hover:bg-amber-100' : ''}`}
+                    } ${statusTab === 'prospect' && r.priority ? 'bg-amber-50 hover:bg-amber-100' : ''} ${
+                      stale ? 'bg-red-50 hover:bg-red-100' : ''
+                    } ${statusTab === 'active' && r.scheduled ? 'bg-green-50 hover:bg-green-100' : ''}`}
                   >
                     {statusTab === 'prospect' && (
                       <td className="px-2 py-3 text-center">
@@ -399,6 +444,21 @@ export default function CommunityCRM() {
                           title={r.priority ? 'Remove priority' : 'Mark as priority'}
                         >
                           <Star size={16} fill={r.priority ? 'currentColor' : 'none'} />
+                        </button>
+                      </td>
+                    )}
+                    {statusTab === 'active' && (
+                      <td className="px-2 py-3 text-center">
+                        <button
+                          onClick={(e) => { e.stopPropagation(); toggleScheduled(r.id, r.scheduled); }}
+                          className={`p-1 rounded transition-colors ${
+                            r.scheduled
+                              ? 'text-green-600 hover:text-green-700'
+                              : 'text-[#D8D3CC] hover:text-green-500'
+                          }`}
+                          title={r.scheduled ? 'Mark as not scheduled' : 'Mark as scheduled'}
+                        >
+                          <CalendarCheck size={16} />
                         </button>
                       </td>
                     )}
@@ -429,9 +489,16 @@ export default function CommunityCRM() {
                         <td className="px-4 py-3">
                           {r.last_contact_type ? (
                             <div className="space-y-1">
-                              <span className={`inline-block text-xs px-2 py-1 rounded-full ${CONTACT_STYLES[r.last_contact_type]}`}>
-                                {CONTACT_LABELS[r.last_contact_type]}
-                              </span>
+                              <div className="flex items-center gap-1">
+                                <span className={`inline-block text-xs px-2 py-1 rounded-full ${CONTACT_STYLES[r.last_contact_type]}`}>
+                                  {CONTACT_LABELS[r.last_contact_type]}
+                                </span>
+                                {r.last_contact_direction === 'inbound' ? (
+                                  <PhoneIncoming size={14} className="text-blue-600" title="From them" />
+                                ) : (
+                                  <PhoneOutgoing size={14} className="text-[#6B6B6B]" title="To them" />
+                                )}
+                              </div>
                               <div className="text-xs text-[#6B6B6B]">{r.last_contact_date}</div>
                             </div>
                           ) : (
@@ -713,6 +780,7 @@ function LogContactModal({
   onClose: () => void;
   onSaved: () => void;
 }) {
+  const [direction, setDirection] = useState<ContactDirection>('outbound');
   const [contactType, setContactType] = useState<ContactType>('emailed');
   const [contactedBy, setContactedBy] = useState<string>(TEAM_MEMBERS[0]);
   const [contactDate, setContactDate] = useState(new Date().toISOString().slice(0, 10));
@@ -728,6 +796,7 @@ function LogContactModal({
       contacted_by: contactedBy,
       contact_date: contactDate,
       summary: summary.trim(),
+      direction,
     });
     setSaving(false);
     onSaved();
@@ -736,6 +805,32 @@ function LogContactModal({
   return (
     <ModalShell title={`Log contact — ${community.name}`} onClose={onClose}>
       <div className="space-y-3">
+        <Field label="Direction">
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => setDirection('outbound')}
+              className={`flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-md border text-sm font-medium transition-colors ${
+                direction === 'outbound'
+                  ? 'bg-[#9E1B32] text-white border-[#9E1B32]'
+                  : 'bg-white text-[#3A3A3A] border-[#D8D3CC] hover:border-[#9E1B32]'
+              }`}
+            >
+              <PhoneOutgoing size={16} /> We contacted them
+            </button>
+            <button
+              type="button"
+              onClick={() => setDirection('inbound')}
+              className={`flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-md border text-sm font-medium transition-colors ${
+                direction === 'inbound'
+                  ? 'bg-blue-600 text-white border-blue-600'
+                  : 'bg-white text-[#3A3A3A] border-[#D8D3CC] hover:border-blue-600'
+              }`}
+            >
+              <PhoneIncoming size={16} /> They contacted us
+            </button>
+          </div>
+        </Field>
         <Field label="Contact type">
           <select value={contactType} onChange={(e) => setContactType(e.target.value as ContactType)} className="w-full border border-[#D8D3CC] rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#9E1B32]">
             {Object.entries(CONTACT_LABELS).map(([val, label]) => (
@@ -743,13 +838,15 @@ function LogContactModal({
             ))}
           </select>
         </Field>
-        <Field label="Contacted by">
-          <select value={contactedBy} onChange={(e) => setContactedBy(e.target.value)} className="w-full border border-[#D8D3CC] rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#9E1B32]">
-            {TEAM_MEMBERS.map((name) => (
-              <option key={name} value={name}>{name}</option>
-            ))}
-          </select>
-        </Field>
+        {direction === 'outbound' && (
+          <Field label="Contacted by">
+            <select value={contactedBy} onChange={(e) => setContactedBy(e.target.value)} className="w-full border border-[#D8D3CC] rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#9E1B32]">
+              {TEAM_MEMBERS.map((name) => (
+                <option key={name} value={name}>{name}</option>
+              ))}
+            </select>
+          </Field>
+        )}
         <Field label="Date">
           <input type="date" value={contactDate} onChange={(e) => setContactDate(e.target.value)} className="w-full border border-[#D8D3CC] rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#9E1B32]" />
         </Field>
@@ -825,14 +922,22 @@ function HistoryModal({
           ) : (
             <div className="space-y-4">
               {logs.map((log) => (
-                <div key={log.id} className="border border-[#E3E0DB] rounded-lg p-4">
+                <div key={log.id} className={`border rounded-lg p-4 ${log.direction === 'inbound' ? 'border-blue-200 bg-blue-50' : 'border-[#E3E0DB]'}`}>
                   <div className="flex items-start justify-between mb-2">
                     <div className="flex items-center gap-2">
+                      {log.direction === 'inbound' ? (
+                        <PhoneIncoming size={14} className="text-blue-600" />
+                      ) : (
+                        <PhoneOutgoing size={14} className="text-[#6B6B6B]" />
+                      )}
                       <span className={`inline-block text-xs px-2 py-1 rounded-full ${CONTACT_STYLES[log.contact_type]}`}>
                         {CONTACT_LABELS[log.contact_type]}
                       </span>
-                      {log.contacted_by && (
+                      {log.contacted_by && log.direction === 'outbound' && (
                         <span className="text-xs text-[#6B6B6B]">by {log.contacted_by}</span>
+                      )}
+                      {log.direction === 'inbound' && (
+                        <span className="text-xs text-blue-600 font-medium">From them</span>
                       )}
                     </div>
                     <span className="text-xs text-[#6B6B6B]">{log.contact_date}</span>
