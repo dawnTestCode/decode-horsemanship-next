@@ -230,88 +230,100 @@ export default function CommunityCRM() {
           </div>
         </div>
 
-        {/* Page Tabs */}
-        <div className="flex gap-4 mb-6 border-b border-[#D8D3CC]">
-          <button
-            onClick={() => setPageTab('communities')}
-            className={`pb-2 text-sm font-medium transition-colors ${
-              pageTab === 'communities'
-                ? 'text-[#9E1B32] border-b-2 border-[#9E1B32]'
-                : 'text-[#6B6B6B] hover:text-[#3A3A3A]'
-            }`}
-          >
-            Communities
-          </button>
-          <button
-            onClick={() => setPageTab('scripts')}
-            className={`pb-2 text-sm font-medium transition-colors ${
-              pageTab === 'scripts'
-                ? 'text-[#9E1B32] border-b-2 border-[#9E1B32]'
-                : 'text-[#6B6B6B] hover:text-[#3A3A3A]'
-            }`}
-          >
-            Scripts
-          </button>
+        {/* Page Tabs + Action Button */}
+        <div className="flex items-center justify-between mb-4 border-b border-[#D8D3CC]">
+          <div className="flex gap-4">
+            <button
+              onClick={() => setPageTab('communities')}
+              className={`pb-2 text-sm font-medium transition-colors ${
+                pageTab === 'communities'
+                  ? 'text-[#9E1B32] border-b-2 border-[#9E1B32]'
+                  : 'text-[#6B6B6B] hover:text-[#3A3A3A]'
+              }`}
+            >
+              Communities
+            </button>
+            <button
+              onClick={() => setPageTab('scripts')}
+              className={`pb-2 text-sm font-medium transition-colors ${
+                pageTab === 'scripts'
+                  ? 'text-[#9E1B32] border-b-2 border-[#9E1B32]'
+                  : 'text-[#6B6B6B] hover:text-[#3A3A3A]'
+              }`}
+            >
+              Scripts
+            </button>
+          </div>
+          {pageTab === 'communities' && (
+            <button
+              onClick={() => {
+                setEditingCommunity(null);
+                setShowCommunityModal(true);
+              }}
+              className="bg-[#9E1B32] hover:bg-[#7A1526] text-white text-sm font-medium px-4 py-2 rounded-md transition-colors mb-2"
+            >
+              + Add community
+            </button>
+          )}
+          {pageTab === 'scripts' && (
+            <button
+              onClick={() => {
+                setEditingScript(null);
+                setShowScriptModal(true);
+              }}
+              className="bg-[#9E1B32] hover:bg-[#7A1526] text-white text-sm font-medium px-4 py-2 rounded-md transition-colors mb-2"
+            >
+              + Add script
+            </button>
+          )}
         </div>
 
         {pageTab === 'communities' && (
           <>
-        <div className="flex justify-end mb-4">
-          <button
-            onClick={() => {
-              setEditingCommunity(null);
-              setShowCommunityModal(true);
-            }}
-            className="bg-[#9E1B32] hover:bg-[#7A1526] text-white text-sm font-medium px-4 py-2 rounded-md transition-colors"
-          >
-            + Add community
-          </button>
-        </div>
-
-        {/* Status Tabs */}
-        <div className="flex gap-1 mb-5">
-          <button
-            onClick={() => setStatusTab('active')}
-            className={`px-4 py-2 text-sm font-medium rounded-t-md transition-colors ${
-              statusTab === 'active'
-                ? 'bg-white text-[#9E1B32] border border-b-0 border-[#E3E0DB]'
-                : 'bg-[#E9E4DE] text-[#6B6B6B] hover:text-[#3A3A3A]'
-            }`}
-          >
-            Active ({activeCount})
-          </button>
-          <button
-            onClick={() => setStatusTab('prospect')}
-            className={`px-4 py-2 text-sm font-medium rounded-t-md transition-colors ${
-              statusTab === 'prospect'
-                ? 'bg-white text-[#9E1B32] border border-b-0 border-[#E3E0DB]'
-                : 'bg-[#E9E4DE] text-[#6B6B6B] hover:text-[#3A3A3A]'
-            }`}
-          >
-            Prospects ({prospectCount})
-          </button>
-        </div>
-
-        {/* Controls */}
-        <div className="flex flex-col md:flex-row gap-3 mb-5">
-          <input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by community or coordinator..."
-            className="flex-1 border border-[#D8D3CC] rounded-md px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#9E1B32]"
-          />
-          {statusTab === 'active' && (
-            <select
-              value={filterType}
-              onChange={(e) => setFilterType(e.target.value as ContactType | 'all')}
-              className="border border-[#D8D3CC] rounded-md px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#9E1B32]"
+        {/* Status Tabs + Search Row */}
+        <div className="flex flex-col md:flex-row md:items-center gap-3 mb-4">
+          <div className="flex gap-1">
+            <button
+              onClick={() => setStatusTab('active')}
+              className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                statusTab === 'active'
+                  ? 'bg-[#9E1B32] text-white'
+                  : 'bg-[#E9E4DE] text-[#6B6B6B] hover:text-[#3A3A3A]'
+              }`}
             >
-              <option value="all">All contact types</option>
-              {Object.entries(CONTACT_LABELS).map(([val, label]) => (
-                <option key={val} value={val}>{label}</option>
-              ))}
-            </select>
-          )}
+              Active ({activeCount})
+            </button>
+            <button
+              onClick={() => setStatusTab('prospect')}
+              className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                statusTab === 'prospect'
+                  ? 'bg-[#9E1B32] text-white'
+                  : 'bg-[#E9E4DE] text-[#6B6B6B] hover:text-[#3A3A3A]'
+              }`}
+            >
+              Prospects ({prospectCount})
+            </button>
+          </div>
+          <div className="flex-1 flex gap-2">
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search..."
+              className="flex-1 border border-[#D8D3CC] rounded-md px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#9E1B32]"
+            />
+            {statusTab === 'active' && (
+              <select
+                value={filterType}
+                onChange={(e) => setFilterType(e.target.value as ContactType | 'all')}
+                className="border border-[#D8D3CC] rounded-md px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#9E1B32]"
+              >
+                <option value="all">All types</option>
+                {Object.entries(CONTACT_LABELS).map(([val, label]) => (
+                  <option key={val} value={val}>{label}</option>
+                ))}
+              </select>
+            )}
+          </div>
         </div>
 
         {/* Table */}
@@ -434,24 +446,12 @@ export default function CommunityCRM() {
 
         {pageTab === 'scripts' && (
           <>
-            <div className="flex justify-end mb-4">
-              <button
-                onClick={() => {
-                  setEditingScript(null);
-                  setShowScriptModal(true);
-                }}
-                className="bg-[#9E1B32] hover:bg-[#7A1526] text-white text-sm font-medium px-4 py-2 rounded-md transition-colors"
-              >
-                + Add script
-              </button>
-            </div>
-
-            <div className="mb-5">
+            <div className="mb-4">
               <input
                 value={scriptSearch}
                 onChange={(e) => setScriptSearch(e.target.value)}
                 placeholder="Search questions and answers..."
-                className="w-full border border-[#D8D3CC] rounded-md px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#9E1B32]"
+                className="w-full border border-[#D8D3CC] rounded-md px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#9E1B32]"
               />
             </div>
 
