@@ -26,6 +26,8 @@ const CONTACT_LABELS: Record<ContactType, string> = {
   other: 'Other',
 };
 
+const TEAM_MEMBERS = ['Dawn', 'Michael'] as const;
+
 const CONTACT_STYLES: Record<ContactType, string> = {
   visited: 'bg-[#9E1B32] text-white',
   cold_called: 'bg-[#3A3A3A] text-white',
@@ -383,6 +385,7 @@ function LogContactModal({
   onSaved: () => void;
 }) {
   const [contactType, setContactType] = useState<ContactType>('emailed');
+  const [contactedBy, setContactedBy] = useState<string>(TEAM_MEMBERS[0]);
   const [contactDate, setContactDate] = useState(new Date().toISOString().slice(0, 10));
   const [summary, setSummary] = useState('');
   const [saving, setSaving] = useState(false);
@@ -393,6 +396,7 @@ function LogContactModal({
     await supabase.from('contact_logs').insert({
       community_id: community.id,
       contact_type: contactType,
+      contacted_by: contactedBy,
       contact_date: contactDate,
       summary: summary.trim(),
     });
@@ -407,6 +411,13 @@ function LogContactModal({
           <select value={contactType} onChange={(e) => setContactType(e.target.value as ContactType)} className="w-full border border-[#D8D3CC] rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#9E1B32]">
             {Object.entries(CONTACT_LABELS).map(([val, label]) => (
               <option key={val} value={val}>{label}</option>
+            ))}
+          </select>
+        </Field>
+        <Field label="Contacted by">
+          <select value={contactedBy} onChange={(e) => setContactedBy(e.target.value)} className="w-full border border-[#D8D3CC] rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#9E1B32]">
+            {TEAM_MEMBERS.map((name) => (
+              <option key={name} value={name}>{name}</option>
             ))}
           </select>
         </Field>
