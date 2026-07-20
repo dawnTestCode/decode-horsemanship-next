@@ -7,6 +7,8 @@ import { Lock, Eye, EyeOff, Loader2 } from 'lucide-react';
 
 type ContactType = 'visited' | 'cold_called' | 'emailed' | 'other';
 
+type CommunityStatus = 'prospect' | 'active';
+
 type CommunityRow = {
   id: string;
   name: string;
@@ -14,6 +16,7 @@ type CommunityRow = {
   coordinator_email: string | null;
   coordinator_phone: string | null;
   notes: string | null;
+  status: CommunityStatus;
   last_contact_type: ContactType | null;
   last_contact_date: string | null;
   last_contact_summary: string | null;
@@ -53,6 +56,7 @@ export default function CommunityCRM() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [filterType, setFilterType] = useState<ContactType | 'all'>('all');
+  const [statusTab, setStatusTab] = useState<CommunityStatus>('active');
 
   const [showCommunityModal, setShowCommunityModal] = useState(false);
   const [editingCommunity, setEditingCommunity] = useState<CommunityRow | null>(null);
@@ -116,18 +120,27 @@ export default function CommunityCRM() {
 
   const filtered = useMemo(() => {
     return rows.filter((r) => {
+      const matchesStatus = r.status === statusTab;
       const matchesSearch =
         !search ||
         r.name.toLowerCase().includes(search.toLowerCase()) ||
         (r.coordinator_name ?? '').toLowerCase().includes(search.toLowerCase());
       const matchesType = filterType === 'all' || r.last_contact_type === filterType;
-      return matchesSearch && matchesType;
+      return matchesStatus && matchesSearch && matchesType;
     });
-  }, [rows, search, filterType]);
+  }, [rows, search, filterType, statusTab]);
+
+  const prospectCount = useMemo(() => rows.filter(r => r.status === 'prospect').length, [rows]);
+  const activeCount = useMemo(() => rows.filter(r => r.status === 'active').length, [rows]);
 
   async function deleteCommunity(id: string) {
     if (!confirm('Remove this community and its contact history? This cannot be undone.')) return;
     await supabase.from('communities').delete().eq('id', id);
+    loadRows();
+  }
+
+  async function updateStatus(id: string, status: CommunityStatus) {
+    await supabase.from('communities').update({ status }).eq('id', id);
     loadRows();
   }
 
@@ -181,6 +194,30 @@ export default function CommunityCRM() {
           </button>
         </div>
 
+        {/* Status Tabs */}
+        <div className="flex gap-1 mb-5">
+          <button
+            onClick={() => setStatusTab('active')}
+            className={`px-4 py-2 text-sm font-medium rounded-t-md transition-colors ${
+              statusTab === 'active'
+                ? 'bg-white text-[#9E1B32] border border-b-0 border-[#E3E0DB]'
+                : 'bg-[#E9E4DE] text-[#6B6B6B] hover:text-[#3A3A3A]'
+            }`}
+          >
+            Active ({activeCount})
+          </button>
+          <button
+            onClick={() => setStatusTab('prospect')}
+            className={`px-4 py-2 text-sm font-medium rounded-t-md transition-colors ${
+              statusTab === 'prospect'
+                ? 'bg-white text-[#9E1B32] border border-b-0 border-[#E3E0DB]'
+                : 'bg-[#E9E4DE] text-[#6B6B6B] hover:text-[#3A3A3A]'
+            }`}
+          >
+            Prospects ({prospectCount})
+          </button>
+        </div>
+
         {/* Controls */}
         <div className="flex flex-col md:flex-row gap-3 mb-5">
           <input
@@ -189,16 +226,18 @@ export default function CommunityCRM() {
             placeholder="Search by community or coordinator..."
             className="flex-1 border border-[#D8D3CC] rounded-md px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#9E1B32]"
           />
-          <select
-            value={filterType}
-            onChange={(e) => setFilterType(e.target.value as ContactType | 'all')}
-            className="border border-[#D8D3CC] rounded-md px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#9E1B32]"
-          >
-            <option value="all">All contact types</option>
-            {Object.entries(CONTACT_LABELS).map(([val, label]) => (
-              <option key={val} value={val}>{label}</option>
-            ))}
-          </select>
+          {statusTab === 'active' && (
+            <select
+              value={filterType}
+              onChange={(e) => setFilterType(e.target.value as ContactType | 'all')}
+              className="border border-[#D8D3CC] rounded-md px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#9E1B32]"
+            >
+              <option value="all">All contact types</option>
+              {Object.entries(CONTACT_LABELS).map(([val, label]) => (
+                <option key={val} value={val}>{label}</option>
+              ))}
+            </select>
+          )}
         </div>
 
         {/* Table */}
@@ -215,8 +254,15 @@ export default function CommunityCRM() {
                 <tr className="bg-black text-white text-left">
                   <th className="px-4 py-3 font-medium">Community</th>
                   <th className="px-4 py-3 font-medium">Coordinator</th>
-                  <th className="px-4 py-3 font-medium">Last contact</th>
-                  <th className="px-4 py-3 font-medium">Summary</th>
+                  {statusTab === 'active' && (
+                    <>
+                      <th className="px-4 py-3 font-medium">Last contact</th>
+                      <th className="px-4 py-3 font-medium">Summary</th>
+                    </>
+                  )}
+                  {statusTab === 'prospect' && (
+                    <th className="px-4 py-3 font-medium">Notes</th>
+                  )}
                   <th className="px-4 py-3 font-medium text-right">Actions</th>
                 </tr>
               </thead>
@@ -233,34 +279,55 @@ export default function CommunityCRM() {
                         <div className="text-xs text-[#6B6B6B]">{r.coordinator_phone}</div>
                       )}
                     </td>
-                    <td className="px-4 py-3">
-                      {r.last_contact_type ? (
-                        <div className="space-y-1">
-                          <span className={`inline-block text-xs px-2 py-1 rounded-full ${CONTACT_STYLES[r.last_contact_type]}`}>
-                            {CONTACT_LABELS[r.last_contact_type]}
-                          </span>
-                          <div className="text-xs text-[#6B6B6B]">{r.last_contact_date}</div>
-                        </div>
-                      ) : (
-                        <span className="text-xs text-[#B0ABA3]">No contact logged</span>
-                      )}
-                    </td>
-                    <td className="px-4 py-3 text-[#3A3A3A] max-w-xs">
-                      {r.last_contact_summary || <span className="text-[#B0ABA3]">&mdash;</span>}
-                    </td>
+                    {statusTab === 'active' && (
+                      <>
+                        <td className="px-4 py-3">
+                          {r.last_contact_type ? (
+                            <div className="space-y-1">
+                              <span className={`inline-block text-xs px-2 py-1 rounded-full ${CONTACT_STYLES[r.last_contact_type]}`}>
+                                {CONTACT_LABELS[r.last_contact_type]}
+                              </span>
+                              <div className="text-xs text-[#6B6B6B]">{r.last_contact_date}</div>
+                            </div>
+                          ) : (
+                            <span className="text-xs text-[#B0ABA3]">No contact logged</span>
+                          )}
+                        </td>
+                        <td className="px-4 py-3 text-[#3A3A3A] max-w-xs">
+                          {r.last_contact_summary || <span className="text-[#B0ABA3]">&mdash;</span>}
+                        </td>
+                      </>
+                    )}
+                    {statusTab === 'prospect' && (
+                      <td className="px-4 py-3 text-[#3A3A3A] max-w-xs">
+                        {r.notes || <span className="text-[#B0ABA3]">&mdash;</span>}
+                      </td>
+                    )}
                     <td className="px-4 py-3 text-right whitespace-nowrap">
-                      <button
-                        onClick={() => setLogModalFor(r)}
-                        className="text-[#9E1B32] hover:underline text-xs font-medium mr-3"
-                      >
-                        Log contact
-                      </button>
-                      <button
-                        onClick={() => setHistoryModalFor(r)}
-                        className="text-[#9E1B32] hover:underline text-xs font-medium mr-3"
-                      >
-                        History
-                      </button>
+                      {statusTab === 'active' && (
+                        <>
+                          <button
+                            onClick={() => setLogModalFor(r)}
+                            className="text-[#9E1B32] hover:underline text-xs font-medium mr-3"
+                          >
+                            Log contact
+                          </button>
+                          <button
+                            onClick={() => setHistoryModalFor(r)}
+                            className="text-[#9E1B32] hover:underline text-xs font-medium mr-3"
+                          >
+                            History
+                          </button>
+                        </>
+                      )}
+                      {statusTab === 'prospect' && (
+                        <button
+                          onClick={() => updateStatus(r.id, 'active')}
+                          className="text-[#9E1B32] hover:underline text-xs font-medium mr-3"
+                        >
+                          Mark Active
+                        </button>
+                      )}
                       <button
                         onClick={() => {
                           setEditingCommunity(r);
@@ -341,6 +408,7 @@ function CommunityModal({
   onSaved: () => void;
 }) {
   const [name, setName] = useState(community?.name ?? '');
+  const [status, setStatus] = useState<CommunityStatus>(community?.status ?? 'active');
   const [coordinatorName, setCoordinatorName] = useState(community?.coordinator_name ?? '');
   const [coordinatorEmail, setCoordinatorEmail] = useState(community?.coordinator_email ?? '');
   const [coordinatorPhone, setCoordinatorPhone] = useState(community?.coordinator_phone ?? '');
@@ -352,6 +420,7 @@ function CommunityModal({
     setSaving(true);
     const payload = {
       name: name.trim(),
+      status,
       coordinator_name: coordinatorName.trim() || null,
       coordinator_email: coordinatorEmail.trim() || null,
       coordinator_phone: coordinatorPhone.trim() || null,
@@ -371,6 +440,12 @@ function CommunityModal({
       <div className="space-y-3">
         <Field label="Community name">
           <input value={name} onChange={(e) => setName(e.target.value)} className="w-full border border-[#D8D3CC] rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#9E1B32]" placeholder="e.g. Carol Woods Retirement Community" />
+        </Field>
+        <Field label="Status">
+          <select value={status} onChange={(e) => setStatus(e.target.value as CommunityStatus)} className="w-full border border-[#D8D3CC] rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#9E1B32]">
+            <option value="prospect">Prospect (on radar, not yet contacted)</option>
+            <option value="active">Active (have been contacted)</option>
+          </select>
         </Field>
         <Field label="Event coordinator (if known)">
           <input value={coordinatorName} onChange={(e) => setCoordinatorName(e.target.value)} className="w-full border border-[#D8D3CC] rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#9E1B32]" placeholder="Name" />
