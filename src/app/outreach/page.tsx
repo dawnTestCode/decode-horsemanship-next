@@ -3,7 +3,7 @@
 import { useEffect, useState, useMemo } from 'react';
 import { supabase } from '@/lib/supabase';
 import AdminLogin from '@/components/admin/AdminLogin';
-import { Lock, Eye, EyeOff, Loader2 } from 'lucide-react';
+import { Loader2, Star } from 'lucide-react';
 
 type ContactType = 'visited' | 'cold_called' | 'emailed' | 'other';
 
@@ -18,6 +18,7 @@ type CommunityRow = {
   coordinator_phone: string | null;
   notes: string | null;
   status: CommunityStatus;
+  priority: boolean;
   last_contact_type: ContactType | null;
   last_contact_date: string | null;
   last_contact_summary: string | null;
@@ -43,8 +44,8 @@ type Script = {
 type PageTab = 'communities' | 'scripts';
 
 const CONTACT_LABELS: Record<ContactType, string> = {
-  visited: 'Visited in person',
-  cold_called: 'Cold called',
+  visited: 'Visited',
+  cold_called: 'Called',
   emailed: 'Emailed',
   other: 'Other',
 };
@@ -164,7 +165,7 @@ export default function CommunityCRM() {
   }
 
   const filtered = useMemo(() => {
-    return rows.filter((r) => {
+    const result = rows.filter((r) => {
       const matchesStatus = r.status === statusTab;
       const matchesSearch =
         !search ||
@@ -173,6 +174,11 @@ export default function CommunityCRM() {
       const matchesType = filterType === 'all' || r.last_contact_type === filterType;
       return matchesStatus && matchesSearch && matchesType;
     });
+    // Sort priority items to the top for prospects
+    if (statusTab === 'prospect') {
+      result.sort((a, b) => (b.priority ? 1 : 0) - (a.priority ? 1 : 0));
+    }
+    return result;
   }, [rows, search, filterType, statusTab]);
 
   const prospectCount = useMemo(() => rows.filter(r => r.status === 'prospect').length, [rows]);
@@ -186,6 +192,11 @@ export default function CommunityCRM() {
 
   async function updateStatus(id: string, status: CommunityStatus) {
     await supabase.from('communities').update({ status }).eq('id', id);
+    loadRows();
+  }
+
+  async function togglePriority(id: string, currentPriority: boolean) {
+    await supabase.from('communities').update({ priority: !currentPriority }).eq('id', id);
     loadRows();
   }
 
@@ -338,6 +349,9 @@ export default function CommunityCRM() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="bg-black text-white text-left">
+                  {statusTab === 'prospect' && (
+                    <th className="px-4 py-3 font-medium w-10"></th>
+                  )}
                   <th className="px-4 py-3 font-medium">Community</th>
                   <th className="px-4 py-3 font-medium">Coordinator</th>
                   {statusTab === 'active' && (
@@ -353,8 +367,30 @@ export default function CommunityCRM() {
                 </tr>
               </thead>
               <tbody>
-                {filtered.map((r) => (
-                  <tr key={r.id} className="border-t border-[#E3E0DB] align-top">
+                {filtered.map((r, idx) => {
+                  const showDivider = statusTab === 'prospect' && idx > 0 && filtered[idx - 1].priority && !r.priority;
+                  return (
+                  <tr
+                    key={r.id}
+                    className={`align-top ${
+                      showDivider ? 'border-t-2 border-[#D8D3CC]' : 'border-t border-[#E3E0DB]'
+                    } ${statusTab === 'prospect' && r.priority ? 'bg-amber-50' : ''}`}
+                  >
+                    {statusTab === 'prospect' && (
+                      <td className="px-2 py-3 text-center">
+                        <button
+                          onClick={() => togglePriority(r.id, r.priority)}
+                          className={`p-1 rounded transition-colors ${
+                            r.priority
+                              ? 'text-amber-500 hover:text-amber-600'
+                              : 'text-[#D8D3CC] hover:text-amber-400'
+                          }`}
+                          title={r.priority ? 'Remove priority' : 'Mark as priority'}
+                        >
+                          <Star size={16} fill={r.priority ? 'currentColor' : 'none'} />
+                        </button>
+                      </td>
+                    )}
                     <td className="px-4 py-3 font-medium">
                         {r.name}
                         {r.main_phone && (
@@ -436,7 +472,8 @@ export default function CommunityCRM() {
                       </button>
                     </td>
                   </tr>
-                ))}
+                  );
+                })}
               </tbody>
             </table>
           )}
