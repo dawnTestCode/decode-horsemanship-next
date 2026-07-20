@@ -33,6 +33,15 @@ type ContactLog = {
   created_at: string;
 };
 
+type Script = {
+  id: string;
+  question: string;
+  answer: string;
+  created_at: string;
+};
+
+type PageTab = 'communities' | 'scripts';
+
 const CONTACT_LABELS: Record<ContactType, string> = {
   visited: 'Visited in person',
   cold_called: 'Cold called',
@@ -52,6 +61,7 @@ const CONTACT_STYLES: Record<ContactType, string> = {
 export default function CommunityCRM() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [authLoading, setAuthLoading] = useState(true);
+  const [pageTab, setPageTab] = useState<PageTab>('communities');
 
   const [rows, setRows] = useState<CommunityRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -64,6 +74,13 @@ export default function CommunityCRM() {
 
   const [logModalFor, setLogModalFor] = useState<CommunityRow | null>(null);
   const [historyModalFor, setHistoryModalFor] = useState<CommunityRow | null>(null);
+
+  // Scripts state
+  const [scripts, setScripts] = useState<Script[]>([]);
+  const [scriptsLoading, setScriptsLoading] = useState(true);
+  const [scriptSearch, setScriptSearch] = useState('');
+  const [showScriptModal, setShowScriptModal] = useState(false);
+  const [editingScript, setEditingScript] = useState<Script | null>(null);
 
   // Check for existing session on mount
   useEffect(() => {
@@ -113,11 +130,38 @@ export default function CommunityCRM() {
     setLoading(false);
   }
 
+  async function loadScripts() {
+    setScriptsLoading(true);
+    const { data, error } = await supabase
+      .from('outreach_scripts')
+      .select('*')
+      .order('created_at', { ascending: false });
+    if (!error && data) setScripts(data as Script[]);
+    setScriptsLoading(false);
+  }
+
   useEffect(() => {
     if (isAuthenticated) {
       loadRows();
+      loadScripts();
     }
   }, [isAuthenticated]);
+
+  const filteredScripts = useMemo(() => {
+    if (!scriptSearch) return scripts;
+    const lower = scriptSearch.toLowerCase();
+    return scripts.filter(
+      (s) =>
+        s.question.toLowerCase().includes(lower) ||
+        s.answer.toLowerCase().includes(lower)
+    );
+  }, [scripts, scriptSearch]);
+
+  async function deleteScript(id: string) {
+    if (!confirm('Delete this script? This cannot be undone.')) return;
+    await supabase.from('outreach_scripts').delete().eq('id', id);
+    loadScripts();
+  }
 
   const filtered = useMemo(() => {
     return rows.filter((r) => {
@@ -181,9 +225,38 @@ export default function CommunityCRM() {
               Community Outreach
             </h1>
             <p className="text-sm text-[#6B6B6B]">
-              Every community we&apos;ve reached out to, and where things stand.
+              Track communities and keep your talking points ready.
             </p>
           </div>
+        </div>
+
+        {/* Page Tabs */}
+        <div className="flex gap-4 mb-6 border-b border-[#D8D3CC]">
+          <button
+            onClick={() => setPageTab('communities')}
+            className={`pb-2 text-sm font-medium transition-colors ${
+              pageTab === 'communities'
+                ? 'text-[#9E1B32] border-b-2 border-[#9E1B32]'
+                : 'text-[#6B6B6B] hover:text-[#3A3A3A]'
+            }`}
+          >
+            Communities
+          </button>
+          <button
+            onClick={() => setPageTab('scripts')}
+            className={`pb-2 text-sm font-medium transition-colors ${
+              pageTab === 'scripts'
+                ? 'text-[#9E1B32] border-b-2 border-[#9E1B32]'
+                : 'text-[#6B6B6B] hover:text-[#3A3A3A]'
+            }`}
+          >
+            Scripts
+          </button>
+        </div>
+
+        {pageTab === 'communities' && (
+          <>
+        <div className="flex justify-end mb-4">
           <button
             onClick={() => {
               setEditingCommunity(null);
@@ -356,6 +429,71 @@ export default function CommunityCRM() {
             </table>
           )}
         </div>
+          </>
+        )}
+
+        {pageTab === 'scripts' && (
+          <>
+            <div className="flex justify-end mb-4">
+              <button
+                onClick={() => {
+                  setEditingScript(null);
+                  setShowScriptModal(true);
+                }}
+                className="bg-[#9E1B32] hover:bg-[#7A1526] text-white text-sm font-medium px-4 py-2 rounded-md transition-colors"
+              >
+                + Add script
+              </button>
+            </div>
+
+            <div className="mb-5">
+              <input
+                value={scriptSearch}
+                onChange={(e) => setScriptSearch(e.target.value)}
+                placeholder="Search questions and answers..."
+                className="w-full border border-[#D8D3CC] rounded-md px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#9E1B32]"
+              />
+            </div>
+
+            <div className="space-y-4">
+              {scriptsLoading ? (
+                <div className="p-8 text-center text-sm text-[#6B6B6B]">Loading...</div>
+              ) : filteredScripts.length === 0 ? (
+                <div className="p-8 text-center text-sm text-[#6B6B6B] bg-white border border-[#E3E0DB] rounded-lg">
+                  {scriptSearch ? 'No scripts match your search.' : 'No scripts yet. Add your first one to get started.'}
+                </div>
+              ) : (
+                filteredScripts.map((script) => (
+                  <div key={script.id} className="bg-white border border-[#E3E0DB] rounded-lg p-4">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1">
+                        <h3 className="font-medium text-black mb-2">{script.question}</h3>
+                        <p className="text-sm text-[#3A3A3A] whitespace-pre-wrap">{script.answer}</p>
+                      </div>
+                      <div className="flex gap-2 shrink-0">
+                        <button
+                          onClick={() => {
+                            setEditingScript(script);
+                            setShowScriptModal(true);
+                          }}
+                          className="text-[#3A3A3A] hover:underline text-xs font-medium"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => deleteScript(script.id)}
+                          className="text-[#6B6B6B] hover:underline text-xs"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </>
+        )}
       </div>
 
       {showCommunityModal && (
@@ -384,6 +522,17 @@ export default function CommunityCRM() {
         <HistoryModal
           community={historyModalFor}
           onClose={() => setHistoryModalFor(null)}
+        />
+      )}
+
+      {showScriptModal && (
+        <ScriptModal
+          script={editingScript}
+          onClose={() => setShowScriptModal(false)}
+          onSaved={() => {
+            setShowScriptModal(false);
+            loadScripts();
+          }}
         />
       )}
     </div>
@@ -632,5 +781,69 @@ function HistoryModal({
         </div>
       </div>
     </div>
+  );
+}
+
+function ScriptModal({
+  script,
+  onClose,
+  onSaved,
+}: {
+  script: Script | null;
+  onClose: () => void;
+  onSaved: () => void;
+}) {
+  const [question, setQuestion] = useState(script?.question ?? '');
+  const [answer, setAnswer] = useState(script?.answer ?? '');
+  const [saving, setSaving] = useState(false);
+
+  async function save() {
+    if (!question.trim() || !answer.trim()) return;
+    setSaving(true);
+    const payload = {
+      question: question.trim(),
+      answer: answer.trim(),
+    };
+    if (script) {
+      await supabase.from('outreach_scripts').update(payload).eq('id', script.id);
+    } else {
+      await supabase.from('outreach_scripts').insert(payload);
+    }
+    setSaving(false);
+    onSaved();
+  }
+
+  return (
+    <ModalShell title={script ? 'Edit script' : 'Add script'} onClose={onClose}>
+      <div className="space-y-3">
+        <Field label="Question">
+          <input
+            value={question}
+            onChange={(e) => setQuestion(e.target.value)}
+            className="w-full border border-[#D8D3CC] rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#9E1B32]"
+            placeholder="e.g. What is Decode Horsemanship?"
+          />
+        </Field>
+        <Field label="Answer">
+          <textarea
+            value={answer}
+            onChange={(e) => setAnswer(e.target.value)}
+            className="w-full border border-[#D8D3CC] rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#9E1B32]"
+            rows={6}
+            placeholder="Your talking points or response..."
+          />
+        </Field>
+        <div className="flex justify-end gap-2 pt-2">
+          <button onClick={onClose} className="text-sm px-3 py-2 text-[#6B6B6B]">Cancel</button>
+          <button
+            onClick={save}
+            disabled={saving || !question.trim() || !answer.trim()}
+            className="text-sm px-4 py-2 bg-[#9E1B32] hover:bg-[#7A1526] text-white rounded-md disabled:opacity-50"
+          >
+            {saving ? 'Saving...' : 'Save'}
+          </button>
+        </div>
+      </div>
+    </ModalShell>
   );
 }
