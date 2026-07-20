@@ -1,10 +1,21 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowRight, Users, Heart, Compass, Building2, HelpCircle } from 'lucide-react';
+import { ArrowRight, Users, Heart, Compass, Building2, HelpCircle, Sparkles } from 'lucide-react';
 import { useProgramImages } from '@/hooks/useProgramImages';
 
 const programs = [
+  {
+    slug: 'copper-and-lace',
+    title: 'Copper & Lace',
+    tagline: 'A full day for women',
+    description: 'Horses, thread, fire. No riding required. You\'ll show up soft-handed and go home with calluses under the polish and a braid only you could make.',
+    href: '/copper-and-lace',
+    icon: Sparkles,
+    color: 'copper',
+    schedule: 'Second Saturday of each month',
+    isNew: true,
+  },
   {
     slug: 'no-reins',
     title: 'No Reins',
@@ -81,25 +92,39 @@ export default function ExperiencesPage() {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {programs.map((program) => {
               const Icon = program.icon;
+              const isNew = 'isNew' in program && program.isNew;
               return (
                 <Link
                   key={program.slug}
                   href={program.href}
-                  className="group bg-stone-900/50 p-8 rounded-xl border border-stone-800 hover:border-red-700 transition-all hover:bg-stone-900/70"
+                  className={`group relative p-8 rounded-xl border transition-all hover:bg-stone-900/70 ${
+                    isNew
+                      ? 'bg-gradient-to-br from-amber-950/40 to-stone-900/50 border-amber-700/50 hover:border-amber-600'
+                      : 'bg-stone-900/50 border-stone-800 hover:border-red-700'
+                  }`}
                 >
+                  {isNew && (
+                    <span className="absolute top-4 right-4 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-amber-600 text-stone-950 rounded">
+                      New
+                    </span>
+                  )}
                   <div className="flex items-start justify-between mb-4">
-                    <div className="w-12 h-12 bg-red-900/30 rounded-full flex items-center justify-center">
-                      <Icon className="text-red-500" size={24} />
+                    <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                      isNew ? 'bg-amber-900/40' : 'bg-red-900/30'
+                    }`}>
+                      <Icon className={isNew ? 'text-amber-500' : 'text-red-500'} size={24} />
                     </div>
-                    <ArrowRight
-                      size={20}
-                      className="text-stone-600 group-hover:text-red-500 transition-colors mt-2"
-                    />
+                    {!isNew && (
+                      <ArrowRight
+                        size={20}
+                        className="text-stone-600 group-hover:text-red-500 transition-colors mt-2"
+                      />
+                    )}
                   </div>
                   <h3 className="text-xl font-bold text-stone-100 mb-1">
                     {program.title}
                   </h3>
-                  <p className="text-sm text-red-500 mb-3 italic">
+                  <p className={`text-sm mb-3 italic ${isNew ? 'text-amber-500' : 'text-red-500'}`}>
                     {program.tagline}
                   </p>
                   <p className="text-stone-400 text-sm mb-4">
