@@ -75,6 +75,7 @@ export default function CommunityCRM() {
 
   const [logModalFor, setLogModalFor] = useState<CommunityRow | null>(null);
   const [historyModalFor, setHistoryModalFor] = useState<CommunityRow | null>(null);
+  const [viewModalFor, setViewModalFor] = useState<CommunityRow | null>(null);
 
   // Scripts state
   const [scripts, setScripts] = useState<Script[]>([]);
@@ -373,14 +374,15 @@ export default function CommunityCRM() {
                   return (
                   <tr
                     key={r.id}
-                    className={`align-top ${
+                    onClick={() => setViewModalFor(r)}
+                    className={`align-top cursor-pointer hover:bg-[#F5F3F0] transition-colors ${
                       showDivider ? 'border-t-2 border-[#D8D3CC]' : 'border-t border-[#E3E0DB]'
-                    } ${statusTab === 'prospect' && r.priority ? 'bg-amber-50' : ''}`}
+                    } ${statusTab === 'prospect' && r.priority ? 'bg-amber-50 hover:bg-amber-100' : ''}`}
                   >
                     {statusTab === 'prospect' && (
                       <td className="px-2 py-3 text-center">
                         <button
-                          onClick={() => togglePriority(r.id, r.priority)}
+                          onClick={(e) => { e.stopPropagation(); togglePriority(r.id, r.priority); }}
                           className={`p-1 rounded transition-colors ${
                             r.priority
                               ? 'text-amber-500 hover:text-amber-600'
@@ -431,7 +433,7 @@ export default function CommunityCRM() {
                         {r.notes || <span className="text-[#B0ABA3]">&mdash;</span>}
                       </td>
                     )}
-                    <td className="px-4 py-3 text-right whitespace-nowrap">
+                    <td className="px-4 py-3 text-right whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
                       {statusTab === 'active' && (
                         <>
                           <button
@@ -560,6 +562,18 @@ export default function CommunityCRM() {
         <HistoryModal
           community={historyModalFor}
           onClose={() => setHistoryModalFor(null)}
+        />
+      )}
+
+      {viewModalFor && (
+        <ViewCommunityModal
+          community={viewModalFor}
+          onClose={() => setViewModalFor(null)}
+          onEdit={() => {
+            setViewModalFor(null);
+            setEditingCommunity(viewModalFor);
+            setShowCommunityModal(true);
+          }}
         />
       )}
 
@@ -818,6 +832,106 @@ function HistoryModal({
           </button>
         </div>
       </div>
+    </div>
+  );
+}
+
+function ViewCommunityModal({
+  community,
+  onClose,
+  onEdit,
+}: {
+  community: CommunityRow;
+  onClose: () => void;
+  onEdit: () => void;
+}) {
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+      <div className="bg-white rounded-lg shadow-xl w-full max-w-md p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold text-black">{community.name}</h2>
+          <button onClick={onClose} className="text-[#6B6B6B] hover:text-black text-xl leading-none">&times;</button>
+        </div>
+
+        <div className="space-y-4">
+          <div className="flex items-center gap-2">
+            <span className={`text-xs px-2 py-1 rounded-full ${
+              community.status === 'active'
+                ? 'bg-[#9E1B32] text-white'
+                : 'bg-[#E9E4DE] text-[#3A3A3A]'
+            }`}>
+              {community.status === 'active' ? 'Active' : 'Prospect'}
+            </span>
+            {community.priority && (
+              <span className="text-xs px-2 py-1 rounded-full bg-amber-100 text-amber-700 flex items-center gap-1">
+                <Star size={12} fill="currentColor" /> Priority
+              </span>
+            )}
+          </div>
+
+          {community.main_phone && (
+            <DetailRow label="Main phone" value={community.main_phone} />
+          )}
+
+          <div className="border-t border-[#E3E0DB] pt-4">
+            <h3 className="text-xs font-medium text-[#6B6B6B] mb-2">Coordinator</h3>
+            {community.coordinator_name ? (
+              <div className="space-y-1">
+                <p className="text-sm text-black">{community.coordinator_name}</p>
+                {community.coordinator_email && (
+                  <p className="text-sm text-[#6B6B6B]">{community.coordinator_email}</p>
+                )}
+                {community.coordinator_phone && (
+                  <p className="text-sm text-[#6B6B6B]">{community.coordinator_phone}</p>
+                )}
+              </div>
+            ) : (
+              <p className="text-sm text-[#B0ABA3]">No coordinator info</p>
+            )}
+          </div>
+
+          {community.notes && (
+            <div className="border-t border-[#E3E0DB] pt-4">
+              <h3 className="text-xs font-medium text-[#6B6B6B] mb-2">Notes</h3>
+              <p className="text-sm text-[#3A3A3A] whitespace-pre-wrap">{community.notes}</p>
+            </div>
+          )}
+
+          {community.last_contact_type && (
+            <div className="border-t border-[#E3E0DB] pt-4">
+              <h3 className="text-xs font-medium text-[#6B6B6B] mb-2">Last contact</h3>
+              <div className="flex items-center gap-2 mb-1">
+                <span className={`text-xs px-2 py-1 rounded-full ${CONTACT_STYLES[community.last_contact_type]}`}>
+                  {CONTACT_LABELS[community.last_contact_type]}
+                </span>
+                <span className="text-xs text-[#6B6B6B]">{community.last_contact_date}</span>
+              </div>
+              {community.last_contact_summary && (
+                <p className="text-sm text-[#3A3A3A]">{community.last_contact_summary}</p>
+              )}
+            </div>
+          )}
+        </div>
+
+        <div className="flex justify-end gap-2 pt-6 mt-4 border-t border-[#E3E0DB]">
+          <button onClick={onClose} className="text-sm px-3 py-2 text-[#6B6B6B]">Close</button>
+          <button
+            onClick={onEdit}
+            className="text-sm px-4 py-2 bg-[#3A3A3A] hover:bg-[#1A1A1A] text-white rounded-md"
+          >
+            Edit
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function DetailRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <span className="text-xs font-medium text-[#6B6B6B]">{label}</span>
+      <p className="text-sm text-black">{value}</p>
     </div>
   );
 }
