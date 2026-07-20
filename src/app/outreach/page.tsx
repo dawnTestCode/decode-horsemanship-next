@@ -360,15 +360,18 @@ export default function CommunityCRM() {
                     <th className="px-4 py-3 font-medium w-10"></th>
                   )}
                   <th className="px-4 py-3 font-medium">Community</th>
-                  <th className="px-4 py-3 font-medium">Coordinator</th>
                   {statusTab === 'active' && (
                     <>
+                      <th className="px-4 py-3 font-medium">Coordinator</th>
                       <th className="px-4 py-3 font-medium">Last contact</th>
                       <th className="px-4 py-3 font-medium">Summary</th>
                     </>
                   )}
                   {statusTab === 'prospect' && (
-                    <th className="px-4 py-3 font-medium">Notes</th>
+                    <>
+                      <th className="px-4 py-3 font-medium">Phone</th>
+                      <th className="px-4 py-3 font-medium">Notes</th>
+                    </>
                   )}
                   <th className="px-4 py-3 font-medium text-right">Actions</th>
                 </tr>
@@ -401,19 +404,26 @@ export default function CommunityCRM() {
                     )}
                     <td className="px-4 py-3 font-medium">
                         {r.name}
-                        {r.main_phone && (
+                        {statusTab === 'active' && r.main_phone && (
                           <div className="text-xs text-[#6B6B6B] font-normal">{r.main_phone}</div>
                         )}
                       </td>
-                    <td className="px-4 py-3 text-[#3A3A3A]">
-                      {r.coordinator_name || <span className="text-[#B0ABA3]">Unknown</span>}
-                      {r.coordinator_email && (
-                        <div className="text-xs text-[#6B6B6B]">{r.coordinator_email}</div>
-                      )}
-                      {r.coordinator_phone && (
-                        <div className="text-xs text-[#6B6B6B]">{r.coordinator_phone}</div>
-                      )}
-                    </td>
+                    {statusTab === 'active' && (
+                      <td className="px-4 py-3 text-[#3A3A3A]">
+                        {r.coordinator_name || <span className="text-[#B0ABA3]">Unknown</span>}
+                        {r.coordinator_email && (
+                          <div className="text-xs text-[#6B6B6B]">{r.coordinator_email}</div>
+                        )}
+                        {r.coordinator_phone && (
+                          <div className="text-xs text-[#6B6B6B]">{r.coordinator_phone}</div>
+                        )}
+                      </td>
+                    )}
+                    {statusTab === 'prospect' && (
+                      <td className="px-4 py-3 text-[#3A3A3A]">
+                        {r.main_phone || <span className="text-[#B0ABA3]">&mdash;</span>}
+                      </td>
+                    )}
                     {statusTab === 'active' && (
                       <>
                         <td className="px-4 py-3">
