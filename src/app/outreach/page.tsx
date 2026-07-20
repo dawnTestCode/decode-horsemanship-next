@@ -19,6 +19,16 @@ type CommunityRow = {
   last_contact_summary: string | null;
 };
 
+type ContactLog = {
+  id: string;
+  community_id: string;
+  contact_type: ContactType;
+  contacted_by: string | null;
+  contact_date: string;
+  summary: string;
+  created_at: string;
+};
+
 const CONTACT_LABELS: Record<ContactType, string> = {
   visited: 'Visited in person',
   cold_called: 'Cold called',
@@ -48,6 +58,7 @@ export default function CommunityCRM() {
   const [editingCommunity, setEditingCommunity] = useState<CommunityRow | null>(null);
 
   const [logModalFor, setLogModalFor] = useState<CommunityRow | null>(null);
+  const [historyModalFor, setHistoryModalFor] = useState<CommunityRow | null>(null);
 
   // Check for existing session on mount
   useEffect(() => {
@@ -245,6 +256,12 @@ export default function CommunityCRM() {
                         Log contact
                       </button>
                       <button
+                        onClick={() => setHistoryModalFor(r)}
+                        className="text-[#9E1B32] hover:underline text-xs font-medium mr-3"
+                      >
+                        History
+                      </button>
+                      <button
                         onClick={() => {
                           setEditingCommunity(r);
                           setShowCommunityModal(true);
@@ -287,6 +304,13 @@ export default function CommunityCRM() {
             setLogModalFor(null);
             loadRows();
           }}
+        />
+      )}
+
+      {historyModalFor && (
+        <HistoryModal
+          community={historyModalFor}
+          onClose={() => setHistoryModalFor(null)}
         />
       )}
     </div>
@@ -454,5 +478,73 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
       <span className="block text-xs font-medium text-[#6B6B6B] mb-1">{label}</span>
       {children}
     </label>
+  );
+}
+
+function HistoryModal({
+  community,
+  onClose,
+}: {
+  community: CommunityRow;
+  onClose: () => void;
+}) {
+  const [logs, setLogs] = useState<ContactLog[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadLogs() {
+      const { data, error } = await supabase
+        .from('contact_logs')
+        .select('*')
+        .eq('community_id', community.id)
+        .order('contact_date', { ascending: false });
+      if (!error && data) setLogs(data as ContactLog[]);
+      setLoading(false);
+    }
+    loadLogs();
+  }, [community.id]);
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+      <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl p-6 max-h-[80vh] flex flex-col">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold text-black">Contact History — {community.name}</h2>
+          <button onClick={onClose} className="text-[#6B6B6B] hover:text-black text-xl leading-none">&times;</button>
+        </div>
+
+        <div className="flex-1 overflow-y-auto">
+          {loading ? (
+            <div className="p-4 text-center text-sm text-[#6B6B6B]">Loading...</div>
+          ) : logs.length === 0 ? (
+            <div className="p-4 text-center text-sm text-[#6B6B6B]">No contact history yet.</div>
+          ) : (
+            <div className="space-y-4">
+              {logs.map((log) => (
+                <div key={log.id} className="border border-[#E3E0DB] rounded-lg p-4">
+                  <div className="flex items-start justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <span className={`inline-block text-xs px-2 py-1 rounded-full ${CONTACT_STYLES[log.contact_type]}`}>
+                        {CONTACT_LABELS[log.contact_type]}
+                      </span>
+                      {log.contacted_by && (
+                        <span className="text-xs text-[#6B6B6B]">by {log.contacted_by}</span>
+                      )}
+                    </div>
+                    <span className="text-xs text-[#6B6B6B]">{log.contact_date}</span>
+                  </div>
+                  <p className="text-sm text-[#3A3A3A]">{log.summary}</p>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="flex justify-end pt-4 mt-4 border-t border-[#E3E0DB]">
+          <button onClick={onClose} className="text-sm px-4 py-2 bg-[#3A3A3A] hover:bg-[#1A1A1A] text-white rounded-md">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }
