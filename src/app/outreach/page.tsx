@@ -240,6 +240,21 @@ export default function CommunityCRM() {
     if (statusTab === 'prospect') {
       result.sort((a, b) => (b.priority ? 1 : 0) - (a.priority ? 1 : 0));
     }
+    // Sort active communities: stale first, then neutral, then scheduled
+    if (statusTab === 'active') {
+      result.sort((a, b) => {
+        const aStale = isContactStale(a.last_contact_date, a.scheduled, a.last_contact_direction);
+        const bStale = isContactStale(b.last_contact_date, b.scheduled, b.last_contact_direction);
+        // Stale (red) comes first
+        if (aStale && !bStale) return -1;
+        if (!aStale && bStale) return 1;
+        // Scheduled (green) goes last
+        if (a.scheduled && !b.scheduled) return 1;
+        if (!a.scheduled && b.scheduled) return -1;
+        // Otherwise maintain alphabetical order
+        return a.name.localeCompare(b.name);
+      });
+    }
     return result;
   }, [rows, search, filterType, statusTab]);
 
