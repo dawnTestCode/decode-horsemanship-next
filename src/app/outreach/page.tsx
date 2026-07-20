@@ -83,9 +83,13 @@ function getBusinessDaysSince(dateStr: string): number {
   return count;
 }
 
-function isContactStale(lastContactDate: string | null, scheduled: boolean): boolean {
+function isContactStale(lastContactDate: string | null, scheduled: boolean, direction: ContactDirection | null): boolean {
   if (!lastContactDate || scheduled) return false;
-  return getBusinessDaysSince(lastContactDate) > 3;
+  const daysSince = getBusinessDaysSince(lastContactDate);
+  // If they contacted us, we need to respond within 1 business day
+  if (direction === 'inbound') return daysSince > 1;
+  // Otherwise, follow up within 3 business days
+  return daysSince > 3;
 }
 
 export default function CommunityCRM() {
@@ -450,7 +454,7 @@ export default function CommunityCRM() {
               <tbody>
                 {filtered.map((r, idx) => {
                   const showDivider = statusTab === 'prospect' && idx > 0 && filtered[idx - 1].priority && !r.priority;
-                  const stale = statusTab === 'active' && isContactStale(r.last_contact_date, r.scheduled);
+                  const stale = statusTab === 'active' && isContactStale(r.last_contact_date, r.scheduled, r.last_contact_direction);
                   return (
                   <tr
                     key={r.id}
