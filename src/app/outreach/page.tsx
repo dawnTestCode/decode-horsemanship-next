@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
 import AdminLogin from '@/components/admin/AdminLogin';
-import { Loader2, Star } from 'lucide-react';
+import { Loader2, Star, Bold, List } from 'lucide-react';
 
 type ContactType = 'visited' | 'cold_called' | 'emailed' | 'other';
 
@@ -508,7 +508,10 @@ export default function CommunityCRM() {
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1">
                         <h3 className="font-medium text-black mb-2">{script.question}</h3>
-                        <p className="text-sm text-[#3A3A3A] whitespace-pre-wrap">{script.answer}</p>
+                        <div
+                          className="text-sm text-[#3A3A3A] prose prose-sm max-w-none [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5"
+                          dangerouslySetInnerHTML={{ __html: script.answer }}
+                        />
                       </div>
                       <div className="flex gap-2 shrink-0">
                         <button
@@ -936,6 +939,14 @@ function DetailRow({ label, value }: { label: string; value: string }) {
   );
 }
 
+const EDITOR_COLORS = [
+  { name: 'Black', value: '#1A1A1A' },
+  { name: 'Crimson', value: '#9E1B32' },
+  { name: 'Blue', value: '#2563eb' },
+  { name: 'Green', value: '#16a34a' },
+  { name: 'Orange', value: '#ea580c' },
+];
+
 function ScriptModal({
   script,
   onClose,
@@ -946,15 +957,21 @@ function ScriptModal({
   onSaved: () => void;
 }) {
   const [question, setQuestion] = useState(script?.question ?? '');
-  const [answer, setAnswer] = useState(script?.answer ?? '');
   const [saving, setSaving] = useState(false);
+  const editorRef = useRef<HTMLDivElement>(null);
+
+  const execCommand = (command: string, value?: string) => {
+    document.execCommand(command, false, value);
+    editorRef.current?.focus();
+  };
 
   async function save() {
-    if (!question.trim() || !answer.trim()) return;
+    const answer = editorRef.current?.innerHTML ?? '';
+    if (!question.trim() || !answer.trim() || answer === '<br>') return;
     setSaving(true);
     const payload = {
       question: question.trim(),
-      answer: answer.trim(),
+      answer,
     };
     if (script) {
       await supabase.from('outreach_scripts').update(payload).eq('id', script.id);
@@ -966,36 +983,75 @@ function ScriptModal({
   }
 
   return (
-    <ModalShell title={script ? 'Edit script' : 'Add script'} onClose={onClose}>
-      <div className="space-y-3">
-        <Field label="Question">
-          <input
-            value={question}
-            onChange={(e) => setQuestion(e.target.value)}
-            className="w-full border border-[#D8D3CC] rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#9E1B32]"
-            placeholder="e.g. What is Decode Horsemanship?"
-          />
-        </Field>
-        <Field label="Answer">
-          <textarea
-            value={answer}
-            onChange={(e) => setAnswer(e.target.value)}
-            className="w-full border border-[#D8D3CC] rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#9E1B32]"
-            rows={6}
-            placeholder="Your talking points or response..."
-          />
-        </Field>
-        <div className="flex justify-end gap-2 pt-2">
-          <button onClick={onClose} className="text-sm px-3 py-2 text-[#6B6B6B]">Cancel</button>
-          <button
-            onClick={save}
-            disabled={saving || !question.trim() || !answer.trim()}
-            className="text-sm px-4 py-2 bg-[#9E1B32] hover:bg-[#7A1526] text-white rounded-md disabled:opacity-50"
-          >
-            {saving ? 'Saving...' : 'Save'}
-          </button>
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+      <div className="bg-white rounded-lg shadow-xl w-full max-w-lg p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold text-black">{script ? 'Edit script' : 'Add script'}</h2>
+          <button onClick={onClose} className="text-[#6B6B6B] hover:text-black text-xl leading-none">&times;</button>
+        </div>
+
+        <div className="space-y-3">
+          <Field label="Question">
+            <input
+              value={question}
+              onChange={(e) => setQuestion(e.target.value)}
+              className="w-full border border-[#D8D3CC] rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#9E1B32]"
+              placeholder="e.g. What is Decode Horsemanship?"
+            />
+          </Field>
+          <Field label="Answer">
+            <div className="border border-[#D8D3CC] rounded-md overflow-hidden focus-within:ring-2 focus-within:ring-[#9E1B32]">
+              {/* Toolbar */}
+              <div className="flex items-center gap-1 px-2 py-1.5 bg-[#F5F3F0] border-b border-[#D8D3CC]">
+                <button
+                  type="button"
+                  onClick={() => execCommand('bold')}
+                  className="p-1.5 rounded hover:bg-[#E9E4DE] text-[#3A3A3A]"
+                  title="Bold"
+                >
+                  <Bold size={16} />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => execCommand('insertUnorderedList')}
+                  className="p-1.5 rounded hover:bg-[#E9E4DE] text-[#3A3A3A]"
+                  title="Bullet list"
+                >
+                  <List size={16} />
+                </button>
+                <div className="w-px h-5 bg-[#D8D3CC] mx-1" />
+                {EDITOR_COLORS.map((color) => (
+                  <button
+                    key={color.value}
+                    type="button"
+                    onClick={() => execCommand('foreColor', color.value)}
+                    className="w-5 h-5 rounded border border-[#D8D3CC] hover:scale-110 transition-transform"
+                    style={{ backgroundColor: color.value }}
+                    title={color.name}
+                  />
+                ))}
+              </div>
+              {/* Editable area */}
+              <div
+                ref={editorRef}
+                contentEditable
+                className="min-h-[150px] px-3 py-2 text-sm focus:outline-none [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5"
+                dangerouslySetInnerHTML={{ __html: script?.answer ?? '' }}
+              />
+            </div>
+          </Field>
+          <div className="flex justify-end gap-2 pt-2">
+            <button onClick={onClose} className="text-sm px-3 py-2 text-[#6B6B6B]">Cancel</button>
+            <button
+              onClick={save}
+              disabled={saving || !question.trim()}
+              className="text-sm px-4 py-2 bg-[#9E1B32] hover:bg-[#7A1526] text-white rounded-md disabled:opacity-50"
+            >
+              {saving ? 'Saving...' : 'Save'}
+            </button>
+          </div>
         </div>
       </div>
-    </ModalShell>
+    </div>
   );
 }
