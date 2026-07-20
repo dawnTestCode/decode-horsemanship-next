@@ -3,7 +3,7 @@
 import { useEffect, useState, useMemo, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
 import AdminLogin from '@/components/admin/AdminLogin';
-import { Loader2, Star, Bold, List, CalendarCheck, PhoneIncoming, PhoneOutgoing } from 'lucide-react';
+import { Loader2, Star, Bold, List, CalendarCheck, PhoneIncoming, PhoneOutgoing, GripVertical } from 'lucide-react';
 
 type ContactType = 'visited' | 'cold_called' | 'emailed' | 'other';
 
@@ -43,6 +43,7 @@ type Script = {
   id: string;
   question: string;
   answer: string;
+  sort_order: number;
   created_at: string;
 };
 
@@ -111,6 +112,7 @@ export default function CommunityCRM() {
   const [scriptSearch, setScriptSearch] = useState('');
   const [showScriptModal, setShowScriptModal] = useState(false);
   const [editingScript, setEditingScript] = useState<Script | null>(null);
+  const [draggedScript, setDraggedScript] = useState<string | null>(null);
 
   // Check for existing session on mount
   useEffect(() => {
@@ -165,7 +167,7 @@ export default function CommunityCRM() {
     const { data, error } = await supabase
       .from('outreach_scripts')
       .select('*')
-      .order('created_at', { ascending: false });
+      .order('sort_order', { ascending: true });
     if (!error && data) setScripts(data as Script[]);
     setScriptsLoading(false);
   }
@@ -191,6 +193,33 @@ export default function CommunityCRM() {
     if (!confirm('Delete this script? This cannot be undone.')) return;
     await supabase.from('outreach_scripts').delete().eq('id', id);
     loadScripts();
+  }
+
+  async function handleScriptDrop(targetId: string) {
+    if (!draggedScript || draggedScript === targetId) {
+      setDraggedScript(null);
+      return;
+    }
+
+    const oldIndex = scripts.findIndex(s => s.id === draggedScript);
+    const newIndex = scripts.findIndex(s => s.id === targetId);
+    if (oldIndex === -1 || newIndex === -1) {
+      setDraggedScript(null);
+      return;
+    }
+
+    // Reorder locally
+    const reordered = [...scripts];
+    const [moved] = reordered.splice(oldIndex, 1);
+    reordered.splice(newIndex, 0, moved);
+    setScripts(reordered);
+    setDraggedScript(null);
+
+    // Update sort_order in database
+    const updates = reordered.map((s, i) => ({ id: s.id, sort_order: i }));
+    for (const update of updates) {
+      await supabase.from('outreach_scripts').update({ sort_order: update.sort_order }).eq('id', update.id);
+    }
   }
 
   const filtered = useMemo(() => {
@@ -586,9 +615,24 @@ export default function CommunityCRM() {
                 </div>
               ) : (
                 filteredScripts.map((script) => (
-                  <div key={script.id} className="bg-white border border-[#E3E0DB] rounded-lg overflow-hidden">
+                  <div
+                    key={script.id}
+                    draggable={!scriptSearch}
+                    onDragStart={() => setDraggedScript(script.id)}
+                    onDragOver={(e) => e.preventDefault()}
+                    onDrop={() => handleScriptDrop(script.id)}
+                    onDragEnd={() => setDraggedScript(null)}
+                    className={`bg-white border border-[#E3E0DB] rounded-lg overflow-hidden transition-opacity ${
+                      draggedScript === script.id ? 'opacity-50' : ''
+                    } ${draggedScript && draggedScript !== script.id ? 'border-dashed border-[#9E1B32]' : ''}`}
+                  >
                     <div className="flex items-center justify-between px-4 py-3 bg-[#F5F3F0] border-b border-[#E3E0DB]">
-                      <h3 className="font-semibold text-[#9E1B32] text-base">{script.question}</h3>
+                      <div className="flex items-center gap-2">
+                        {!scriptSearch && (
+                          <GripVertical size={16} className="text-[#B0ABA3] cursor-grab shrink-0" />
+                        )}
+                        <h3 className="font-semibold text-[#9E1B32] text-base">{script.question}</h3>
+                      </div>
                       <div className="flex gap-2 shrink-0">
                         <button
                           onClick={() => {
