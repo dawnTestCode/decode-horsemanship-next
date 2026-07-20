@@ -12,6 +12,7 @@ type CommunityStatus = 'prospect' | 'active';
 type CommunityRow = {
   id: string;
   name: string;
+  main_phone: string | null;
   coordinator_name: string | null;
   coordinator_email: string | null;
   coordinator_phone: string | null;
@@ -269,7 +270,12 @@ export default function CommunityCRM() {
               <tbody>
                 {filtered.map((r) => (
                   <tr key={r.id} className="border-t border-[#E3E0DB] align-top">
-                    <td className="px-4 py-3 font-medium">{r.name}</td>
+                    <td className="px-4 py-3 font-medium">
+                        {r.name}
+                        {r.main_phone && (
+                          <div className="text-xs text-[#6B6B6B] font-normal">{r.main_phone}</div>
+                        )}
+                      </td>
                     <td className="px-4 py-3 text-[#3A3A3A]">
                       {r.coordinator_name || <span className="text-[#B0ABA3]">Unknown</span>}
                       {r.coordinator_email && (
@@ -409,6 +415,7 @@ function CommunityModal({
 }) {
   const [name, setName] = useState(community?.name ?? '');
   const [status, setStatus] = useState<CommunityStatus>(community?.status ?? 'active');
+  const [mainPhone, setMainPhone] = useState(community?.main_phone ?? '');
   const [coordinatorName, setCoordinatorName] = useState(community?.coordinator_name ?? '');
   const [coordinatorEmail, setCoordinatorEmail] = useState(community?.coordinator_email ?? '');
   const [coordinatorPhone, setCoordinatorPhone] = useState(community?.coordinator_phone ?? '');
@@ -421,6 +428,7 @@ function CommunityModal({
     const payload = {
       name: name.trim(),
       status,
+      main_phone: mainPhone.trim() || null,
       coordinator_name: coordinatorName.trim() || null,
       coordinator_email: coordinatorEmail.trim() || null,
       coordinator_phone: coordinatorPhone.trim() || null,
@@ -446,6 +454,9 @@ function CommunityModal({
             <option value="prospect">Prospect (on radar, not yet contacted)</option>
             <option value="active">Active (have been contacted)</option>
           </select>
+        </Field>
+        <Field label="Main phone">
+          <input type="tel" value={mainPhone} onChange={(e) => setMainPhone(e.target.value)} className="w-full border border-[#D8D3CC] rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#9E1B32]" placeholder="(555) 123-4567" />
         </Field>
         <Field label="Event coordinator (if known)">
           <input value={coordinatorName} onChange={(e) => setCoordinatorName(e.target.value)} className="w-full border border-[#D8D3CC] rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#9E1B32]" placeholder="Name" />
