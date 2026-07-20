@@ -196,8 +196,9 @@ export default function CommunityCRM() {
   }
 
   async function togglePriority(id: string, currentPriority: boolean) {
+    // Optimistically update local state to avoid scroll reset
+    setRows(prev => prev.map(r => r.id === id ? { ...r, priority: !currentPriority } : r));
     await supabase.from('communities').update({ priority: !currentPriority }).eq('id', id);
-    loadRows();
   }
 
   // Show loading state while checking auth
