@@ -494,9 +494,9 @@ export default function CommunityCRM() {
                                   {CONTACT_LABELS[r.last_contact_type]}
                                 </span>
                                 {r.last_contact_direction === 'inbound' ? (
-                                  <PhoneIncoming size={14} className="text-blue-600" title="From them" />
+                                  <span title="From them"><PhoneIncoming size={14} className="text-blue-600" /></span>
                                 ) : (
-                                  <PhoneOutgoing size={14} className="text-[#6B6B6B]" title="To them" />
+                                  <span title="To them"><PhoneOutgoing size={14} className="text-[#6B6B6B]" /></span>
                                 )}
                               </div>
                               <div className="text-xs text-[#6B6B6B]">{r.last_contact_date}</div>
@@ -586,15 +586,9 @@ export default function CommunityCRM() {
                 </div>
               ) : (
                 filteredScripts.map((script) => (
-                  <div key={script.id} className="bg-white border border-[#E3E0DB] rounded-lg p-4">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1">
-                        <h3 className="font-medium text-black mb-2">{script.question}</h3>
-                        <div
-                          className="text-sm text-[#3A3A3A] prose prose-sm max-w-none [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5"
-                          dangerouslySetInnerHTML={{ __html: script.answer }}
-                        />
-                      </div>
+                  <div key={script.id} className="bg-white border border-[#E3E0DB] rounded-lg overflow-hidden">
+                    <div className="flex items-center justify-between px-4 py-3 bg-[#F5F3F0] border-b border-[#E3E0DB]">
+                      <h3 className="font-semibold text-[#9E1B32] text-base">{script.question}</h3>
                       <div className="flex gap-2 shrink-0">
                         <button
                           onClick={() => {
@@ -612,6 +606,12 @@ export default function CommunityCRM() {
                           Delete
                         </button>
                       </div>
+                    </div>
+                    <div className="p-4">
+                      <div
+                        className="text-sm text-[#3A3A3A] prose prose-sm max-w-none [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5"
+                        dangerouslySetInnerHTML={{ __html: script.answer }}
+                      />
                     </div>
                   </div>
                 ))
