@@ -21,7 +21,8 @@ export default function KidsLessonsPage() {
           style={{
             backgroundImage: 'url(/kids-lessons/IMG_3327.jpeg)',
             backgroundSize: 'cover',
-            backgroundPosition: 'center',
+            backgroundPosition: 'center 25%',
+            backgroundRepeat: 'no-repeat',
             opacity: 0.25,
             filter: duotoneFilter,
           }}
@@ -59,7 +60,8 @@ export default function KidsLessonsPage() {
             style={{
               backgroundImage: 'url(/kids-lessons/IMG_5933.jpeg)',
               backgroundSize: 'cover',
-              backgroundPosition: 'center',
+              backgroundPosition: 'center 15%',
+              backgroundRepeat: 'no-repeat',
               opacity: 0.18,
               filter: duotoneFilterStrong,
             }}
@@ -101,7 +103,8 @@ export default function KidsLessonsPage() {
                 style={{
                   backgroundImage: 'url(/kids-lessons/IMG_4784.jpeg)',
                   backgroundSize: 'cover',
-                  backgroundPosition: 'center right',
+                  backgroundPosition: 'right 20%',
+                  backgroundRepeat: 'no-repeat',
                   opacity: 0.2,
                   filter: duotoneFilter,
                 }}
@@ -124,7 +127,8 @@ export default function KidsLessonsPage() {
                 style={{
                   backgroundImage: 'url(/kids-lessons/IMG_4861.jpeg)',
                   backgroundSize: 'cover',
-                  backgroundPosition: 'center left',
+                  backgroundPosition: 'left 20%',
+                  backgroundRepeat: 'no-repeat',
                   opacity: 0.2,
                   filter: duotoneFilter,
                 }}
@@ -156,7 +160,8 @@ export default function KidsLessonsPage() {
                 style={{
                   backgroundImage: 'url(/kids-lessons/IMG_3315.jpeg)',
                   backgroundSize: 'cover',
-                  backgroundPosition: 'center',
+                  backgroundPosition: 'center 30%',
+                  backgroundRepeat: 'no-repeat',
                   opacity: 0.15,
                   filter: duotoneFilter,
                 }}
@@ -181,7 +186,8 @@ export default function KidsLessonsPage() {
                 style={{
                   backgroundImage: 'url(/kids-lessons/IMG_6979.jpeg)',
                   backgroundSize: 'cover',
-                  backgroundPosition: 'center',
+                  backgroundPosition: 'center 30%',
+                  backgroundRepeat: 'no-repeat',
                   opacity: 0.15,
                   filter: duotoneFilter,
                 }}
@@ -206,7 +212,8 @@ export default function KidsLessonsPage() {
                 style={{
                   backgroundImage: 'url(/kids-lessons/IMG_7087.jpeg)',
                   backgroundSize: 'cover',
-                  backgroundPosition: 'center',
+                  backgroundPosition: 'center 30%',
+                  backgroundRepeat: 'no-repeat',
                   opacity: 0.15,
                   filter: duotoneFilter,
                 }}
@@ -232,7 +239,8 @@ export default function KidsLessonsPage() {
             style={{
               backgroundImage: 'url(/kids-lessons/FullSizeRender-2.jpeg)',
               backgroundSize: 'cover',
-              backgroundPosition: 'center',
+              backgroundPosition: 'center 20%',
+              backgroundRepeat: 'no-repeat',
               opacity: 0.12,
               filter: duotoneFilter,
             }}
@@ -270,7 +278,8 @@ export default function KidsLessonsPage() {
             style={{
               backgroundImage: 'url(/kids-lessons/IMG_5006.jpeg)',
               backgroundSize: 'cover',
-              backgroundPosition: 'center',
+              backgroundPosition: 'center 20%',
+              backgroundRepeat: 'no-repeat',
               opacity: 0.25,
               filter: duotoneFilterStrong,
             }}
@@ -285,6 +294,7 @@ export default function KidsLessonsPage() {
                     alt="Ethan, a steady and forgiving horse perfect for kids"
                     fill
                     className="object-cover"
+                    style={{ objectPosition: 'center 30%' }}
                   />
                 </div>
                 <div className="p-6">
@@ -306,7 +316,8 @@ export default function KidsLessonsPage() {
             style={{
               backgroundImage: 'url(/kids-lessons/FullSizeRender.jpeg)',
               backgroundSize: 'cover',
-              backgroundPosition: 'center',
+              backgroundPosition: 'center 25%',
+              backgroundRepeat: 'no-repeat',
               opacity: 0.1,
               filter: duotoneFilter,
             }}
