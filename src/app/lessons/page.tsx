@@ -80,8 +80,11 @@ export default function LessonsPage() {
             <p className="text-stone-300 mb-4">
               <strong className="text-stone-200">Not ready for either?</strong> Come see the farm.
             </p>
-            <p className="text-stone-400 mb-6">
+            <p className="text-stone-400 mb-4">
               No commitment, no pressure. A 30-minute walk-through of the property and horses, and a conversation about what you&apos;d actually want to do here.
+            </p>
+            <p className="text-stone-400 mb-6">
+              Got a kid? See <Link href="/kids-lessons" className="text-[#9E1B32] hover:text-[#b82e45] transition-colors">Kids & Family Lessons</Link>
             </p>
             <Link
               href="/lessons/book"

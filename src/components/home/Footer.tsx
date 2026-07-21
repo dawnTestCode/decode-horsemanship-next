@@ -27,6 +27,11 @@ export default function Footer({ onSectionClick }: FooterProps) {
                 </Link>
               </li>
               <li>
+                <Link href="/kids-lessons" className="text-stone-500 hover:text-red-500 transition-colors text-sm">
+                  Kids & Family Lessons
+                </Link>
+              </li>
+              <li>
                 <button
                   onClick={() => onSectionClick('home')}
                   className="text-stone-500 hover:text-red-500 transition-colors text-sm"

@@ -39,6 +39,12 @@ export default function Navigation({ activeSection, onSectionClick }: Navigation
               Lessons
             </Link>
             <Link
+              href="/kids-lessons"
+              className="text-sm font-medium transition-colors hover:text-red-500 text-stone-300"
+            >
+              Kids & Family
+            </Link>
+            <Link
               href="/experiences"
               className="text-sm font-medium transition-colors hover:text-red-500 text-stone-300"
             >
@@ -160,6 +166,13 @@ export default function Navigation({ activeSection, onSectionClick }: Navigation
               className="block w-full text-left py-2 text-stone-300 hover:text-red-500"
             >
               Lessons
+            </Link>
+            <Link
+              href="/kids-lessons"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block w-full text-left py-2 text-stone-300 hover:text-red-500"
+            >
+              Kids & Family
             </Link>
             <Link
               href="/experiences"

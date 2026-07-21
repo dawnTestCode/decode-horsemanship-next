@@ -6,11 +6,11 @@ import { usePathname } from 'next/navigation';
 import { Menu, X, Phone, Mail, MapPin, Facebook, Instagram, Youtube } from 'lucide-react';
 import { siteConfig } from '@/config/siteConfig';
 
-interface LessonsLayoutProps {
+interface KidsLessonsLayoutProps {
   children: React.ReactNode;
 }
 
-const LessonsLayout: React.FC<LessonsLayoutProps> = ({ children }) => {
+const KidsLessonsLayout: React.FC<KidsLessonsLayoutProps> = ({ children }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
 
@@ -22,23 +22,21 @@ const LessonsLayout: React.FC<LessonsLayoutProps> = ({ children }) => {
   const isActive = (path: string) => pathname === path;
 
   const navLinks = [
-    { href: '/lessons', label: 'Lessons' },
-    { href: '/lessons/new-to-horses', label: 'Decode the Desire' },
-    { href: '/lessons/decode-the-noise', label: 'Decode the Noise' },
-    { href: '/lessons/book', label: 'Book' },
+    { href: '/kids-lessons', label: 'Kids & Family' },
+    { href: '/kids-lessons/book', label: 'Book' },
   ];
 
   return (
-    <div className="min-h-screen bg-black text-stone-100">
+    <div className="min-h-screen bg-[#0c0a09] text-[#f5f0eb]">
       {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-black/95 backdrop-blur-sm border-b border-stone-800">
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-[#0c0a09]/95 backdrop-blur-sm border-b border-[#3a2020]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">
-            <Link href="/lessons" className="flex items-center gap-3">
+            <Link href="/kids-lessons" className="flex items-center gap-3">
               <img src={siteConfig.branding.logoUrl} alt="Decode Horsemanship" className="h-12 w-auto" />
               <div className="hidden sm:block">
-                <span className="text-lg font-bold text-stone-100">Decode</span>
-                <span className="block text-xs text-red-500 -mt-1">Lessons</span>
+                <span className="text-lg font-bold text-[#f5f0eb]">Decode</span>
+                <span className="block text-xs text-[#dc143c] -mt-1">Kids & Family</span>
               </div>
             </Link>
 
@@ -48,16 +46,22 @@ const LessonsLayout: React.FC<LessonsLayoutProps> = ({ children }) => {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`text-sm font-medium transition-colors hover:text-red-500 ${
-                    isActive(link.href) ? 'text-red-500' : 'text-stone-300'
+                  className={`text-sm font-medium transition-colors hover:text-[#dc143c] ${
+                    isActive(link.href) ? 'text-[#dc143c]' : 'text-[#b8a8a0]'
                   }`}
                 >
                   {link.label}
                 </Link>
               ))}
               <Link
+                href="/lessons"
+                className="text-sm font-medium transition-colors hover:text-[#dc143c] text-[#b8a8a0]"
+              >
+                Adult Lessons
+              </Link>
+              <Link
                 href="/"
-                className="ml-4 px-4 py-2 text-sm font-medium border border-stone-700 rounded-lg text-stone-400 hover:text-red-500 hover:border-red-500 transition-colors"
+                className="ml-4 px-4 py-2 text-sm font-medium border border-[#3a2020] rounded-lg text-[#a89890] hover:text-[#dc143c] hover:border-[#dc143c] transition-colors"
               >
                 Back to Main Site →
               </Link>
@@ -66,7 +70,7 @@ const LessonsLayout: React.FC<LessonsLayoutProps> = ({ children }) => {
             {/* Mobile Menu Button */}
             <div className="md:hidden">
               <button
-                className="p-2 text-stone-300 hover:text-red-500"
+                className="p-2 text-[#b8a8a0] hover:text-[#dc143c]"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               >
                 {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
@@ -77,23 +81,30 @@ const LessonsLayout: React.FC<LessonsLayoutProps> = ({ children }) => {
 
         {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden bg-black/95 border-t border-stone-800">
+          <div className="md:hidden bg-[#0c0a09]/95 border-t border-[#3a2020]">
             <div className="px-4 py-4 space-y-1">
               {navLinks.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
                   onClick={() => setMobileMenuOpen(false)}
-                  className={`block py-2 ${isActive(link.href) ? 'text-red-500' : 'text-stone-300 hover:text-red-500'}`}
+                  className={`block py-2 ${isActive(link.href) ? 'text-[#dc143c]' : 'text-[#b8a8a0] hover:text-[#dc143c]'}`}
                 >
                   {link.label}
                 </Link>
               ))}
-              <div className="pt-4 border-t border-stone-800 mt-4">
+              <Link
+                href="/lessons"
+                onClick={() => setMobileMenuOpen(false)}
+                className="block py-2 text-[#b8a8a0] hover:text-[#dc143c]"
+              >
+                Adult Lessons
+              </Link>
+              <div className="pt-4 border-t border-[#3a2020] mt-4">
                 <Link
                   href="/"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="block py-2 text-stone-400 hover:text-red-500"
+                  className="block py-2 text-[#a89890] hover:text-[#dc143c]"
                 >
                   ← Back to Main Site
                 </Link>
@@ -109,87 +120,77 @@ const LessonsLayout: React.FC<LessonsLayoutProps> = ({ children }) => {
       </main>
 
       {/* Footer */}
-      <footer className="bg-stone-950 border-t border-stone-800 py-12 px-4">
+      <footer className="bg-[#0c0a09] border-t border-[#3a2020] py-12 px-4">
         <div className="max-w-7xl mx-auto">
           <div className="grid md:grid-cols-4 gap-8 mb-8">
             <div>
               <div className="flex items-center gap-3 mb-4">
                 <img src={siteConfig.branding.logoUrl} alt="Decode Horsemanship" className="h-12" />
                 <div>
-                  <span className="text-lg font-bold text-stone-100">Decode</span>
-                  <span className="block text-xs text-red-500 -mt-1">Lessons</span>
+                  <span className="text-lg font-bold text-[#f5f0eb]">Decode</span>
+                  <span className="block text-xs text-[#dc143c] -mt-1">Kids & Family</span>
                 </div>
               </div>
-              <p className="text-stone-500 text-sm">
-                Private, one-on-one lessons in natural horsemanship.
+              <p className="text-[#a89890] text-sm">
+                Kids & family lessons in natural horsemanship. Ages 5–15.
               </p>
             </div>
             <div>
-              <h4 className="font-semibold text-stone-200 mb-4">Lessons</h4>
+              <h4 className="font-semibold text-[#f5f0eb] mb-4">Kids Lessons</h4>
               <ul className="space-y-2">
                 <li>
-                  <Link href="/lessons" className="text-stone-500 hover:text-red-500 transition-colors text-sm">
-                    About Lessons
+                  <Link href="/kids-lessons" className="text-[#a89890] hover:text-[#dc143c] transition-colors text-sm">
+                    About Kids Lessons
                   </Link>
                 </li>
                 <li>
-                  <Link href="/lessons/decode-the-noise" className="text-stone-500 hover:text-red-500 transition-colors text-sm">
-                    Decode the Noise
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/lessons/new-to-horses" className="text-stone-500 hover:text-red-500 transition-colors text-sm">
-                    Decode the Desire
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/lessons/book" className="text-stone-500 hover:text-red-500 transition-colors text-sm">
+                  <Link href="/kids-lessons/book" className="text-[#a89890] hover:text-[#dc143c] transition-colors text-sm">
                     Book a Lesson
                   </Link>
                 </li>
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold text-stone-200 mb-4">Quick Links</h4>
+              <h4 className="font-semibold text-[#f5f0eb] mb-4">Quick Links</h4>
               <ul className="space-y-2">
                 <li>
-                  <Link href="/kids-lessons" className="text-stone-500 hover:text-red-500 transition-colors text-sm">
-                    Kids & Family Lessons
+                  <Link href="/lessons" className="text-[#a89890] hover:text-[#dc143c] transition-colors text-sm">
+                    Adult Lessons
                   </Link>
                 </li>
                 <li>
-                  <Link href="/experiences" className="text-stone-500 hover:text-red-500 transition-colors text-sm">
+                  <Link href="/experiences" className="text-[#a89890] hover:text-[#dc143c] transition-colors text-sm">
                     Experiences
                   </Link>
                 </li>
                 <li>
-                  <Link href="/no-reins" className="text-stone-500 hover:text-red-500 transition-colors text-sm">
+                  <Link href="/no-reins" className="text-[#a89890] hover:text-[#dc143c] transition-colors text-sm">
                     No Reins
                   </Link>
                 </li>
                 <li>
-                  <Link href="/groundwork" className="text-stone-500 hover:text-red-500 transition-colors text-sm">
+                  <Link href="/groundwork" className="text-[#a89890] hover:text-[#dc143c] transition-colors text-sm">
                     Groundwork
                   </Link>
                 </li>
                 <li>
-                  <Link href="/" className="text-stone-500 hover:text-red-500 transition-colors text-sm">
+                  <Link href="/" className="text-[#a89890] hover:text-[#dc143c] transition-colors text-sm">
                     Horse Rescue & Adoption
                   </Link>
                 </li>
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold text-stone-200 mb-4">Contact</h4>
-              <ul className="space-y-2 text-sm text-stone-500">
+              <h4 className="font-semibold text-[#f5f0eb] mb-4">Contact</h4>
+              <ul className="space-y-2 text-sm text-[#a89890]">
                 <li>
-                  <a href={`tel:${siteConfig.contact.phone}`} className="hover:text-red-500 transition-colors flex items-center gap-2">
+                  <a href={`tel:${siteConfig.contact.phone}`} className="hover:text-[#dc143c] transition-colors flex items-center gap-2">
                     <Phone size={14} />
                     {siteConfig.contact.phone}
                   </a>
                 </li>
                 <li>
-                  <a href={`mailto:${siteConfig.contact.email}`} className="hover:text-red-500 transition-colors flex items-center gap-2">
+                  <a href={`mailto:${siteConfig.contact.email}`} className="hover:text-[#dc143c] transition-colors flex items-center gap-2">
                     <Mail size={14} />
                     {siteConfig.contact.email}
                   </a>
@@ -201,30 +202,30 @@ const LessonsLayout: React.FC<LessonsLayoutProps> = ({ children }) => {
               </ul>
               <div className="flex gap-4 mt-4">
                 {siteConfig.social.facebook && (
-                  <a href={siteConfig.social.facebook} target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-stone-800 hover:bg-red-700 rounded-full flex items-center justify-center transition-colors">
+                  <a href={siteConfig.social.facebook} target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-[#150c0c] hover:bg-[#dc143c] border border-[#3a2020] hover:border-[#dc143c] rounded-full flex items-center justify-center transition-colors">
                     <Facebook size={18} />
                   </a>
                 )}
                 {siteConfig.social.instagram && (
-                  <a href={siteConfig.social.instagram} target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-stone-800 hover:bg-red-700 rounded-full flex items-center justify-center transition-colors">
+                  <a href={siteConfig.social.instagram} target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-[#150c0c] hover:bg-[#dc143c] border border-[#3a2020] hover:border-[#dc143c] rounded-full flex items-center justify-center transition-colors">
                     <Instagram size={18} />
                   </a>
                 )}
                 {siteConfig.social.youtube && (
-                  <a href={siteConfig.social.youtube} target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-stone-800 hover:bg-red-700 rounded-full flex items-center justify-center transition-colors">
+                  <a href={siteConfig.social.youtube} target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-[#150c0c] hover:bg-[#dc143c] border border-[#3a2020] hover:border-[#dc143c] rounded-full flex items-center justify-center transition-colors">
                     <Youtube size={18} />
                   </a>
                 )}
               </div>
             </div>
           </div>
-          <div className="border-t border-stone-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-stone-600 text-sm">
+          <div className="border-t border-[#3a2020] pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+            <p className="text-[#a89890] text-sm">
               © 2026 Decode Horsemanship. All rights reserved.
             </p>
-            <div className="flex gap-6 text-sm text-stone-600">
-              <button className="hover:text-red-500 transition-colors">Privacy Policy</button>
-              <button className="hover:text-red-500 transition-colors">Terms of Service</button>
+            <div className="flex gap-6 text-sm text-[#a89890]">
+              <button className="hover:text-[#dc143c] transition-colors">Privacy Policy</button>
+              <button className="hover:text-[#dc143c] transition-colors">Terms of Service</button>
             </div>
           </div>
         </div>
@@ -233,4 +234,4 @@ const LessonsLayout: React.FC<LessonsLayoutProps> = ({ children }) => {
   );
 };
 
-export default LessonsLayout;
+export default KidsLessonsLayout;
