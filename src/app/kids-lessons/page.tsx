@@ -256,7 +256,7 @@ export default function KidsLessonsPage() {
           </div>
         </section>
 
-        {/* Meet a Kid-Friendly Horse */}
+        {/* Meet Our Kid-Friendly Horses */}
         <section className="relative py-16 border-b border-[#3a2020] overflow-hidden">
           {/* Background image - IMG_5006.jpeg (heavy green, needs strong correction) */}
           <div
@@ -271,22 +271,41 @@ export default function KidsLessonsPage() {
             }}
           />
           <div className="relative z-10">
-            <h2 className="text-xs font-semibold tracking-[0.2em] text-[#dc143c] mb-10">MEET A KID-FRIENDLY HORSE</h2>
-            <div className="max-w-2xl">
+            <h2 className="text-xs font-semibold tracking-[0.2em] text-[#dc143c] mb-10">MEET OUR KID-FRIENDLY HORSES</h2>
+            <div className="grid md:grid-cols-2 gap-6 max-w-4xl">
+              {/* Willow */}
               <div className="bg-[#150c0c]/90 backdrop-blur-sm border border-[#2a1818] rounded-lg overflow-hidden">
                 <div className="aspect-[4/3] relative">
                   <Image
-                    src="/horses/ethan.jpeg"
-                    alt="Ethan, a steady and forgiving horse perfect for kids"
+                    src="/horses/willow.jpeg"
+                    alt="Willow, a patient and intuitive horse perfect for first-timers"
                     fill
                     className="object-cover"
                     style={{ objectPosition: 'center 30%' }}
                   />
                 </div>
                 <div className="p-6">
-                  <h3 className="text-xl font-serif text-[#f5f0eb] mb-2">Ethan</h3>
+                  <h3 className="text-xl font-serif text-[#f5f0eb] mb-2">Willow</h3>
                   <p className="text-[#b8a8a0]">
-                    Steady, forgiving, doesn&apos;t spook easy — a favorite first horse for kids building confidence.
+                    Patient and intuitive — Willow reads nervous energy and responds with calm, making her perfect for first-timers who need a horse that won&apos;t rush them.
+                  </p>
+                </div>
+              </div>
+              {/* Misty */}
+              <div className="bg-[#150c0c]/90 backdrop-blur-sm border border-[#2a1818] rounded-lg overflow-hidden">
+                <div className="aspect-[4/3] relative">
+                  <Image
+                    src="/horses/misty.jpeg"
+                    alt="Misty, a sweet and gentle Gypsy Vanner"
+                    fill
+                    className="object-cover"
+                    style={{ objectPosition: 'center 30%' }}
+                  />
+                </div>
+                <div className="p-6">
+                  <h3 className="text-xl font-serif text-[#f5f0eb] mb-2">Misty</h3>
+                  <p className="text-[#b8a8a0]">
+                    Sweet and quiet, with the gentle Gypsy Vanner temperament kids love — and sized just right so kids feel like they&apos;re right on her level.
                   </p>
                 </div>
               </div>
