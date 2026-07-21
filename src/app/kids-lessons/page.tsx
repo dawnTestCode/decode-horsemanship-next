@@ -86,25 +86,43 @@ export default function KidsLessonsPage() {
         <section className="py-16 border-b border-[#3a2020]">
           <h2 className="text-xs font-semibold tracking-[0.2em] text-[#dc143c] mb-10">CHOOSE A FORMAT</h2>
           <div className="grid md:grid-cols-3 gap-6">
-            <div className="p-6 bg-[#150c0c] rounded-xl border border-[#2a1818]">
-              <h3 className="text-xl font-serif text-[#f5f0eb] mb-3">Private Lesson</h3>
-              <p className="text-[#b8a8a0]">
+            <Link
+              href="/kids-lessons/book/private"
+              className="group p-6 bg-[#150c0c] rounded-xl border border-[#2a1818] hover:border-[#dc143c] transition-colors"
+            >
+              <h3 className="text-xl font-serif text-[#f5f0eb] mb-3 group-hover:text-[#dc143c] transition-colors">Private Lesson</h3>
+              <p className="text-[#b8a8a0] mb-4">
                 One-on-one, fully paced to your kid.
               </p>
-            </div>
-            <div className="p-6 bg-[#150c0c] rounded-xl border border-[#2a1818]">
-              <h3 className="text-xl font-serif text-[#f5f0eb] mb-3">Small Group</h3>
-              <p className="text-[#b8a8a0]">
+              <span className="inline-flex items-center gap-1 text-sm text-[#dc143c]">
+                Book now <ArrowRight size={14} />
+              </span>
+            </Link>
+            <Link
+              href="/kids-lessons/book/small-group"
+              className="group p-6 bg-[#150c0c] rounded-xl border border-[#2a1818] hover:border-[#dc143c] transition-colors"
+            >
+              <h3 className="text-xl font-serif text-[#f5f0eb] mb-3 group-hover:text-[#dc143c] transition-colors">Small Group</h3>
+              <p className="text-[#b8a8a0] mb-4">
                 2–4 kids, friends or siblings welcome.
               </p>
-            </div>
+              <span className="inline-flex items-center gap-1 text-sm text-[#dc143c]">
+                Book now <ArrowRight size={14} />
+              </span>
+            </Link>
             {/* Priority offering - highlighted in crimson */}
-            <div className="p-6 bg-[#dc143c]/10 rounded-xl border-2 border-[#dc143c]">
+            <Link
+              href="/kids-lessons/book/homeschool"
+              className="group p-6 bg-[#dc143c]/10 rounded-xl border-2 border-[#dc143c] hover:bg-[#dc143c]/20 transition-colors"
+            >
               <h3 className="text-xl font-serif text-[#f5f0eb] mb-3">Homeschool Group Block</h3>
-              <p className="text-[#b8a8a0]">
+              <p className="text-[#b8a8a0] mb-4">
                 Weekly class for homeschool co-ops and families.
               </p>
-            </div>
+              <span className="inline-flex items-center gap-1 text-sm text-[#dc143c]">
+                Book now <ArrowRight size={14} />
+              </span>
+            </Link>
           </div>
         </section>
 
