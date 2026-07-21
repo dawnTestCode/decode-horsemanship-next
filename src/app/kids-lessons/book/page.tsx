@@ -33,13 +33,8 @@ export default function BookKidsLessonPage() {
       <section className="pb-16 px-4">
         <div className="max-w-4xl mx-auto">
           <div className="bg-[#150c0c] rounded-xl border border-[#3a2020] overflow-hidden">
-            {/*
-              Note: The Acuity embed URL should be updated to filter to kids-only appointment types
-              once those are created in Acuity. Use appointmentType or category parameters.
-              Example: ?owner=39789893&appointmentType=KIDS_APPOINTMENT_ID
-            */}
             <iframe
-              src="https://app.acuityscheduling.com/schedule.php?owner=39789893&ref=embedded_csp"
+              src="https://app.acuityscheduling.com/schedule.php?owner=39789893&appointmentType=category:Kids%20%26%20Family&ref=embedded_csp"
               title="Schedule Kids Lesson"
               width="100%"
               height="800"
