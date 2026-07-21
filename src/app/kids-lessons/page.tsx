@@ -5,10 +5,10 @@ import Image from 'next/image';
 import { ArrowRight } from 'lucide-react';
 
 // Duotone filter CSS for crimson + black brand constraint
-// Standard: grayscale(100%) sepia(20%) hue-rotate(300deg) saturate(300%) brightness(0.4)
-// Strong (for green-dominant images): saturate(400%) brightness(0.35)
-const duotoneFilter = 'grayscale(100%) sepia(20%) hue-rotate(300deg) saturate(300%) brightness(0.4)';
-const duotoneFilterStrong = 'grayscale(100%) sepia(20%) hue-rotate(300deg) saturate(400%) brightness(0.35)';
+// Removes color, applies crimson tint via sepia + hue-rotate
+// Brightness kept high since opacity handles visibility
+const duotoneFilter = 'grayscale(100%) sepia(30%) hue-rotate(300deg) saturate(200%)';
+const duotoneFilterStrong = 'grayscale(100%) sepia(40%) hue-rotate(300deg) saturate(250%)';
 
 export default function KidsLessonsPage() {
   return (
@@ -22,12 +22,12 @@ export default function KidsLessonsPage() {
             backgroundImage: 'url(/kids-lessons/IMG_3327.jpeg)',
             backgroundSize: 'cover',
             backgroundPosition: 'center',
-            opacity: 0.15,
+            opacity: 0.25,
             filter: duotoneFilter,
           }}
         />
-        {/* Heavy overlay for text readability */}
-        <div className="absolute inset-0 z-0 bg-gradient-to-b from-[#0c0a09]/85 via-[#0c0a09]/70 to-[#150c0c]/85" />
+        {/* Overlay for text readability */}
+        <div className="absolute inset-0 z-0 bg-gradient-to-b from-[#0c0a09]/60 via-[#0c0a09]/40 to-[#150c0c]/60" />
         <div className="relative z-10 max-w-4xl mx-auto text-center">
           <p className="text-xs font-semibold tracking-[0.2em] text-[#dc143c] uppercase mb-6">
             Kids & Family Lessons · Ages 5–15
@@ -60,7 +60,7 @@ export default function KidsLessonsPage() {
               backgroundImage: 'url(/kids-lessons/IMG_5933.jpeg)',
               backgroundSize: 'cover',
               backgroundPosition: 'center',
-              opacity: 0.1,
+              opacity: 0.18,
               filter: duotoneFilterStrong,
             }}
           />
@@ -102,7 +102,7 @@ export default function KidsLessonsPage() {
                   backgroundImage: 'url(/kids-lessons/IMG_4784.jpeg)',
                   backgroundSize: 'cover',
                   backgroundPosition: 'center right',
-                  opacity: 0.12,
+                  opacity: 0.2,
                   filter: duotoneFilter,
                 }}
               />
@@ -125,7 +125,7 @@ export default function KidsLessonsPage() {
                   backgroundImage: 'url(/kids-lessons/IMG_4861.jpeg)',
                   backgroundSize: 'cover',
                   backgroundPosition: 'center left',
-                  opacity: 0.12,
+                  opacity: 0.2,
                   filter: duotoneFilter,
                 }}
               />
@@ -157,7 +157,7 @@ export default function KidsLessonsPage() {
                   backgroundImage: 'url(/kids-lessons/IMG_3315.jpeg)',
                   backgroundSize: 'cover',
                   backgroundPosition: 'center',
-                  opacity: 0.08,
+                  opacity: 0.15,
                   filter: duotoneFilter,
                 }}
               />
@@ -182,7 +182,7 @@ export default function KidsLessonsPage() {
                   backgroundImage: 'url(/kids-lessons/IMG_6979.jpeg)',
                   backgroundSize: 'cover',
                   backgroundPosition: 'center',
-                  opacity: 0.08,
+                  opacity: 0.15,
                   filter: duotoneFilter,
                 }}
               />
@@ -207,7 +207,7 @@ export default function KidsLessonsPage() {
                   backgroundImage: 'url(/kids-lessons/IMG_7087.jpeg)',
                   backgroundSize: 'cover',
                   backgroundPosition: 'center',
-                  opacity: 0.08,
+                  opacity: 0.15,
                   filter: duotoneFilter,
                 }}
               />
@@ -233,7 +233,7 @@ export default function KidsLessonsPage() {
               backgroundImage: 'url(/kids-lessons/FullSizeRender-2.jpeg)',
               backgroundSize: 'cover',
               backgroundPosition: 'center',
-              opacity: 0.06,
+              opacity: 0.12,
               filter: duotoneFilter,
             }}
           />
@@ -271,7 +271,7 @@ export default function KidsLessonsPage() {
               backgroundImage: 'url(/kids-lessons/IMG_5006.jpeg)',
               backgroundSize: 'cover',
               backgroundPosition: 'center',
-              opacity: 0.18,
+              opacity: 0.25,
               filter: duotoneFilterStrong,
             }}
           />
@@ -307,7 +307,7 @@ export default function KidsLessonsPage() {
               backgroundImage: 'url(/kids-lessons/FullSizeRender.jpeg)',
               backgroundSize: 'cover',
               backgroundPosition: 'center',
-              opacity: 0.05,
+              opacity: 0.1,
               filter: duotoneFilter,
             }}
           />
