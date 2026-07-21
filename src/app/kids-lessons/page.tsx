@@ -272,7 +272,7 @@ export default function KidsLessonsPage() {
           />
           <div className="relative z-10">
             <h2 className="text-xs font-semibold tracking-[0.2em] text-[#dc143c] mb-10">MEET OUR KID-FRIENDLY HORSES</h2>
-            <div className="grid md:grid-cols-2 gap-6 max-w-4xl">
+            <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
               {/* Willow */}
               <div className="bg-[#150c0c]/90 backdrop-blur-sm border border-[#2a1818] rounded-lg overflow-hidden">
                 <div className="aspect-[4/3] relative">
