@@ -231,41 +231,27 @@ export default function KidsLessonsPage() {
           </div>
         </section>
 
-        {/* For Parents - Reassurance Strip */}
-        <section className="relative py-16 border-b border-[#3a2020] overflow-hidden">
-          {/* Background image - FullSizeRender-2.jpeg (warm neutral tones, minimal green - lightest touch) */}
-          <div
-            className="absolute inset-0 z-0"
-            style={{
-              backgroundImage: 'url(/kids-lessons/FullSizeRender-2.jpeg)',
-              backgroundSize: 'cover',
-              backgroundPosition: 'center 20%',
-              backgroundRepeat: 'no-repeat',
-              opacity: 0.12,
-              filter: duotoneFilter,
-            }}
-          />
-          <div className="relative z-10">
-            <h2 className="text-xs font-semibold tracking-[0.2em] text-[#dc143c] mb-10">FOR PARENTS</h2>
-            <div className="grid md:grid-cols-3 gap-8">
-              <div>
-                <h3 className="text-lg font-serif text-[#f5f0eb] mb-2">Supervision</h3>
-                <p className="text-[#b8a8a0]">
-                  Every session is instructor-led, one-on-one attention even in groups.
-                </p>
-              </div>
-              <div>
-                <h3 className="text-lg font-serif text-[#f5f0eb] mb-2">Matched Horses</h3>
-                <p className="text-[#b8a8a0]">
-                  Every kid is paired with a horse suited to their size, confidence, and pace.
-                </p>
-              </div>
-              <div>
-                <h3 className="text-lg font-serif text-[#f5f0eb] mb-2">First Lesson</h3>
-                <p className="text-[#b8a8a0]">
-                  No riding on day one — we start with trust, on the ground, together.
-                </p>
-              </div>
+        {/* For Parents - Reassurance Strip (flat, no background image) */}
+        <section className="py-16 border-b border-[#3a2020]">
+          <h2 className="text-xs font-semibold tracking-[0.2em] text-[#dc143c] mb-10">FOR PARENTS</h2>
+          <div className="grid md:grid-cols-3 gap-8">
+            <div>
+              <h3 className="text-lg font-serif text-[#f5f0eb] mb-2">Supervision</h3>
+              <p className="text-[#b8a8a0]">
+                Every session is instructor-led, one-on-one attention even in groups.
+              </p>
+            </div>
+            <div>
+              <h3 className="text-lg font-serif text-[#f5f0eb] mb-2">Matched Horses</h3>
+              <p className="text-[#b8a8a0]">
+                Every kid is paired with a horse suited to their size, confidence, and pace.
+              </p>
+            </div>
+            <div>
+              <h3 className="text-lg font-serif text-[#f5f0eb] mb-2">First Lesson</h3>
+              <p className="text-[#b8a8a0]">
+                No riding on day one — we start with trust, on the ground, together.
+              </p>
             </div>
           </div>
         </section>
