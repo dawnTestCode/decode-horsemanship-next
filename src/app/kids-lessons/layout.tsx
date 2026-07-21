@@ -9,6 +9,7 @@ export const metadata: Metadata = {
     description: "Kids and family lessons in natural horsemanship. Real responsibility, real animals, real confidence — whether they're leading their first pony or riding independently. Ages 5–15.",
     type: "website",
     siteName: "Decode Horsemanship",
+    images: ["/og-image-kids-lessons.png"],
   },
 };
 
