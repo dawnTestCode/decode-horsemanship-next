@@ -39,13 +39,24 @@ export default function KidsLessonsPage() {
           <p className="text-lg md:text-xl text-[#b8a8a0] max-w-3xl mx-auto mb-10">
             Real responsibility. Real animals. Real confidence — whether they&apos;re leading their first pony or riding independently.
           </p>
-          <Link
-            href="/kids-lessons/book"
-            className="inline-flex items-center gap-2 px-8 py-4 bg-[#dc143c] hover:bg-[#b01030] text-white font-semibold rounded-lg transition-colors"
-          >
-            Book a Trial Lesson
-            <ArrowRight size={20} />
-          </Link>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-4">
+            <Link
+              href="/kids-lessons/book"
+              className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-[#dc143c] hover:bg-[#b01030] text-white font-semibold rounded-lg transition-colors"
+            >
+              Book a Trial Lesson
+              <ArrowRight size={20} />
+            </Link>
+            <Link
+              href="/lessons/book"
+              className="inline-flex items-center justify-center gap-2 px-8 py-4 border-2 border-[#3a2020] hover:border-[#dc143c] text-[#f5f0eb] hover:text-[#dc143c] font-semibold rounded-lg transition-colors"
+            >
+              Schedule a Farm Tour
+            </Link>
+          </div>
+          <p className="text-sm text-[#b8a8a0]">
+            Lessons start at <span className="text-[#f5f0eb] font-semibold">{'{{PRICE}}'}</span>/session
+          </p>
         </div>
       </section>
 
@@ -168,9 +179,10 @@ export default function KidsLessonsPage() {
               />
               <div className="relative z-10">
                 <h3 className="text-xl font-serif text-[#f5f0eb] mb-3 group-hover:text-[#dc143c] transition-colors">Private Lesson</h3>
-                <p className="text-[#b8a8a0] mb-4">
+                <p className="text-[#b8a8a0] mb-2">
                   One-on-one, fully paced to your kid.
                 </p>
+                <p className="text-sm text-[#f5f0eb] font-semibold mb-4">{'{{PRICE_PRIVATE}}'}/session</p>
                 <span className="inline-flex items-center gap-1 text-sm text-[#dc143c]">
                   Book now <ArrowRight size={14} />
                 </span>
@@ -194,9 +206,10 @@ export default function KidsLessonsPage() {
               />
               <div className="relative z-10">
                 <h3 className="text-xl font-serif text-[#f5f0eb] mb-3 group-hover:text-[#dc143c] transition-colors">Small Group</h3>
-                <p className="text-[#b8a8a0] mb-4">
+                <p className="text-[#b8a8a0] mb-2">
                   2–4 kids, friends or siblings welcome.
                 </p>
+                <p className="text-sm text-[#f5f0eb] font-semibold mb-4">{'{{PRICE_SMALL_GROUP}}'}/session per child</p>
                 <span className="inline-flex items-center gap-1 text-sm text-[#dc143c]">
                   Book now <ArrowRight size={14} />
                 </span>
@@ -220,9 +233,10 @@ export default function KidsLessonsPage() {
               />
               <div className="relative z-10">
                 <h3 className="text-xl font-serif text-[#f5f0eb] mb-3">Homeschool Group Block</h3>
-                <p className="text-[#b8a8a0] mb-4">
+                <p className="text-[#b8a8a0] mb-2">
                   Weekly class for homeschool co-ops and families.
                 </p>
+                <p className="text-sm text-[#f5f0eb] font-semibold mb-4">{'{{PRICE_HOMESCHOOL}}'}/session per child</p>
                 <span className="inline-flex items-center gap-1 text-sm text-[#dc143c]">
                   Book now <ArrowRight size={14} />
                 </span>
@@ -309,6 +323,89 @@ export default function KidsLessonsPage() {
                   </p>
                 </div>
               </div>
+            </div>
+          </div>
+        </section>
+
+        {/* What Parents Are Saying */}
+        <section className="py-16 border-b border-[#3a2020]">
+          <h2 className="text-xs font-semibold tracking-[0.2em] text-[#dc143c] mb-10">WHAT PARENTS ARE SAYING</h2>
+          <div className="grid md:grid-cols-3 gap-6">
+            <div className="p-6 bg-[#150c0c] rounded-xl border border-[#2a1818]">
+              <p className="text-[#b8a8a0] mb-4 italic">
+                &ldquo;{'{{TESTIMONIAL_1}}'}&rdquo;
+              </p>
+              <p className="text-sm">
+                <span className="text-[#dc143c] font-semibold">{'{{PARENT_1_NAME}}'}</span>
+                <span className="text-[#a89890]"> · {'{{PARENT_1_CONTEXT}}'}</span>
+              </p>
+            </div>
+            <div className="p-6 bg-[#150c0c] rounded-xl border border-[#2a1818]">
+              <p className="text-[#b8a8a0] mb-4 italic">
+                &ldquo;{'{{TESTIMONIAL_2}}'}&rdquo;
+              </p>
+              <p className="text-sm">
+                <span className="text-[#dc143c] font-semibold">{'{{PARENT_2_NAME}}'}</span>
+                <span className="text-[#a89890]"> · {'{{PARENT_2_CONTEXT}}'}</span>
+              </p>
+            </div>
+            <div className="p-6 bg-[#150c0c] rounded-xl border border-[#2a1818]">
+              <p className="text-[#b8a8a0] mb-4 italic">
+                &ldquo;{'{{TESTIMONIAL_3}}'}&rdquo;
+              </p>
+              <p className="text-sm">
+                <span className="text-[#dc143c] font-semibold">{'{{PARENT_3_NAME}}'}</span>
+                <span className="text-[#a89890]"> · {'{{PARENT_3_CONTEXT}}'}</span>
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* FAQ Section */}
+        <section className="py-16 border-b border-[#3a2020]">
+          <h2 className="text-xs font-semibold tracking-[0.2em] text-[#dc143c] mb-10">FREQUENTLY ASKED QUESTIONS</h2>
+          <div className="max-w-3xl space-y-6">
+            <div className="border-b border-[#2a1818] pb-6">
+              <h3 className="text-lg font-serif text-[#f5f0eb] mb-2">How much does a lesson cost?</h3>
+              <p className="text-[#b8a8a0]">
+                Private lessons are {'{{PRICE_PRIVATE}}'}/session. Small group lessons (2–4 kids) are {'{{PRICE_SMALL_GROUP}}'}/session per child. Homeschool group blocks are {'{{PRICE_HOMESCHOOL}}'}/session per child.
+              </p>
+            </div>
+            <div className="border-b border-[#2a1818] pb-6">
+              <h3 className="text-lg font-serif text-[#f5f0eb] mb-2">What should my kid wear?</h3>
+              <p className="text-[#b8a8a0]">
+                Closed-toe shoes with a small heel (boots work great), long pants, and clothes that can get dusty. We provide helmets.
+              </p>
+            </div>
+            <div className="border-b border-[#2a1818] pb-6">
+              <h3 className="text-lg font-serif text-[#f5f0eb] mb-2">What if my child is nervous or has never been near a horse?</h3>
+              <p className="text-[#b8a8a0]">
+                That&apos;s completely normal — and exactly what we&apos;re set up for. First lessons focus on trust-building from the ground: grooming, leading, and just being around the horse. No pressure to ride until they&apos;re ready.
+              </p>
+            </div>
+            <div className="border-b border-[#2a1818] pb-6">
+              <h3 className="text-lg font-serif text-[#f5f0eb] mb-2">Can I stay and watch the lesson?</h3>
+              <p className="text-[#b8a8a0]">
+                Yes — parents are welcome to watch from our viewing area. Some kids do better without an audience, so we&apos;ll let you know if stepping back for a bit might help.
+              </p>
+            </div>
+            <div className="border-b border-[#2a1818] pb-6">
+              <h3 className="text-lg font-serif text-[#f5f0eb] mb-2">Do you accept total beginners?</h3>
+              <p className="text-[#b8a8a0]">
+                Absolutely. Most of our kids have never touched a horse before their first lesson. That&apos;s exactly where we like to start.
+              </p>
+            </div>
+            <div className="border-b border-[#2a1818] pb-6">
+              <h3 className="text-lg font-serif text-[#f5f0eb] mb-2">What ages do you accept?</h3>
+              <p className="text-[#b8a8a0]">
+                Our Little Hooves track is for ages 5–9, and Junior Horsemanship is for ages 10–15. Younger or older? Reach out — we can sometimes make exceptions.
+              </p>
+            </div>
+            <div className="pb-2">
+              <h3 className="text-lg font-serif text-[#f5f0eb] mb-2">Do you offer sibling or friend discounts for Small Group lessons?</h3>
+              <p className="text-[#b8a8a0]">
+                Yes — small group pricing is already discounted compared to private lessons. Bring siblings or friends and everyone saves.
+              </p>
             </div>
           </div>
         </section>
