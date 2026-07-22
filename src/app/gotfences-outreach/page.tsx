@@ -447,12 +447,12 @@ export default function GotFencesOutreach() {
               Prospects ({prospectCount})
             </button>
           </div>
-          <div className="flex-1 flex gap-2">
+          <div className="flex-1 flex flex-wrap gap-2">
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search..."
-              className="flex-1 border border-[#D8D3CC] rounded-md px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#9E1B32]"
+              className="flex-1 min-w-[150px] border border-[#D8D3CC] rounded-md px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#9E1B32]"
             />
             <select
               value={filterCategory}
@@ -480,7 +480,7 @@ export default function GotFencesOutreach() {
         </div>
 
         {/* Table */}
-        <div className="bg-white border border-[#E3E0DB] rounded-lg overflow-hidden">
+        <div className="bg-white border border-[#E3E0DB] rounded-lg overflow-x-auto">
           {loading ? (
             <div className="p-8 text-center text-sm text-[#6B6B6B]">Loading...</div>
           ) : filtered.length === 0 ? (
@@ -488,7 +488,7 @@ export default function GotFencesOutreach() {
               No contacts yet. Add the first one to get started.
             </div>
           ) : (
-            <table className="w-full text-sm">
+            <table className="w-full text-sm min-w-[600px]">
               <thead>
                 <tr className="bg-black text-white text-left">
                   {statusTab === 'prospect' && (
