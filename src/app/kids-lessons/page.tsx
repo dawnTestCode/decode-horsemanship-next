@@ -55,7 +55,7 @@ export default function KidsLessonsPage() {
             </Link>
           </div>
           <p className="text-sm text-[#b8a8a0]">
-            Lessons start at <span className="text-[#f5f0eb] font-semibold">{'{{PRICE}}'}</span>/session
+            Lessons start at <span className="text-[#f5f0eb] font-semibold">$50</span>/session
           </p>
         </div>
       </section>
@@ -182,7 +182,7 @@ export default function KidsLessonsPage() {
                 <p className="text-[#b8a8a0] mb-2">
                   One-on-one, fully paced to your kid.
                 </p>
-                <p className="text-sm text-[#f5f0eb] font-semibold mb-4">{'{{PRICE_PRIVATE}}'}/session</p>
+                <p className="text-sm text-[#f5f0eb] font-semibold mb-4">$75/session</p>
                 <span className="inline-flex items-center gap-1 text-sm text-[#dc143c]">
                   Book now <ArrowRight size={14} />
                 </span>
@@ -209,7 +209,7 @@ export default function KidsLessonsPage() {
                 <p className="text-[#b8a8a0] mb-2">
                   2–4 kids, friends or siblings welcome.
                 </p>
-                <p className="text-sm text-[#f5f0eb] font-semibold mb-4">{'{{PRICE_SMALL_GROUP}}'}/session per child</p>
+                <p className="text-sm text-[#f5f0eb] font-semibold mb-4">$50/session per child</p>
                 <span className="inline-flex items-center gap-1 text-sm text-[#dc143c]">
                   Book now <ArrowRight size={14} />
                 </span>
@@ -236,7 +236,7 @@ export default function KidsLessonsPage() {
                 <p className="text-[#b8a8a0] mb-2">
                   Weekly class for homeschool co-ops and families.
                 </p>
-                <p className="text-sm text-[#f5f0eb] font-semibold mb-4">{'{{PRICE_HOMESCHOOL}}'}/session per child</p>
+                <p className="text-sm text-[#f5f0eb] font-semibold mb-4">$50/session per child</p>
                 <span className="inline-flex items-center gap-1 text-sm text-[#dc143c]">
                   Book now <ArrowRight size={14} />
                 </span>
@@ -327,37 +327,13 @@ export default function KidsLessonsPage() {
           </div>
         </section>
 
-        {/* What Parents Are Saying */}
+        {/* Meet Your Instructor */}
         <section className="py-16 border-b border-[#3a2020]">
-          <h2 className="text-xs font-semibold tracking-[0.2em] text-[#dc143c] mb-10">WHAT PARENTS ARE SAYING</h2>
-          <div className="grid md:grid-cols-3 gap-6">
-            <div className="p-6 bg-[#150c0c] rounded-xl border border-[#2a1818]">
-              <p className="text-[#b8a8a0] mb-4 italic">
-                &ldquo;{'{{TESTIMONIAL_1}}'}&rdquo;
-              </p>
-              <p className="text-sm">
-                <span className="text-[#dc143c] font-semibold">{'{{PARENT_1_NAME}}'}</span>
-                <span className="text-[#a89890]"> · {'{{PARENT_1_CONTEXT}}'}</span>
-              </p>
-            </div>
-            <div className="p-6 bg-[#150c0c] rounded-xl border border-[#2a1818]">
-              <p className="text-[#b8a8a0] mb-4 italic">
-                &ldquo;{'{{TESTIMONIAL_2}}'}&rdquo;
-              </p>
-              <p className="text-sm">
-                <span className="text-[#dc143c] font-semibold">{'{{PARENT_2_NAME}}'}</span>
-                <span className="text-[#a89890]"> · {'{{PARENT_2_CONTEXT}}'}</span>
-              </p>
-            </div>
-            <div className="p-6 bg-[#150c0c] rounded-xl border border-[#2a1818]">
-              <p className="text-[#b8a8a0] mb-4 italic">
-                &ldquo;{'{{TESTIMONIAL_3}}'}&rdquo;
-              </p>
-              <p className="text-sm">
-                <span className="text-[#dc143c] font-semibold">{'{{PARENT_3_NAME}}'}</span>
-                <span className="text-[#a89890]"> · {'{{PARENT_3_CONTEXT}}'}</span>
-              </p>
-            </div>
+          <h2 className="text-xs font-semibold tracking-[0.2em] text-[#dc143c] mb-10">MEET YOUR INSTRUCTOR</h2>
+          <div className="max-w-3xl">
+            <p className="text-[#b8a8a0] text-lg leading-relaxed">
+              Dawn has spent years teaching kids the same way she raised her own five — with patience, structure, and a lot of hands-on time. She homeschooled all five of them, so working with a nervous first-timer or a confident ten-year-old ready to ride is second nature. She runs every part of Decode Horsemanship herself — boarding, mustang gentling, and the full training program — which means your kid&apos;s instructor is on this farm every single day, not just for a Tuesday lesson. Her approach is relationship before riding: trust on the ground first, same as it is with every horse she brings home.
+            </p>
           </div>
         </section>
 
@@ -368,7 +344,7 @@ export default function KidsLessonsPage() {
             <div className="border-b border-[#2a1818] pb-6">
               <h3 className="text-lg font-serif text-[#f5f0eb] mb-2">How much does a lesson cost?</h3>
               <p className="text-[#b8a8a0]">
-                Private lessons are {'{{PRICE_PRIVATE}}'}/session. Small group lessons (2–4 kids) are {'{{PRICE_SMALL_GROUP}}'}/session per child. Homeschool group blocks are {'{{PRICE_HOMESCHOOL}}'}/session per child.
+                Private lessons are $75/session. Small group lessons (2–4 kids) are $50/session per child. Homeschool group blocks are $50/session per child.
               </p>
             </div>
             <div className="border-b border-[#2a1818] pb-6">
