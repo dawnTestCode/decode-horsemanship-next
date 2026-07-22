@@ -27,6 +27,7 @@ type FenceContactRow = {
   name: string;
   business_name: string | null;
   category: FenceContactCategory | null;
+  area: string | null;
   main_phone: string | null;
   email: string | null;
   address: string | null;
@@ -138,6 +139,7 @@ export default function GotFencesOutreach() {
   const [search, setSearch] = useState('');
   const [filterType, setFilterType] = useState<ContactType | 'all'>('all');
   const [filterCategory, setFilterCategory] = useState<FenceContactCategory | 'all'>('all');
+  const [filterArea, setFilterArea] = useState<string>('all');
   const [statusTab, setStatusTab] = useState<FenceContactStatus>('prospect');
 
   const [showContactModal, setShowContactModal] = useState(false);
@@ -263,6 +265,15 @@ export default function GotFencesOutreach() {
     }
   }
 
+  // Get unique areas from the data
+  const areas = useMemo(() => {
+    const areaSet = new Set<string>();
+    rows.forEach(r => {
+      if (r.area) areaSet.add(r.area);
+    });
+    return Array.from(areaSet).sort();
+  }, [rows]);
+
   const filtered = useMemo(() => {
     const result = rows.filter((r) => {
       const matchesStatus = r.status === statusTab;
@@ -272,15 +283,22 @@ export default function GotFencesOutreach() {
         (r.business_name ?? '').toLowerCase().includes(search.toLowerCase());
       const matchesType = filterType === 'all' || r.last_contact_type === filterType;
       const matchesCategory = filterCategory === 'all' || r.category === filterCategory;
-      return matchesStatus && matchesSearch && matchesType && matchesCategory;
+      const matchesArea = filterArea === 'all' || r.area === filterArea;
+      return matchesStatus && matchesSearch && matchesType && matchesCategory && matchesArea;
     });
-    // Sort priority items to the top for prospects
-    if (statusTab === 'prospect') {
-      result.sort((a, b) => (b.priority ? 1 : 0) - (a.priority ? 1 : 0));
-    }
-    // Sort active contacts: stale first, then neutral, then scheduled
-    if (statusTab === 'active') {
-      result.sort((a, b) => {
+    // Sort by area first, then by priority (for prospects) or staleness (for active)
+    result.sort((a, b) => {
+      // First sort by area
+      const aArea = a.area || 'zzz'; // Put null areas at the end
+      const bArea = b.area || 'zzz';
+      if (aArea !== bArea) return aArea.localeCompare(bArea);
+
+      // Then apply status-specific sorting within each area
+      if (statusTab === 'prospect') {
+        // Priority items first
+        if (a.priority !== b.priority) return b.priority ? 1 : -1;
+      }
+      if (statusTab === 'active') {
         const aStale = isContactStale(a.last_contact_date, a.scheduled, a.last_contact_direction);
         const bStale = isContactStale(b.last_contact_date, b.scheduled, b.last_contact_direction);
         // Stale (red) comes first
@@ -289,12 +307,38 @@ export default function GotFencesOutreach() {
         // Scheduled (green) goes last
         if (a.scheduled && !b.scheduled) return 1;
         if (!a.scheduled && b.scheduled) return -1;
-        // Otherwise maintain alphabetical order
-        return a.name.localeCompare(b.name);
-      });
-    }
+      }
+      // Otherwise maintain alphabetical order
+      return a.name.localeCompare(b.name);
+    });
     return result;
-  }, [rows, search, filterType, filterCategory, statusTab]);
+  }, [rows, search, filterType, filterCategory, filterArea, statusTab]);
+
+  // Group filtered results by area for rendering
+  const groupedByArea = useMemo(() => {
+    const groups: { area: string; contacts: FenceContactRow[] }[] = [];
+    let currentArea: string | null = null;
+    let currentGroup: FenceContactRow[] = [];
+
+    filtered.forEach(contact => {
+      const area = contact.area || 'Other';
+      if (area !== currentArea) {
+        if (currentGroup.length > 0) {
+          groups.push({ area: currentArea || 'Other', contacts: currentGroup });
+        }
+        currentArea = area;
+        currentGroup = [contact];
+      } else {
+        currentGroup.push(contact);
+      }
+    });
+
+    if (currentGroup.length > 0) {
+      groups.push({ area: currentArea || 'Other', contacts: currentGroup });
+    }
+
+    return groups;
+  }, [filtered]);
 
   const prospectCount = useMemo(() => rows.filter(r => r.status === 'prospect').length, [rows]);
   const activeCount = useMemo(() => rows.filter(r => r.status === 'active').length, [rows]);
@@ -454,6 +498,18 @@ export default function GotFencesOutreach() {
               placeholder="Search..."
               className="flex-1 min-w-[150px] border border-[#D8D3CC] rounded-md px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#9E1B32]"
             />
+            {areas.length > 0 && (
+              <select
+                value={filterArea}
+                onChange={(e) => setFilterArea(e.target.value)}
+                className="border border-[#D8D3CC] rounded-md px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#9E1B32]"
+              >
+                <option value="all">All areas</option>
+                {areas.map((area) => (
+                  <option key={area} value={area}>{area}</option>
+                ))}
+              </select>
+            )}
             <select
               value={filterCategory}
               onChange={(e) => setFilterCategory(e.target.value as FenceContactCategory | 'all')}
@@ -514,140 +570,155 @@ export default function GotFencesOutreach() {
                 </tr>
               </thead>
               <tbody>
-                {filtered.map((r, idx) => {
-                  const showDivider = statusTab === 'prospect' && idx > 0 && filtered[idx - 1].priority && !r.priority;
-                  const stale = statusTab === 'active' && isContactStale(r.last_contact_date, r.scheduled, r.last_contact_direction);
+                {groupedByArea.map((group, groupIdx) => {
+                  const colSpan = statusTab === 'active' ? 6 : 4;
                   return (
-                  <tr
-                    key={r.id}
-                    onClick={() => setViewModalFor(r)}
-                    className={`align-top cursor-pointer hover:bg-[#F5F3F0] transition-colors ${
-                      showDivider ? 'border-t-2 border-[#D8D3CC]' : 'border-t border-[#E3E0DB]'
-                    } ${statusTab === 'prospect' && r.priority ? 'bg-amber-50 hover:bg-amber-100' : ''} ${
-                      stale ? 'bg-red-50 hover:bg-red-100' : ''
-                    } ${statusTab === 'active' && r.scheduled ? 'bg-green-50 hover:bg-green-100' : ''}`}
-                  >
-                    {statusTab === 'prospect' && (
-                      <td className="px-2 py-3 text-center">
-                        <button
-                          onClick={(e) => { e.stopPropagation(); togglePriority(r.id, r.priority); }}
-                          className={`p-1 rounded transition-colors ${
-                            r.priority
-                              ? 'text-amber-500 hover:text-amber-600'
-                              : 'text-[#D8D3CC] hover:text-amber-400'
-                          }`}
-                          title={r.priority ? 'Remove priority' : 'Mark as priority'}
-                        >
-                          <Star size={16} fill={r.priority ? 'currentColor' : 'none'} />
-                        </button>
-                      </td>
-                    )}
-                    {statusTab === 'active' && (
-                      <td className="px-2 py-3 text-center">
-                        <button
-                          onClick={(e) => { e.stopPropagation(); toggleScheduled(r.id, r.scheduled); }}
-                          className={`p-1 rounded transition-colors ${
-                            r.scheduled
-                              ? 'text-green-600 hover:text-green-700'
-                              : 'text-[#D8D3CC] hover:text-green-500'
-                          }`}
-                          title={r.scheduled ? 'Mark as not scheduled' : 'Mark as scheduled'}
-                        >
-                          <CalendarCheck size={16} />
-                        </button>
-                      </td>
-                    )}
-                    <td className="px-4 py-3 font-medium">
-                        {r.name}
-                        {r.business_name && (
-                          <div className="text-xs text-[#6B6B6B] font-normal">{r.business_name}</div>
-                        )}
-                        {r.main_phone && (
-                          <div className="text-xs text-[#6B6B6B] font-normal">{r.main_phone}</div>
-                        )}
-                      </td>
-                    <td className="px-4 py-3">
-                      {r.category ? (
-                        <span className={`inline-block text-xs px-2 py-1 rounded-full ${CATEGORY_STYLES[r.category]}`}>
-                          {CATEGORY_LABELS[r.category]}
-                        </span>
-                      ) : (
-                        <span className="text-[#B0ABA3]">—</span>
+                    <>
+                      {/* Area section header */}
+                      {filterArea === 'all' && (
+                        <tr key={`area-${group.area}`} className={groupIdx > 0 ? 'border-t-2 border-[#9E1B32]' : ''}>
+                          <td colSpan={colSpan} className="bg-[#9E1B32] text-white px-4 py-2 font-semibold text-sm">
+                            {group.area} ({group.contacts.length})
+                          </td>
+                        </tr>
                       )}
-                    </td>
-                    {statusTab === 'active' && (
-                      <>
-                        <td className="px-4 py-3">
-                          {r.last_contact_type ? (
-                            <div className="space-y-1">
-                              <div className="flex items-center gap-1">
-                                <span className={`inline-block text-xs px-2 py-1 rounded-full ${CONTACT_STYLES[r.last_contact_type]}`}>
-                                  {CONTACT_LABELS[r.last_contact_type]}
-                                </span>
-                                {r.last_contact_direction === 'inbound' ? (
-                                  <span title="From them"><PhoneIncoming size={14} className="text-blue-600" /></span>
-                                ) : (
-                                  <span title="To them"><PhoneOutgoing size={14} className="text-[#6B6B6B]" /></span>
-                                )}
-                              </div>
-                              <div className="text-xs text-[#6B6B6B]">{r.last_contact_date}</div>
-                            </div>
-                          ) : (
-                            <span className="text-xs text-[#B0ABA3]">No contact logged</span>
+                      {group.contacts.map((r, idx) => {
+                        const showPriorityDivider = statusTab === 'prospect' && idx > 0 && group.contacts[idx - 1].priority && !r.priority;
+                        const stale = statusTab === 'active' && isContactStale(r.last_contact_date, r.scheduled, r.last_contact_direction);
+                        return (
+                        <tr
+                          key={r.id}
+                          onClick={() => setViewModalFor(r)}
+                          className={`align-top cursor-pointer hover:bg-[#F5F3F0] transition-colors ${
+                            showPriorityDivider ? 'border-t-2 border-[#D8D3CC]' : 'border-t border-[#E3E0DB]'
+                          } ${statusTab === 'prospect' && r.priority ? 'bg-amber-50 hover:bg-amber-100' : ''} ${
+                            stale ? 'bg-red-50 hover:bg-red-100' : ''
+                          } ${statusTab === 'active' && r.scheduled ? 'bg-green-50 hover:bg-green-100' : ''}`}
+                        >
+                          {statusTab === 'prospect' && (
+                            <td className="px-2 py-3 text-center">
+                              <button
+                                onClick={(e) => { e.stopPropagation(); togglePriority(r.id, r.priority); }}
+                                className={`p-1 rounded transition-colors ${
+                                  r.priority
+                                    ? 'text-amber-500 hover:text-amber-600'
+                                    : 'text-[#D8D3CC] hover:text-amber-400'
+                                }`}
+                                title={r.priority ? 'Remove priority' : 'Mark as priority'}
+                              >
+                                <Star size={16} fill={r.priority ? 'currentColor' : 'none'} />
+                              </button>
+                            </td>
                           )}
-                        </td>
-                        <td className="px-4 py-3 text-[#3A3A3A] max-w-xs">
-                          {r.last_contact_summary || <span className="text-[#B0ABA3]">&mdash;</span>}
-                        </td>
-                      </>
-                    )}
-                    {statusTab === 'prospect' && (
-                      <td className="px-4 py-3 text-[#3A3A3A] max-w-xs">
-                        {r.notes || <span className="text-[#B0ABA3]">&mdash;</span>}
-                      </td>
-                    )}
-                    <td className="px-4 py-3 text-right whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
-                      {statusTab === 'active' && (
-                        <>
-                          <button
-                            onClick={() => setLogModalFor(r)}
-                            className="text-[#9E1B32] hover:underline text-xs font-medium mr-3"
-                          >
-                            Log contact
-                          </button>
-                          <button
-                            onClick={() => setHistoryModalFor(r)}
-                            className="text-[#9E1B32] hover:underline text-xs font-medium mr-3"
-                          >
-                            History
-                          </button>
-                        </>
-                      )}
-                      {statusTab === 'prospect' && (
-                        <button
-                          onClick={() => updateStatus(r.id, 'active')}
-                          className="text-[#9E1B32] hover:underline text-xs font-medium mr-3"
-                        >
-                          Mark Active
-                        </button>
-                      )}
-                      <button
-                        onClick={() => {
-                          setEditingContact(r);
-                          setShowContactModal(true);
-                        }}
-                        className="text-[#3A3A3A] hover:underline text-xs font-medium mr-3"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => deleteContact(r.id)}
-                        className="text-[#6B6B6B] hover:underline text-xs"
-                      >
-                        Remove
-                      </button>
-                    </td>
-                  </tr>
+                          {statusTab === 'active' && (
+                            <td className="px-2 py-3 text-center">
+                              <button
+                                onClick={(e) => { e.stopPropagation(); toggleScheduled(r.id, r.scheduled); }}
+                                className={`p-1 rounded transition-colors ${
+                                  r.scheduled
+                                    ? 'text-green-600 hover:text-green-700'
+                                    : 'text-[#D8D3CC] hover:text-green-500'
+                                }`}
+                                title={r.scheduled ? 'Mark as not scheduled' : 'Mark as scheduled'}
+                              >
+                                <CalendarCheck size={16} />
+                              </button>
+                            </td>
+                          )}
+                          <td className="px-4 py-3 font-medium">
+                              {r.name}
+                              {r.business_name && (
+                                <div className="text-xs text-[#6B6B6B] font-normal">{r.business_name}</div>
+                              )}
+                              {r.main_phone && (
+                                <div className="text-xs text-[#6B6B6B] font-normal">{r.main_phone}</div>
+                              )}
+                            </td>
+                          <td className="px-4 py-3">
+                            {r.category ? (
+                              <span className={`inline-block text-xs px-2 py-1 rounded-full ${CATEGORY_STYLES[r.category]}`}>
+                                {CATEGORY_LABELS[r.category]}
+                              </span>
+                            ) : (
+                              <span className="text-[#B0ABA3]">—</span>
+                            )}
+                          </td>
+                          {statusTab === 'active' && (
+                            <>
+                              <td className="px-4 py-3">
+                                {r.last_contact_type ? (
+                                  <div className="space-y-1">
+                                    <div className="flex items-center gap-1">
+                                      <span className={`inline-block text-xs px-2 py-1 rounded-full ${CONTACT_STYLES[r.last_contact_type]}`}>
+                                        {CONTACT_LABELS[r.last_contact_type]}
+                                      </span>
+                                      {r.last_contact_direction === 'inbound' ? (
+                                        <span title="From them"><PhoneIncoming size={14} className="text-blue-600" /></span>
+                                      ) : (
+                                        <span title="To them"><PhoneOutgoing size={14} className="text-[#6B6B6B]" /></span>
+                                      )}
+                                    </div>
+                                    <div className="text-xs text-[#6B6B6B]">{r.last_contact_date}</div>
+                                  </div>
+                                ) : (
+                                  <span className="text-xs text-[#B0ABA3]">No contact logged</span>
+                                )}
+                              </td>
+                              <td className="px-4 py-3 text-[#3A3A3A] max-w-xs">
+                                {r.last_contact_summary || <span className="text-[#B0ABA3]">&mdash;</span>}
+                              </td>
+                            </>
+                          )}
+                          {statusTab === 'prospect' && (
+                            <td className="px-4 py-3 text-[#3A3A3A] max-w-xs">
+                              {r.notes || <span className="text-[#B0ABA3]">&mdash;</span>}
+                            </td>
+                          )}
+                          <td className="px-4 py-3 text-right whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
+                            {statusTab === 'active' && (
+                              <>
+                                <button
+                                  onClick={() => setLogModalFor(r)}
+                                  className="text-[#9E1B32] hover:underline text-xs font-medium mr-3"
+                                >
+                                  Log contact
+                                </button>
+                                <button
+                                  onClick={() => setHistoryModalFor(r)}
+                                  className="text-[#9E1B32] hover:underline text-xs font-medium mr-3"
+                                >
+                                  History
+                                </button>
+                              </>
+                            )}
+                            {statusTab === 'prospect' && (
+                              <button
+                                onClick={() => updateStatus(r.id, 'active')}
+                                className="text-[#9E1B32] hover:underline text-xs font-medium mr-3"
+                              >
+                                Mark Active
+                              </button>
+                            )}
+                            <button
+                              onClick={() => {
+                                setEditingContact(r);
+                                setShowContactModal(true);
+                              }}
+                              className="text-[#3A3A3A] hover:underline text-xs font-medium mr-3"
+                            >
+                              Edit
+                            </button>
+                            <button
+                              onClick={() => deleteContact(r.id)}
+                              className="text-[#6B6B6B] hover:underline text-xs"
+                            >
+                              Remove
+                            </button>
+                          </td>
+                        </tr>
+                        );
+                      })}
+                    </>
                   );
                 })}
               </tbody>
@@ -808,6 +879,7 @@ function FenceContactModal({
   const [name, setName] = useState(contact?.name ?? '');
   const [status, setStatus] = useState<FenceContactStatus>(contact?.status ?? 'prospect');
   const [category, setCategory] = useState<FenceContactCategory | ''>(contact?.category ?? '');
+  const [area, setArea] = useState(contact?.area ?? '');
   const [businessName, setBusinessName] = useState(contact?.business_name ?? '');
   const [mainPhone, setMainPhone] = useState(contact?.main_phone ?? '');
   const [email, setEmail] = useState(contact?.email ?? '');
@@ -822,6 +894,7 @@ function FenceContactModal({
       name: name.trim(),
       status,
       category: category || null,
+      area: area.trim() || null,
       business_name: businessName.trim() || null,
       main_phone: mainPhone.trim() || null,
       email: email.trim() || null,
@@ -853,6 +926,9 @@ function FenceContactModal({
               <option key={val} value={val}>{label}</option>
             ))}
           </select>
+        </Field>
+        <Field label="Area/Region">
+          <input value={area} onChange={(e) => setArea(e.target.value)} className="w-full border border-[#D8D3CC] rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#9E1B32]" placeholder="e.g. Franklin County / Louisburg" />
         </Field>
         <Field label="Status">
           <select value={status} onChange={(e) => setStatus(e.target.value as FenceContactStatus)} className="w-full border border-[#D8D3CC] rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#9E1B32]">
@@ -1115,6 +1191,10 @@ function ViewContactModal({
 
           {contact.business_name && (
             <DetailRow label="Business/Organization" value={contact.business_name} />
+          )}
+
+          {contact.area && (
+            <DetailRow label="Area" value={contact.area} />
           )}
 
           {contact.main_phone && (
