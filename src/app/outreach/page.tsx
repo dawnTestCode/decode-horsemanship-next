@@ -309,7 +309,7 @@ export default function CommunityCRM() {
       <div className="min-h-screen bg-[#F5F3F0]">
         <div className="pt-12 pb-6 text-center">
           <h1 className="text-2xl font-semibold tracking-tight text-black">
-            Community Outreach
+            Communities Outreach
           </h1>
           <p className="text-sm text-[#6B6B6B] mt-1">
             Admin access required
@@ -327,7 +327,7 @@ export default function CommunityCRM() {
         <div className="flex items-center justify-between border-b-2 border-[#9E1B32] pb-4 mb-6">
           <div>
             <h1 className="text-2xl font-semibold tracking-tight text-black">
-              Community Outreach
+              Communities Outreach
             </h1>
             <p className="text-sm text-[#6B6B6B]">
               Track communities and keep your talking points ready.
