@@ -438,7 +438,7 @@ export default function GotFencesOutreach() {
                   : 'text-[#6B6B6B] hover:text-[#3A3A3A]'
               }`}
             >
-              Scripts
+              FAQs
             </button>
           </div>
           {pageTab === 'contacts' && (
