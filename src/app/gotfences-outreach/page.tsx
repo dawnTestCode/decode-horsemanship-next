@@ -764,7 +764,7 @@ export default function GotFencesOutreach() {
                         {!scriptSearch && (
                           <GripVertical size={16} className="text-[#B0ABA3] cursor-grab shrink-0" />
                         )}
-                        <h3 className="font-semibold text-[#9E1B32] text-base">{script.question}</h3>
+                        <h3 className="font-semibold text-[#9E1B32] text-xl">{script.question}</h3>
                       </div>
                       <div className="flex gap-2 shrink-0">
                         <button
@@ -786,7 +786,7 @@ export default function GotFencesOutreach() {
                     </div>
                     <div className="p-4">
                       <div
-                        className="text-sm text-[#3A3A3A] prose prose-sm max-w-none [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5"
+                        className="text-base text-[#3A3A3A] prose prose-base max-w-none [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5"
                         dangerouslySetInnerHTML={{ __html: script.answer }}
                       />
                     </div>
