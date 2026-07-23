@@ -460,7 +460,7 @@ export default function GotFencesOutreach() {
               }}
               className="bg-[#9E1B32] hover:bg-[#7A1526] text-white text-sm font-medium px-4 py-2 rounded-md transition-colors mb-2"
             >
-              + Add script
+              + Add FAQ
             </button>
           )}
         </div>
