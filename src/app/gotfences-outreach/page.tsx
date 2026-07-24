@@ -3,13 +3,13 @@
 import { useEffect, useState, useMemo, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
 import AdminLogin from '@/components/admin/AdminLogin';
-import { Loader2, Star, Bold, List, CalendarCheck, PhoneIncoming, PhoneOutgoing, GripVertical } from 'lucide-react';
+import { Loader2, Star, Bold, List, CalendarCheck, PhoneIncoming, PhoneOutgoing, GripVertical, XCircle } from 'lucide-react';
 
 type ContactType = 'visited' | 'cold_called' | 'emailed' | 'other';
 
 type ContactDirection = 'inbound' | 'outbound';
 
-type FenceContactStatus = 'prospect' | 'active';
+type FenceContactStatus = 'prospect' | 'active' | 'declined';
 
 type FenceContactCategory =
   | 'realtor'
@@ -20,6 +20,9 @@ type FenceContactCategory =
   | 'feed_store'
   | 'hoa'
   | 'community_group'
+  | 'horse_farm'
+  | 'cattle_operation'
+  | 'equipment_sales'
   | 'other';
 
 type FenceContactRow = {
@@ -87,6 +90,9 @@ const CATEGORY_LABELS: Record<FenceContactCategory, string> = {
   feed_store: 'Feed/Tack Store',
   hoa: 'HOA',
   community_group: 'Community Group',
+  horse_farm: 'Horse Farm',
+  cattle_operation: 'Cattle Operation',
+  equipment_sales: 'Equipment Sales',
   other: 'Other',
 };
 
@@ -99,8 +105,19 @@ const CATEGORY_STYLES: Record<FenceContactCategory, string> = {
   feed_store: 'bg-yellow-100 text-yellow-800',
   hoa: 'bg-indigo-100 text-indigo-800',
   community_group: 'bg-pink-100 text-pink-800',
+  horse_farm: 'bg-amber-100 text-amber-800',
+  cattle_operation: 'bg-lime-100 text-lime-800',
+  equipment_sales: 'bg-cyan-100 text-cyan-800',
   other: 'bg-gray-100 text-gray-800',
 };
+
+const AREA_OPTIONS = [
+  'Franklin County / Louisburg',
+  'Sanford / Lee County',
+  'Fayetteville / Cumberland County',
+  'Triangle Area',
+  'Chatham County',
+] as const;
 
 function getBusinessDaysSince(dateStr: string): number {
   const date = new Date(dateStr);
@@ -342,6 +359,7 @@ export default function GotFencesOutreach() {
 
   const prospectCount = useMemo(() => rows.filter(r => r.status === 'prospect').length, [rows]);
   const activeCount = useMemo(() => rows.filter(r => r.status === 'active').length, [rows]);
+  const declinedCount = useMemo(() => rows.filter(r => r.status === 'declined').length, [rows]);
 
   async function deleteContact(id: string) {
     if (!confirm('Remove this contact and its history? This cannot be undone.')) return;
@@ -490,6 +508,16 @@ export default function GotFencesOutreach() {
             >
               Prospects ({prospectCount})
             </button>
+            <button
+              onClick={() => setStatusTab('declined')}
+              className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                statusTab === 'declined'
+                  ? 'bg-[#9E1B32] text-white'
+                  : 'bg-[#E9E4DE] text-[#6B6B6B] hover:text-[#3A3A3A]'
+              }`}
+            >
+              Declined ({declinedCount})
+            </button>
           </div>
           <div className="flex-1 flex flex-wrap gap-2">
             <input
@@ -547,11 +575,8 @@ export default function GotFencesOutreach() {
             <table className="w-full text-sm min-w-[600px]">
               <thead>
                 <tr className="bg-black text-white text-left">
-                  {statusTab === 'prospect' && (
-                    <th className="px-4 py-3 font-medium w-10"></th>
-                  )}
-                  {statusTab === 'active' && (
-                    <th className="px-4 py-3 font-medium w-10"></th>
+                  {(statusTab === 'prospect' || statusTab === 'active') && (
+                    <th className="px-2 py-3 font-medium w-16"></th>
                   )}
                   <th className="px-4 py-3 font-medium">Contact</th>
                   <th className="px-4 py-3 font-medium">Category</th>
@@ -571,7 +596,7 @@ export default function GotFencesOutreach() {
               </thead>
               <tbody>
                 {groupedByArea.map((group, groupIdx) => {
-                  const colSpan = statusTab === 'active' ? 6 : 4;
+                  const colSpan = statusTab === 'active' ? 6 : statusTab === 'prospect' ? 5 : 3;
                   return (
                     <>
                       {/* Area section header */}
@@ -597,41 +622,62 @@ export default function GotFencesOutreach() {
                         >
                           {statusTab === 'prospect' && (
                             <td className="px-2 py-3 text-center">
-                              <button
-                                onClick={(e) => { e.stopPropagation(); togglePriority(r.id, r.priority); }}
-                                className={`p-1 rounded transition-colors ${
-                                  r.priority
-                                    ? 'text-amber-500 hover:text-amber-600'
-                                    : 'text-[#D8D3CC] hover:text-amber-400'
-                                }`}
-                                title={r.priority ? 'Remove priority' : 'Mark as priority'}
-                              >
-                                <Star size={16} fill={r.priority ? 'currentColor' : 'none'} />
-                              </button>
+                              <div className="flex items-center gap-1">
+                                <button
+                                  onClick={(e) => { e.stopPropagation(); togglePriority(r.id, r.priority); }}
+                                  className={`p-1 rounded transition-colors ${
+                                    r.priority
+                                      ? 'text-amber-500 hover:text-amber-600'
+                                      : 'text-[#D8D3CC] hover:text-amber-400'
+                                  }`}
+                                  title={r.priority ? 'Remove priority' : 'Mark as priority'}
+                                >
+                                  <Star size={16} fill={r.priority ? 'currentColor' : 'none'} />
+                                </button>
+                                <button
+                                  onClick={(e) => { e.stopPropagation(); updateStatus(r.id, 'declined'); }}
+                                  className="p-1 rounded transition-colors text-[#D8D3CC] hover:text-red-500"
+                                  title="Mark as declined"
+                                >
+                                  <XCircle size={16} />
+                                </button>
+                              </div>
                             </td>
                           )}
                           {statusTab === 'active' && (
                             <td className="px-2 py-3 text-center">
-                              <button
-                                onClick={(e) => { e.stopPropagation(); toggleScheduled(r.id, r.scheduled); }}
-                                className={`p-1 rounded transition-colors ${
-                                  r.scheduled
-                                    ? 'text-green-600 hover:text-green-700'
-                                    : 'text-[#D8D3CC] hover:text-green-500'
-                                }`}
-                                title={r.scheduled ? 'Mark as not scheduled' : 'Mark as scheduled'}
-                              >
-                                <CalendarCheck size={16} />
-                              </button>
+                              <div className="flex items-center gap-1">
+                                <button
+                                  onClick={(e) => { e.stopPropagation(); toggleScheduled(r.id, r.scheduled); }}
+                                  className={`p-1 rounded transition-colors ${
+                                    r.scheduled
+                                      ? 'text-green-600 hover:text-green-700'
+                                      : 'text-[#D8D3CC] hover:text-green-500'
+                                  }`}
+                                  title={r.scheduled ? 'Mark as not scheduled' : 'Mark as scheduled'}
+                                >
+                                  <CalendarCheck size={16} />
+                                </button>
+                                <button
+                                  onClick={(e) => { e.stopPropagation(); updateStatus(r.id, 'declined'); }}
+                                  className="p-1 rounded transition-colors text-[#D8D3CC] hover:text-red-500"
+                                  title="Mark as declined"
+                                >
+                                  <XCircle size={16} />
+                                </button>
+                              </div>
                             </td>
                           )}
                           <td className="px-4 py-3 font-medium">
                               {r.name}
-                              {r.business_name && (
+                              {r.business_name && r.business_name !== r.name && (
                                 <div className="text-xs text-[#6B6B6B] font-normal">{r.business_name}</div>
                               )}
                               {r.main_phone && (
                                 <div className="text-xs text-[#6B6B6B] font-normal">{r.main_phone}</div>
+                              )}
+                              {r.email && (
+                                <div className="text-xs text-[#6B6B6B] font-normal">{r.email}</div>
                               )}
                             </td>
                           <td className="px-4 py-3">
@@ -697,6 +743,14 @@ export default function GotFencesOutreach() {
                                 className="text-[#9E1B32] hover:underline text-xs font-medium mr-3"
                               >
                                 Mark Active
+                              </button>
+                            )}
+                            {statusTab === 'declined' && (
+                              <button
+                                onClick={() => updateStatus(r.id, 'prospect')}
+                                className="text-[#9E1B32] hover:underline text-xs font-medium mr-3"
+                              >
+                                Restore
                               </button>
                             )}
                             <button
@@ -928,12 +982,18 @@ function FenceContactModal({
           </select>
         </Field>
         <Field label="Area/Region">
-          <input value={area} onChange={(e) => setArea(e.target.value)} className="w-full border border-[#D8D3CC] rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#9E1B32]" placeholder="e.g. Franklin County / Louisburg" />
+          <select value={area} onChange={(e) => setArea(e.target.value)} className="w-full border border-[#D8D3CC] rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#9E1B32]">
+            <option value="">Select an area...</option>
+            {AREA_OPTIONS.map((areaOption) => (
+              <option key={areaOption} value={areaOption}>{areaOption}</option>
+            ))}
+          </select>
         </Field>
         <Field label="Status">
           <select value={status} onChange={(e) => setStatus(e.target.value as FenceContactStatus)} className="w-full border border-[#D8D3CC] rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#9E1B32]">
             <option value="prospect">Prospect (on radar, not yet contacted)</option>
             <option value="active">Active (have been contacted)</option>
+            <option value="declined">Declined (said no)</option>
           </select>
         </Field>
         <Field label="Phone">
@@ -1189,7 +1249,7 @@ function ViewContactModal({
             )}
           </div>
 
-          {contact.business_name && (
+          {contact.business_name && contact.business_name !== contact.name && (
             <DetailRow label="Business/Organization" value={contact.business_name} />
           )}
 
