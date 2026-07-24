@@ -33,8 +33,10 @@ export default function KidsLessonsPage() {
           <p className="text-xs font-semibold tracking-[0.2em] text-[#dc143c] uppercase mb-6">
             Kids & Family Lessons · Ages 5–15
           </p>
-          <h1 className="text-5xl md:text-6xl lg:text-7xl font-serif text-[#f5f0eb] leading-tight mb-8 tracking-tight">
-            Let your kid grow up around horses.
+          <h1 className="text-5xl md:text-6xl lg:text-7xl font-serif leading-tight mb-8 tracking-tight">
+            <span className="text-[#f5f0eb]">Some kids learn to ride.</span>
+            <br />
+            <span className="text-[#dc143c] italic">Ours learn to lead.</span>
           </h1>
           <p className="text-lg md:text-xl text-[#b8a8a0] max-w-3xl mx-auto mb-10">
             Real responsibility. Real animals. Real confidence — whether they&apos;re leading their first pony or riding independently.
