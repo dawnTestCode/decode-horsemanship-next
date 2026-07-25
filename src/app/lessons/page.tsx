@@ -86,13 +86,15 @@ export default function LessonsPage() {
             <p className="text-stone-400 mb-6">
               Got a kid? See <Link href="/kids-lessons" className="text-[#9E1B32] hover:text-[#b82e45] transition-colors">Kids & Family Lessons</Link>
             </p>
-            <Link
-              href="/lessons/book"
+            <a
+              href="https://app.acuityscheduling.com/schedule.php?owner=39789893&appointmentType=95758355"
+              target="_blank"
+              rel="noopener noreferrer"
               className="inline-flex items-center gap-2 px-6 py-2.5 bg-[#9E1B32] hover:bg-[#7a1527] text-white font-medium rounded-lg transition-colors"
             >
               Book a Farm Tour
               <ArrowRight size={18} />
-            </Link>
+            </a>
           </div>
         </section>
 

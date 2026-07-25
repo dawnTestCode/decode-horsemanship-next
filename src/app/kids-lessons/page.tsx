@@ -49,12 +49,14 @@ export default function KidsLessonsPage() {
               Book a Trial Lesson
               <ArrowRight size={20} />
             </Link>
-            <Link
-              href="/lessons/book"
+            <a
+              href="https://app.acuityscheduling.com/schedule.php?owner=39789893&appointmentType=95758355"
+              target="_blank"
+              rel="noopener noreferrer"
               className="inline-flex items-center justify-center gap-2 px-8 py-4 border-2 border-[#3a2020] hover:border-[#dc143c] text-[#f5f0eb] hover:text-[#dc143c] font-semibold rounded-lg transition-colors"
             >
               Schedule a Farm Tour
-            </Link>
+            </a>
           </div>
           <p className="text-sm text-[#b8a8a0]">
             Lessons start at <span className="text-[#f5f0eb] font-semibold">$50</span>/session
@@ -417,12 +419,14 @@ export default function KidsLessonsPage() {
                 Book a Trial Lesson
                 <ArrowRight size={20} />
               </Link>
-              <Link
-                href="/lessons/book"
+              <a
+                href="https://app.acuityscheduling.com/schedule.php?owner=39789893&appointmentType=95758355"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="inline-flex items-center justify-center gap-2 px-8 py-4 border-2 border-[#3a2020] hover:border-[#dc143c] text-[#f5f0eb] hover:text-[#dc143c] font-semibold rounded-lg transition-colors"
               >
                 Schedule a Farm Tour
-              </Link>
+              </a>
             </div>
           </div>
         </section>

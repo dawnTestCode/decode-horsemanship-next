@@ -31,12 +31,14 @@ export default function HeroSection() {
           >
             Book a Lesson
           </Link>
-          <Link
-            href="/lessons/book"
+          <a
+            href="https://app.acuityscheduling.com/schedule.php?owner=39789893&appointmentType=95758355"
+            target="_blank"
+            rel="noopener noreferrer"
             className="px-8 py-4 border-2 border-stone-600 hover:border-red-500 text-stone-200 hover:text-red-500 font-semibold rounded-lg transition-all"
           >
             Book a Free Farm Tour
-          </Link>
+          </a>
         </div>
       </div>
 
