@@ -184,6 +184,7 @@ export default function KidsLessonsPage() {
                 <p className="text-[#b8a8a0] mb-2">
                   One-on-one, fully paced to your kid.
                 </p>
+                <p className="text-xs text-[#8a7a70] mb-2">45 min · Scheduled individually</p>
                 <p className="text-sm text-[#f5f0eb] font-semibold mb-4">$75/session</p>
                 <span className="inline-flex items-center gap-1 text-sm text-[#dc143c]">
                   Book now <ArrowRight size={14} />
@@ -211,6 +212,7 @@ export default function KidsLessonsPage() {
                 <p className="text-[#b8a8a0] mb-2">
                   2–4 kids, friends or siblings welcome.
                 </p>
+                <p className="text-xs text-[#8a7a70] mb-2">45 min · Tue & Thu at 5:00pm</p>
                 <p className="text-sm text-[#f5f0eb] font-semibold mb-4">$50/session per child</p>
                 <span className="inline-flex items-center gap-1 text-sm text-[#dc143c]">
                   Book now <ArrowRight size={14} />
@@ -238,6 +240,7 @@ export default function KidsLessonsPage() {
                 <p className="text-[#b8a8a0] mb-2">
                   Weekly class for homeschool co-ops and families.
                 </p>
+                <p className="text-xs text-[#8a7a70] mb-2">45 min · Thu at 11:00am</p>
                 <p className="text-sm text-[#f5f0eb] font-semibold mb-4">$50/session per child</p>
                 <span className="inline-flex items-center gap-1 text-sm text-[#dc143c]">
                   Book now <ArrowRight size={14} />
