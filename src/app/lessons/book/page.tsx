@@ -19,13 +19,34 @@ export default function BookLessonPage() {
         </div>
       </section>
 
-      {/* Acuity Scheduling Embed */}
-      <section className="pb-16 px-4">
+      {/* Individual Lessons Embed */}
+      <section className="pb-12 px-4">
         <div className="max-w-4xl mx-auto">
+          <h2 className="text-2xl font-serif text-[#f5f0e8] mb-4">Book a Single Lesson</h2>
+          <p className="text-stone-400 mb-6">Schedule an individual lesson.</p>
           <div className="bg-stone-900/30 rounded-xl border border-stone-800 overflow-hidden">
             <iframe
-              src="https://app.acuityscheduling.com/schedule.php?owner=39789893&ref=embedded_csp"
-              title="Schedule Appointment"
+              src="https://app.acuityscheduling.com/schedule.php?owner=39789893&appointmentType=category:Adult%20Lessons"
+              title="Schedule Adult Lesson"
+              width="100%"
+              height="800"
+              frameBorder="0"
+              allow="payment"
+              className="w-full min-h-[800px]"
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* Lesson Packages Embed */}
+      <section className="pb-16 px-4">
+        <div className="max-w-4xl mx-auto">
+          <h2 className="text-2xl font-serif text-[#f5f0e8] mb-4">Purchase a Lesson Package</h2>
+          <p className="text-stone-400 mb-6">Save with a multi-lesson package.</p>
+          <div className="bg-stone-900/30 rounded-xl border border-stone-800 overflow-hidden">
+            <iframe
+              src="https://app.acuityscheduling.com/catalog.php?owner=39789893&category=Adult+Lessons"
+              title="Adult Lesson Packages"
               width="100%"
               height="800"
               frameBorder="0"
