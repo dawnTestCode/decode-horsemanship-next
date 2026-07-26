@@ -36,7 +36,7 @@ export default function LessonsPage() {
           <div className="grid md:grid-cols-2 gap-6 mb-8">
             {/* Door 1 - Never had one */}
             <Link
-              href="/lessons/new-to-horses"
+              href="/lessons/decode-the-desire"
               className="group relative block p-8 bg-stone-900/30 rounded-xl border-2 border-[#9E1B32]/30 hover:border-[#9E1B32] transition-all duration-300"
             >
               <span className="text-[10px] font-semibold tracking-[0.2em] text-[#9E1B32] uppercase mb-4 block">

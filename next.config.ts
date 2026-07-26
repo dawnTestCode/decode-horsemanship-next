@@ -53,6 +53,12 @@ const nextConfig: NextConfig = {
         destination: '/no-reins/:path*',
         permanent: true,
       },
+      // Redirect old lesson URL to new
+      {
+        source: '/lessons/new-to-horses',
+        destination: '/lessons/decode-the-desire',
+        permanent: true,
+      },
     ];
   },
 };
