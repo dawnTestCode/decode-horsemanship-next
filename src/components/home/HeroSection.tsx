@@ -20,9 +20,10 @@ export default function HeroSection() {
           Cracking the code to better horsemanship.
         </h1>
         <p className="text-lg text-stone-400 mb-12 max-w-2xl mx-auto">
-          Private lessons for adults — whether you&apos;ve never touched a horse, used to ride as a kid,
-          or think about it more than you say out loud. No experience required. Not a one-day event —
-          ongoing instruction, built around wherever you actually are.
+          Private lessons for kids and adults, hands-on experiences, and horses getting a second
+          chance — all in one place in Chapel Hill. Whether you&apos;ve never touched a horse, used to
+          ride as a kid, or think about it more than you say out loud, there&apos;s a place to start. No
+          experience required.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link
