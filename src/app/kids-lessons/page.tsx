@@ -181,6 +181,68 @@ export default function KidsLessonsPage() {
         <section className="py-16 border-b border-[#3a2020]">
           <h2 className="text-xs font-semibold tracking-[0.2em] text-[#dc143c] mb-10">CHOOSE A FORMAT</h2>
           <div className="grid md:grid-cols-3 gap-6">
+            {/* Small Group - IMG_6979.jpeg */}
+            <Link
+              href="/kids-lessons/book/small-group"
+              className="group relative p-6 bg-[#150c0c] rounded-xl border border-[#2a1818] hover:border-[#dc143c] transition-colors overflow-hidden"
+            >
+              <div
+                className="absolute inset-0 z-0"
+                style={{
+                  backgroundImage: 'url(/kids-lessons/IMG_6979.jpeg)',
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center 30%',
+                  backgroundRepeat: 'no-repeat',
+                  opacity: 0.15,
+                  filter: duotoneFilter,
+                }}
+              />
+              <div className="relative z-10">
+                <span className="inline-block text-[10px] font-semibold tracking-wide text-[#dc143c] bg-[#dc143c]/10 px-2 py-1 rounded mb-3">
+                  Great for a first lesson
+                </span>
+                <h3 className="text-xl font-serif text-[#f5f0eb] mb-3 group-hover:text-[#dc143c] transition-colors">Small Group</h3>
+                <p className="text-[#b8a8a0] mb-2">
+                  2–4 kids, friends or siblings welcome.
+                </p>
+                <p className="text-xs text-[#8a7a70] mb-2">45 min · Tue & Thu at 5:00pm</p>
+                <p className="text-sm text-[#f5f0eb] font-semibold mb-4">$50/session per child</p>
+                <span className="inline-flex items-center gap-1 text-sm text-[#dc143c]">
+                  Book now <ArrowRight size={14} />
+                </span>
+              </div>
+            </Link>
+            {/* Homeschool Group Block - IMG_7087.jpeg */}
+            <Link
+              href="/kids-lessons/book/homeschool"
+              className="group relative p-6 bg-[#dc143c]/10 rounded-xl border-2 border-[#dc143c] hover:bg-[#dc143c]/20 transition-colors overflow-hidden"
+            >
+              <div
+                className="absolute inset-0 z-0"
+                style={{
+                  backgroundImage: 'url(/kids-lessons/IMG_7087.jpeg)',
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center 30%',
+                  backgroundRepeat: 'no-repeat',
+                  opacity: 0.15,
+                  filter: duotoneFilter,
+                }}
+              />
+              <div className="relative z-10">
+                <span className="inline-block text-[10px] font-semibold tracking-wide text-[#dc143c] bg-[#dc143c]/10 px-2 py-1 rounded mb-3">
+                  Great for a first lesson
+                </span>
+                <h3 className="text-xl font-serif text-[#f5f0eb] mb-3">Homeschool Group Block</h3>
+                <p className="text-[#b8a8a0] mb-2">
+                  Weekly class for homeschool co-ops and families.
+                </p>
+                <p className="text-xs text-[#8a7a70] mb-2">45 min · Thu at 11:00am</p>
+                <p className="text-sm text-[#f5f0eb] font-semibold mb-4">$50/session per child</p>
+                <span className="inline-flex items-center gap-1 text-sm text-[#dc143c]">
+                  Book now <ArrowRight size={14} />
+                </span>
+              </div>
+            </Link>
             {/* Private Lesson - IMG_3315.jpeg */}
             <Link
               href="/kids-lessons/book/private"
@@ -204,62 +266,6 @@ export default function KidsLessonsPage() {
                 </p>
                 <p className="text-xs text-[#8a7a70] mb-2">45 min · Scheduled individually</p>
                 <p className="text-sm text-[#f5f0eb] font-semibold mb-4">$75/session</p>
-                <span className="inline-flex items-center gap-1 text-sm text-[#dc143c]">
-                  Book now <ArrowRight size={14} />
-                </span>
-              </div>
-            </Link>
-            {/* Small Group - IMG_6979.jpeg */}
-            <Link
-              href="/kids-lessons/book/small-group"
-              className="group relative p-6 bg-[#150c0c] rounded-xl border border-[#2a1818] hover:border-[#dc143c] transition-colors overflow-hidden"
-            >
-              <div
-                className="absolute inset-0 z-0"
-                style={{
-                  backgroundImage: 'url(/kids-lessons/IMG_6979.jpeg)',
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center 30%',
-                  backgroundRepeat: 'no-repeat',
-                  opacity: 0.15,
-                  filter: duotoneFilter,
-                }}
-              />
-              <div className="relative z-10">
-                <h3 className="text-xl font-serif text-[#f5f0eb] mb-3 group-hover:text-[#dc143c] transition-colors">Small Group</h3>
-                <p className="text-[#b8a8a0] mb-2">
-                  2–4 kids, friends or siblings welcome.
-                </p>
-                <p className="text-xs text-[#8a7a70] mb-2">45 min · Tue & Thu at 5:00pm</p>
-                <p className="text-sm text-[#f5f0eb] font-semibold mb-4">$50/session per child</p>
-                <span className="inline-flex items-center gap-1 text-sm text-[#dc143c]">
-                  Book now <ArrowRight size={14} />
-                </span>
-              </div>
-            </Link>
-            {/* Priority offering - highlighted in crimson - IMG_7087.jpeg */}
-            <Link
-              href="/kids-lessons/book/homeschool"
-              className="group relative p-6 bg-[#dc143c]/10 rounded-xl border-2 border-[#dc143c] hover:bg-[#dc143c]/20 transition-colors overflow-hidden"
-            >
-              <div
-                className="absolute inset-0 z-0"
-                style={{
-                  backgroundImage: 'url(/kids-lessons/IMG_7087.jpeg)',
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center 30%',
-                  backgroundRepeat: 'no-repeat',
-                  opacity: 0.15,
-                  filter: duotoneFilter,
-                }}
-              />
-              <div className="relative z-10">
-                <h3 className="text-xl font-serif text-[#f5f0eb] mb-3">Homeschool Group Block</h3>
-                <p className="text-[#b8a8a0] mb-2">
-                  Weekly class for homeschool co-ops and families.
-                </p>
-                <p className="text-xs text-[#8a7a70] mb-2">45 min · Thu at 11:00am</p>
-                <p className="text-sm text-[#f5f0eb] font-semibold mb-4">$50/session per child</p>
                 <span className="inline-flex items-center gap-1 text-sm text-[#dc143c]">
                   Book now <ArrowRight size={14} />
                 </span>
