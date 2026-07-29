@@ -267,7 +267,7 @@ export default function NoReinsPage() {
                 </div>
                 <div className="flex gap-4 py-3 border-b border-stone-800">
                   <span className="font-semibold text-[#f5f0e8] w-32 flex-shrink-0">Group size</span>
-                  <span className="text-stone-400">Two to eight women.</span>
+                  <span className="text-stone-400">One to eight women.</span>
                 </div>
                 <div className="flex gap-4 py-3 border-b border-stone-800">
                   <span className="font-semibold text-[#f5f0e8] w-32 flex-shrink-0">What to bring</span>
