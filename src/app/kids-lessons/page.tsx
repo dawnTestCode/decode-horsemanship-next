@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowRight } from 'lucide-react';
@@ -11,6 +12,18 @@ const duotoneFilter = 'grayscale(100%) sepia(30%) hue-rotate(300deg) saturate(20
 const duotoneFilterStrong = 'grayscale(100%) sepia(40%) hue-rotate(300deg) saturate(250%)';
 
 export default function KidsLessonsPage() {
+  // Sticky mobile bar: show after scrolling past hero
+  const [showStickyBar, setShowStickyBar] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      // Show sticky bar after scrolling ~400px (past hero on mobile)
+      setShowStickyBar(window.scrollY > 400);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   return (
     <div className="bg-[#0c0a09]">
       {/* Hero Section */}
@@ -41,7 +54,7 @@ export default function KidsLessonsPage() {
           <p className="text-lg md:text-xl text-[#b8a8a0] max-w-3xl mx-auto mb-10">
             Real responsibility. Real animals. Real confidence — whether they&apos;re leading their first pony or riding independently.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-4">
+          <div className="flex flex-col items-center gap-3 mb-4">
             <Link
               href="/kids-lessons/book"
               className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-[#dc143c] hover:bg-[#b01030] text-white font-semibold rounded-lg transition-colors"
@@ -53,13 +66,16 @@ export default function KidsLessonsPage() {
               href="https://app.acuityscheduling.com/schedule.php?owner=39789893&appointmentType=95758355"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-2 px-8 py-4 border-2 border-[#3a2020] hover:border-[#dc143c] text-[#f5f0eb] hover:text-[#dc143c] font-semibold rounded-lg transition-colors"
+              className="text-sm text-[#b8a8a0] hover:text-[#dc143c] transition-colors"
             >
-              Schedule a Farm Tour
+              Or schedule a farm tour first →
             </a>
           </div>
           <p className="text-sm text-[#b8a8a0]">
-            Lessons start at <span className="text-[#f5f0eb] font-semibold">$50</span>/session
+            No riding required — most kids start on the ground.
+          </p>
+          <p className="text-xs text-[#8a7a70] mt-2">
+            Lessons from <span className="text-[#f5f0eb]">$50</span>/session
           </p>
         </div>
       </section>
@@ -432,6 +448,31 @@ export default function KidsLessonsPage() {
         </section>
 
       </div>
+
+      {/* Sticky mobile booking bar */}
+      {showStickyBar && (
+        <div
+          className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-[#150c0c]/95 backdrop-blur-sm border-t border-[#3a2020]"
+          style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+        >
+          <div className="flex items-center justify-between px-4 py-3">
+            <div className="flex-1 min-w-0">
+              <p className="text-sm text-[#f5f0eb] font-medium">Kids & Family Lessons</p>
+              <p className="text-xs text-[#8a7a70]">From $50/session</p>
+            </div>
+            <Link
+              href="/kids-lessons/book"
+              className="ml-4 flex-shrink-0 px-4 py-2 bg-[#dc143c] hover:bg-[#b01030] text-white font-medium rounded-lg transition-colors text-sm flex items-center gap-1"
+            >
+              Book now
+              <ArrowRight size={14} />
+            </Link>
+          </div>
+        </div>
+      )}
+
+      {/* Spacer to prevent sticky bar from covering content on mobile */}
+      <div className="h-16 md:hidden" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }} />
     </div>
   );
 }
