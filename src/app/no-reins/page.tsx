@@ -279,12 +279,54 @@ export default function NoReinsPage() {
                 </div>
                 <div className="flex gap-4 py-3 border-b border-stone-800">
                   <span className="font-semibold text-[#f5f0e8] w-32 flex-shrink-0">What it costs</span>
-                  <span className="text-stone-400">$375. Deposit holds your spot.</span>
+                  <span className="text-stone-400">$375, paid in full at booking.</span>
                 </div>
               </div>
             </section>
 
-            {/* Section 10 — Who runs it */}
+            {/* Section 10 — Questions (FAQ) */}
+            <section>
+              <h2 className="text-xs font-semibold tracking-[0.2em] text-amber-600 mb-6">QUESTIONS</h2>
+              <div className="space-y-6">
+                {[
+                  {
+                    q: "Is this therapy?",
+                    a: "No. It's equine-assisted learning, not clinical treatment. Dawn isn't a therapist. What you feel in there might still be real. That's not the same thing.",
+                  },
+                  {
+                    q: "What if I've never been around horses?",
+                    a: "Good. You don't have to know anything about horses. The horse isn't grading you on technique. She's responding to who you are, not what you know.",
+                  },
+                  {
+                    q: "Can I bring a friend?",
+                    a: "You can come together. You'll each book your own spot — this isn't a shared experience, even if you walked in the same door.",
+                  },
+                  {
+                    q: "What if only one person signs up for a date?",
+                    a: "It still happens. There's no minimum. If it's just you, it's just you and the horse.",
+                  },
+                  {
+                    q: "What's the weather policy?",
+                    a: "We have an indoor round pen. Sessions run in almost everything — rain, cold, heat. In truly extreme weather, we'll be in touch to reschedule.",
+                  },
+                  {
+                    q: "Are there physical requirements?",
+                    a: "Nothing extreme. You'll be on gravel and dirt, standing and walking for a few hours. If you have concerns about mobility, reach out before you book and we'll talk it through.",
+                  },
+                  {
+                    q: "What if I need to cancel?",
+                    a: "Full refund if you cancel at least 7 days before your date. Inside that window, we'll move you to a different date once — no extra charge, no hoops. We know life happens.",
+                  },
+                ].map((faq, index) => (
+                  <div key={index}>
+                    <p className="font-semibold text-[#f5f0e8] mb-2">{faq.q}</p>
+                    <p className="text-stone-400">{faq.a}</p>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            {/* Section 11 — Who runs it */}
             <section>
               <h2 className="text-xs font-semibold tracking-[0.2em] text-amber-600 mb-6">WHO RUNS IT</h2>
               <p className="text-lg text-stone-300">
