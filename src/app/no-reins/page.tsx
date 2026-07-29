@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Calendar, Users, MapPin, Clock, ArrowRight } from 'lucide-react';
@@ -14,6 +15,33 @@ export default function NoReinsPage() {
 
   // Try new slug first, fallback to old slug
   const noReins = getProgram('no-reins') || getProgram('womens-retreat');
+
+  // Sticky mobile bar: show after scrolling past hero
+  const [showStickyBar, setShowStickyBar] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      // Show sticky bar after scrolling ~500px (past hero on mobile)
+      setShowStickyBar(window.scrollY > 500);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Get next available (non-full) date
+  const nextAvailableDate = noReins?.dates?.find((date) => {
+    const spotsRemaining = getSpotsRemaining(date, noReins);
+    return spotsRemaining > 0;
+  });
+
+  // Format short date for sticky bar (e.g., "Sat, Aug 15")
+  const formatShortDate = (dateStr: string) => {
+    return new Date(dateStr + 'T12:00:00').toLocaleDateString('en-US', {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric',
+    });
+  };
 
   return (
     <div className="bg-[#1a1d24]">
@@ -96,6 +124,24 @@ export default function NoReinsPage() {
                 </li>
               </ul>
             </section>
+
+            {/* Mid-page contextual CTA — Fix 2 */}
+            {!loading && nextAvailableDate && (
+              <div className="py-6 border-t border-b border-stone-800/50">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                  <p className="text-stone-500 text-sm">
+                    Next retreat: <span className="text-stone-300">{formatDate(nextAvailableDate.start_date)}</span>
+                  </p>
+                  <Link
+                    href={`/no-reins/register?date=${nextAvailableDate.start_date}`}
+                    className="inline-flex items-center gap-2 text-amber-600 hover:text-amber-500 font-medium text-sm transition-colors"
+                  >
+                    Reserve Your Spot
+                    <ArrowRight size={14} />
+                  </Link>
+                </div>
+              </div>
+            )}
 
             {/* Section 4 — What happens */}
             <section>
@@ -355,6 +401,34 @@ export default function NoReinsPage() {
 
         </div>
       </div>
+
+      {/* Sticky mobile booking bar — Fix 1 */}
+      {showStickyBar && nextAvailableDate && (
+        <div
+          className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-stone-900/95 backdrop-blur-sm border-t border-stone-800"
+          style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+        >
+          <div className="flex items-center justify-between px-4 py-3">
+            <div className="flex-1 min-w-0">
+              <p className="text-sm text-[#f5f0e8] font-medium truncate">
+                No Reins · {formatShortDate(nextAvailableDate.start_date)} · $375
+              </p>
+            </div>
+            <Link
+              href={`/no-reins/register?date=${nextAvailableDate.start_date}`}
+              className="ml-4 flex-shrink-0 px-4 py-2 bg-amber-700 hover:bg-amber-600 text-white font-medium rounded-lg transition-colors text-sm flex items-center gap-1"
+            >
+              Reserve
+              <ArrowRight size={14} />
+            </Link>
+          </div>
+        </div>
+      )}
+
+      {/* Spacer to prevent sticky bar from covering content on mobile */}
+      {nextAvailableDate && (
+        <div className="h-16 md:hidden" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }} />
+      )}
     </div>
   );
 }

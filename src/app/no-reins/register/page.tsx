@@ -121,6 +121,10 @@ function Select({
   required?: boolean;
   placeholder?: string;
 }) {
+  // Find the selected option's label to display
+  const selectedOption = options.find((opt) => opt.value === value);
+  const displayValue = selectedOption ? selectedOption.label : '';
+
   return (
     <div>
       <label className="block text-sm text-stone-400 mb-1.5">
@@ -132,12 +136,12 @@ function Select({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           required={required}
-          className="w-full appearance-none bg-stone-800 border border-stone-700 rounded-lg
-            px-4 py-3 text-stone-200
+          className={`w-full appearance-none bg-stone-800 border border-stone-700 rounded-lg
+            px-4 py-3
             focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500/30
-            transition-colors"
+            transition-colors ${value ? 'text-stone-200' : 'text-stone-600'}`}
         >
-          <option value="">{placeholder}</option>
+          <option value="" disabled>{placeholder}</option>
           {options.map((opt) => (
             <option key={opt.value} value={opt.value} disabled={opt.disabled}>
               {opt.label}
