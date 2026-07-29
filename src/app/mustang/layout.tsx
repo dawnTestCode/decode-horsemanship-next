@@ -10,6 +10,11 @@ export const metadata: Metadata = {
     type: "website",
     siteName: "Decode Horsemanship",
   },
+  twitter: {
+    card: "summary_large_image",
+    title: "Mustang Immersion — Three days with a wild horse",
+    description: "Work directly with a BLM mustang learning to trust humans. Witness transformation—theirs and yours.",
+  },
 };
 
 export default function MustangLayout({

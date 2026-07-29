@@ -215,6 +215,44 @@ export default function NoReinsPage() {
               </ul>
             </section>
 
+            {/* Section 8 — Testimonials */}
+            <section>
+              <h2 className="text-xs font-semibold tracking-[0.2em] text-amber-600 mb-8">WHAT THEY SAY</h2>
+              <div className="space-y-8">
+                {[
+                  {
+                    quote: "I didn't know she was still inside there.",
+                    name: "Emma A.",
+                  },
+                  {
+                    quote: "Dawn is exceptionally gifted with horses... This unique experience taught me things about myself that I didn't know I needed in my life.",
+                    name: "Gail M.",
+                    image: "/no-reins/no-reins-testimonial-gail.jpeg",
+                  },
+                ].map((testimonial, index) => (
+                  <div key={index} className="flex flex-col sm:flex-row gap-5">
+                    {testimonial.image && (
+                      <div className="flex-shrink-0">
+                        <Image
+                          src={testimonial.image}
+                          alt={`${testimonial.name} at No Reins retreat`}
+                          width={120}
+                          height={120}
+                          className="rounded-lg object-cover w-24 h-24 sm:w-28 sm:h-28"
+                        />
+                      </div>
+                    )}
+                    <div className={testimonial.image ? '' : 'sm:pl-0'}>
+                      <p className="text-lg font-serif italic text-stone-300 mb-3">
+                        &ldquo;{testimonial.quote}&rdquo;
+                      </p>
+                      <p className="text-sm text-stone-500">— {testimonial.name}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+
             {/* Section 9 — The practical part */}
             <section>
               <h2 className="text-xs font-semibold tracking-[0.2em] text-amber-600 mb-6">THE PRACTICAL PART</h2>

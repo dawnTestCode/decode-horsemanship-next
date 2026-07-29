@@ -10,6 +10,11 @@ export const metadata: Metadata = {
     type: "website",
     siteName: "Decode Horsemanship",
   },
+  twitter: {
+    card: "summary_large_image",
+    title: "No Reins — A half-day retreat for women",
+    description: "No riding. No agenda. Just you and a horse who can't be fooled. A morning to stop being fine.",
+  },
 };
 
 export default function NoReinsLayout({
