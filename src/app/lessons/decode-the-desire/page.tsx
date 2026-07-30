@@ -17,12 +17,8 @@ export default function NewToHorsesPage() {
         <div className="max-w-4xl mx-auto text-center">
           <div className="w-16 h-0.5 bg-[#9E1B32] mx-auto mb-8" />
           <h1 className="text-5xl md:text-6xl lg:text-7xl font-serif text-[#f5f0e8] leading-tight mb-8 tracking-tight">
-            You don&apos;t have to already own a horse to start.
+            A horse doesn&apos;t care if this is your first day or your comeback.
           </h1>
-          <div className="w-16 h-0.5 bg-[#9E1B32] mx-auto mb-8" />
-          <p className="text-lg md:text-xl text-stone-400 max-w-3xl mx-auto">
-            You don&apos;t need to have grown up on one either.
-          </p>
         </div>
       </section>
 
@@ -39,11 +35,15 @@ export default function NewToHorsesPage() {
             </li>
             <li className="flex gap-3">
               <span className="text-[#9E1B32]">—</span>
+              <span>You rode as a kid, or maybe just a few times as an adult — and life got in the way. You&apos;re not sure how much you remember, or whether your nerve came back with it.</span>
+            </li>
+            <li className="flex gap-3">
+              <span className="text-[#9E1B32]">—</span>
               <span>You&apos;ve stood at a fence and wondered what it would feel like, and never taken the next step.</span>
             </li>
             <li className="flex gap-3">
               <span className="text-[#9E1B32]">—</span>
-              <span>You&apos;re not sure you want to own a horse. You just want to know if the pull you feel is real.</span>
+              <span>You&apos;re not sure you want to own a horse. You just want to know if the pull you feel is real — or real again.</span>
             </li>
             <li className="flex gap-3">
               <span className="text-[#9E1B32]">—</span>
@@ -56,7 +56,7 @@ export default function NewToHorsesPage() {
         <section className="py-16 border-b border-stone-800">
           <h2 className="text-xs font-semibold tracking-[0.2em] text-[#9E1B32] mb-6">WHAT IT IS</h2>
           <p className="text-lg text-stone-300 max-w-3xl">
-            Low-stakes, one-on-one time with a horse and someone who can answer your actual questions. Not a lesson in the school sense. Not a retreat. A real, unhurried look at what this is actually like.
+            Low-stakes, one-on-one time with a horse and someone who can answer your actual questions. Not a lesson in the school sense. Not a retreat. Whether you&apos;re starting from zero or picking up something you set down years ago, it&apos;s a real, unhurried look at where you actually are right now.
           </p>
         </section>
 
@@ -64,7 +64,7 @@ export default function NewToHorsesPage() {
         <section className="py-16 border-b border-stone-800">
           <h2 className="text-xs font-semibold tracking-[0.2em] text-[#9E1B32] mb-6">WHAT HAPPENS</h2>
           <p className="text-lg text-stone-300 max-w-3xl">
-            You show up. No riding required, unless and until you want to work toward it. We start on the ground — haltering, leading, grooming, learning to read what a horse is actually telling you. You find out what this feels like, not what it looks like online.
+            You show up. If you&apos;ve never ridden, we start on the ground — haltering, leading, grooming, learning to read what a horse is actually telling you. If you&apos;ve ridden before, we meet you there: maybe that&apos;s groundwork to rebuild trust, maybe it&apos;s back in the saddle at your pace. Either way, you find out what this feels like, not what it looks like online.
           </p>
         </section>
 
