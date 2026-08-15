@@ -21,7 +21,8 @@ import DustLeatherSessionsEditor from '@/components/admin/DustLeatherSessionsEdi
 import CopperLaceSessionsEditor from '@/components/admin/CopperLaceSessionsEditor';
 import NoReinsSessionsEditor from '@/components/admin/NoReinsSessionsEditor';
 import ProgramCalendar from '@/components/admin/ProgramCalendar';
-import { Flame, Heart, Gem } from 'lucide-react';
+import AcuityClassesPanel from '@/components/admin/AcuityClassesPanel';
+import { Flame, Heart, Gem, CalendarCheck } from 'lucide-react';
 import { formatPrice } from '@/lib/utils';
 
 interface VolunteerContent {
@@ -205,7 +206,7 @@ export default function AdminPage() {
   const [unreadInquiriesCount, setUnreadInquiriesCount] = useState(0);
 
   // Admin tabs (removed separate 'groundwork' and 'summercamp' - now unified under 'programs')
-  const [activeTab, setActiveTab] = useState<'horses' | 'gallery' | 'volunteers' | 'eal' | 'programs' | 'calendar'>('horses');
+  const [activeTab, setActiveTab] = useState<'horses' | 'gallery' | 'volunteers' | 'eal' | 'programs' | 'calendar' | 'acuity'>('horses');
 
   // Gallery state
   const [galleryItems, setGalleryItems] = useState<GalleryItem[]>([]);
@@ -873,6 +874,17 @@ export default function AdminPage() {
             <Calendar size={18} />
             <span>Calendar</span>
           </button>
+          <button
+            onClick={() => setActiveTab('acuity')}
+            className={`px-6 py-3 rounded-lg font-medium transition-colors flex items-center gap-2 ${
+              activeTab === 'acuity'
+                ? 'bg-teal-700 text-white'
+                : 'bg-stone-800 text-stone-400 hover:bg-stone-700 hover:text-stone-200'
+            }`}
+          >
+            <CalendarCheck size={18} />
+            <span>Acuity</span>
+          </button>
         </div>
 
         {/* Horses Tab Content */}
@@ -1450,6 +1462,11 @@ export default function AdminPage() {
         {/* Calendar Tab Content */}
         {activeTab === 'calendar' && (
           <ProgramCalendar />
+        )}
+
+        {/* Acuity Tab Content */}
+        {activeTab === 'acuity' && (
+          <AcuityClassesPanel />
         )}
       </div>
 
