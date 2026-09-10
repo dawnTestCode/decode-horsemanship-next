@@ -213,10 +213,7 @@ export default function KidsLessonsPage() {
               </div>
             </Link>
             {/* Homeschool Group Block - IMG_7087.jpeg */}
-            <Link
-              href="/kids-lessons/book/homeschool"
-              className="group relative p-6 bg-[#dc143c]/10 rounded-xl border-2 border-[#dc143c] hover:bg-[#dc143c]/20 transition-colors overflow-hidden"
-            >
+            <div className="relative p-6 bg-[#dc143c]/10 rounded-xl border-2 border-[#dc143c] overflow-hidden">
               <div
                 className="absolute inset-0 z-0"
                 style={{
@@ -237,12 +234,29 @@ export default function KidsLessonsPage() {
                   Weekly class for homeschool co-ops and families.
                 </p>
                 <p className="text-xs text-[#8a7a70] mb-2">45 min · Thu at 11:00am</p>
-                <p className="text-sm text-[#f5f0eb] font-semibold mb-4">$50/session per child</p>
-                <span className="inline-flex items-center gap-1 text-sm text-[#dc143c]">
-                  Book now <ArrowRight size={14} />
-                </span>
+                <p className="text-sm text-[#f5f0eb] font-semibold mb-4">
+                  $50/session per child{' '}
+                  <span className="text-[#dc143c] font-medium">· Save 10% booking 4 at a time</span>
+                </p>
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
+                  <Link
+                    href="/kids-lessons/book/homeschool"
+                    className="inline-flex items-center gap-1 text-[#dc143c] hover:text-[#b01030] transition-colors"
+                  >
+                    Book now <ArrowRight size={14} />
+                  </Link>
+                  <span className="text-[#3a2020]" aria-hidden="true">|</span>
+                  <a
+                    href="https://app.acuityscheduling.com/catalog.php?owner=39789893&category=Kids+%26+Family"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-[#dc143c] hover:text-[#b01030] transition-colors"
+                  >
+                    Buy 4-Pack &amp; Save <ArrowRight size={14} />
+                  </a>
+                </div>
               </div>
-            </Link>
+            </div>
             {/* Private Lesson - IMG_3315.jpeg */}
             <Link
               href="/kids-lessons/book/private"
@@ -374,6 +388,12 @@ export default function KidsLessonsPage() {
               <h3 className="text-lg font-serif text-[#f5f0eb] mb-2">How much does a lesson cost?</h3>
               <p className="text-[#b8a8a0]">
                 Private lessons are $75/session. Small group lessons (2–4 kids) are $50/session per child. Homeschool group blocks are $50/session per child.
+              </p>
+            </div>
+            <div className="border-b border-[#2a1818] pb-6">
+              <h3 className="text-lg font-serif text-[#f5f0eb] mb-2">How does the Homeschool Group Block 4-pack work?</h3>
+              <p className="text-[#b8a8a0]">
+                Buy the 4-pack once and save 10% compared to booking four single sessions ($180 vs. $200). After purchase, you&apos;ll get a redemption code by email — use that code to reserve each Thursday session individually, whenever works for your schedule. Single-session booking is still available if you&apos;d rather pay as you go.
               </p>
             </div>
             <div className="border-b border-[#2a1818] pb-6">

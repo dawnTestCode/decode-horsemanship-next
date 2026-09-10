@@ -52,7 +52,11 @@ export default function BookKidsLessonPage() {
       <section className="pb-16 px-4">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-2xl font-serif text-[#f5f0eb] mb-4">Purchase a Lesson Package</h2>
-          <p className="text-[#a89890] mb-6">Save with a multi-lesson package for your child.</p>
+          <p className="text-[#a89890] mb-6">
+            Save 10% on Homeschool Group Block sessions by buying 4 at once. After purchase
+            you&apos;ll get a redemption code by email — use it to book each Thursday session
+            individually.
+          </p>
           <div className="bg-[#150c0c] rounded-xl border border-[#3a2020] overflow-hidden">
             <iframe
               src="https://app.acuityscheduling.com/catalog.php?owner=39789893&category=Kids+%26+Family"
