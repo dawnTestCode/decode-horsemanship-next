@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowRight } from 'lucide-react';
+import SmallGroupBlockPackage from '@/components/kids-lessons/SmallGroupBlockPackage';
 
 // Duotone filter CSS for crimson + black brand constraint
 // Removes color, applies crimson tint via sepia + hue-rotate
@@ -182,10 +183,7 @@ export default function KidsLessonsPage() {
           <h2 className="text-xs font-semibold tracking-[0.2em] text-[#dc143c] mb-10">CHOOSE A FORMAT</h2>
           <div className="grid md:grid-cols-3 gap-6">
             {/* Small Group - IMG_6979.jpeg */}
-            <Link
-              href="/kids-lessons/book/small-group"
-              className="group relative p-6 bg-[#150c0c] rounded-xl border border-[#2a1818] hover:border-[#dc143c] transition-colors overflow-hidden"
-            >
+            <div className="group relative p-6 bg-[#150c0c] rounded-xl border border-[#2a1818] hover:border-[#dc143c] transition-colors overflow-hidden">
               <div
                 className="absolute inset-0 z-0"
                 style={{
@@ -206,12 +204,22 @@ export default function KidsLessonsPage() {
                   2–4 kids, friends or siblings welcome.
                 </p>
                 <p className="text-xs text-[#8a7a70] mb-2">45 min · Tue & Thu at 5:00pm</p>
-                <p className="text-sm text-[#f5f0eb] font-semibold mb-4">$50/session per child</p>
-                <span className="inline-flex items-center gap-1 text-sm text-[#dc143c]">
-                  Book now <ArrowRight size={14} />
-                </span>
+                <p className="text-sm text-[#f5f0eb] font-semibold mb-4">
+                  $50/session per child{' '}
+                  <span className="text-[#dc143c] font-medium">· Save 10% booking 4 at a time</span>
+                </p>
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
+                  <Link
+                    href="/kids-lessons/book/small-group"
+                    className="inline-flex items-center gap-1 text-[#dc143c] hover:text-[#b01030] transition-colors"
+                  >
+                    Book now <ArrowRight size={14} />
+                  </Link>
+                  <span className="text-[#3a2020]" aria-hidden="true">|</span>
+                  <SmallGroupBlockPackage />
+                </div>
               </div>
-            </Link>
+            </div>
             {/* Homeschool Group Block - IMG_7087.jpeg */}
             <div className="relative p-6 bg-[#dc143c]/10 rounded-xl border-2 border-[#dc143c] overflow-hidden">
               <div

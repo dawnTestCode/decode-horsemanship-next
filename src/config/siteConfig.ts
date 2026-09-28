@@ -9,6 +9,13 @@ export const siteConfig = {
     locationNote: 'By appointment only',
   },
 
+  // Acuity Scheduling links
+  acuity: {
+    // Adds the Kids Small Group 4-session block ($180) to the cart and goes to checkout
+    kidsSmallGroupPackageUrl:
+      'https://app.acuityscheduling.com/catalog.php?owner=39789893&action=addCart&clear=1&id=2287663',
+  },
+
   // Business Hours
   hours: {
     weekends: 'Saturdays & Sundays: by appointment',
