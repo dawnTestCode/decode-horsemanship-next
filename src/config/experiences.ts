@@ -37,6 +37,9 @@ export type FeaturedEvent = {
   facilitatorUrl?: string;
 };
 
+// Harmonic Horse Connection registration lives on Victoria Haffer's site.
+export const HARMONIC_HORSE_BOOKING_URL: string | null = 'https://victoriahaffer.com/events/';
+
 export const featuredEvents: FeaturedEvent[] = [
   {
     slug: 'harmonic-horse-connection',
@@ -51,7 +54,7 @@ export const featuredEvents: FeaturedEvent[] = [
       'A one-day immersion with Victoria Haffer for people ready to slow down, listen differently, and explore what becomes possible when connection with a horse is not forced. Come with experience or without it. The work starts with attention.',
     detailLine: 'Hosted at Decode Horsemanship · $255',
     price: 255,
-    bookingUrl: 'https://victoriahaffer.com/events/',
+    bookingUrl: HARMONIC_HORSE_BOOKING_URL ?? undefined,
     facilitatorUrl: 'https://victoriahaffer.com/about-victoria/',
   },
 ];
@@ -64,7 +67,7 @@ export const experienceCards: ExperienceCard[] = [
     description:
       'A one-day immersion with Victoria Haffer for people who want to explore connection with a horse through attention, presence, and a different kind of listening.',
     details: ['Saturday, November 14, 2026', '$255'],
-    href: 'https://victoriahaffer.com/events/',
+    href: HARMONIC_HORSE_BOOKING_URL ?? '#upcoming',
     ctaLabel: 'View the clinic',
     status: 'published',
     featured: true,
@@ -151,3 +154,41 @@ export type Testimonial = {
 
 // TODO(owner): add two or three approved testimonials covering different doors into the work.
 export const approvedTestimonials: Testimonial[] = [];
+
+// One-off events shown in /experiences "Upcoming dates" alongside program_dates rows.
+// These are not in Supabase; edit them here.
+export type ManualUpcomingEvent = {
+  id: string;
+  source: 'manual';
+  slug: string;
+  name: string;
+  startDate: string;
+  endDate: string;
+  facilitator?: string;
+  priceLabel?: string;
+  availability: 'external';
+  registrationType: 'external';
+  registrationUrl: string | null;
+  registrationLabel: string;
+  // Database sessions this event replaces: same slug + start date are hidden.
+  replaces?: { slug: string; startDate: string }[];
+};
+
+export const manualUpcomingEvents: ManualUpcomingEvent[] = [
+  {
+    id: 'special-harmonic-horse-2026-11-14',
+    source: 'manual',
+    slug: 'harmonic-horse-connection',
+    name: 'Harmonic Horse Connection',
+    startDate: '2026-11-14',
+    endDate: '2026-11-14',
+    facilitator: 'Victoria Haffer',
+    priceLabel: '$255',
+    availability: 'external',
+    registrationType: 'external',
+    registrationUrl: HARMONIC_HORSE_BOOKING_URL,
+    registrationLabel: 'Register with Victoria',
+    // Harmonic Horse Connection takes Copper & Lace's November date.
+    replaces: [{ slug: 'copper-and-lace', startDate: '2026-11-14' }],
+  },
+];

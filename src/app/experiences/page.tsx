@@ -5,7 +5,7 @@ import { ArrowRight } from 'lucide-react';
 import { useProgramImages } from '@/hooks/useProgramImages';
 import { getPublishedExperiences } from '@/config/experiences';
 import ExperienceGrid from '@/components/home/ExperienceGrid';
-import FeaturedEvent from '@/components/home/FeaturedEvent';
+import UpcomingDates from '@/components/experiences/UpcomingDates';
 import WhyDecode from '@/components/home/WhyDecode';
 
 const expectations = [
@@ -50,8 +50,8 @@ export default function ExperiencesPage() {
         </div>
       </section>
 
-      {/* Upcoming dates - renders only while an event is current */}
-      <FeaturedEvent />
+      {/* Upcoming dates - next 60 days of program dates plus one-off events */}
+      <UpcomingDates />
 
       {/* Personal experiences */}
       <section id="personal-experiences" className="py-16 px-4 scroll-mt-20">
