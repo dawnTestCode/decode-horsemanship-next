@@ -51,9 +51,8 @@ export const featuredEvents: FeaturedEvent[] = [
       'A one-day immersion with Victoria Haffer for people ready to slow down, listen differently, and explore what becomes possible when connection with a horse is not forced. Come with experience or without it. The work starts with attention.',
     detailLine: 'Hosted at Decode Horsemanship · $255',
     price: 255,
-    // TODO(owner): confirm booking and facilitator URLs before launch.
-    bookingUrl: undefined,
-    facilitatorUrl: undefined,
+    bookingUrl: 'https://victoriahaffer.com/events/',
+    facilitatorUrl: 'https://victoriahaffer.com/about-victoria/',
   },
 ];
 
@@ -65,8 +64,7 @@ export const experienceCards: ExperienceCard[] = [
     description:
       'A one-day immersion with Victoria Haffer for people who want to explore connection with a horse through attention, presence, and a different kind of listening.',
     details: ['Saturday, November 14, 2026', '$255'],
-    // Points at the featured-event block until the owner-approved event URL exists.
-    href: '#upcoming',
+    href: 'https://victoriahaffer.com/events/',
     ctaLabel: 'View the clinic',
     status: 'published',
     featured: true,
