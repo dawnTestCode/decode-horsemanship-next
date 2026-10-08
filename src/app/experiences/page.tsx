@@ -1,144 +1,118 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowRight, Users, Heart, Compass, Building2, HelpCircle, Sparkles } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { useProgramImages } from '@/hooks/useProgramImages';
+import { getPublishedExperiences } from '@/config/experiences';
+import ExperienceGrid from '@/components/home/ExperienceGrid';
+import FeaturedEvent from '@/components/home/FeaturedEvent';
+import WhyDecode from '@/components/home/WhyDecode';
 
-const programs = [
+const expectations = [
   {
-    slug: 'copper-and-lace',
-    title: 'Copper & Lace',
-    tagline: 'A full day for women',
-    description: 'Horses, thread, fire. No riding required. You\'ll show up soft-handed and go home with calluses under the polish and a braid only you could make.',
-    href: '/copper-and-lace',
-    icon: Sparkles,
-    color: 'copper',
-    schedule: 'Second Saturday of each month',
-    isNew: true,
+    title: 'On the ground',
+    body: 'Most of the work happens on the ground, beside the horse. No riding required.',
   },
   {
-    slug: 'no-reins',
-    title: 'No Reins',
-    tagline: 'A half-day retreat for women',
-    description: 'No riding. No agenda. Just you and a horse who can\'t be fooled. A morning to stop being fine.',
-    href: '/no-reins',
-    icon: Heart,
-    color: 'amber',
-    schedule: 'Third Saturday of each month',
+    title: 'Small groups',
+    body: 'Small by design, so there is room to notice what is actually happening.',
   },
   {
-    slug: 'dust-and-leather',
-    title: 'Dust & Leather',
-    tagline: 'A working ranch day for men',
-    description: 'Real ranch work alongside the horses. No agenda, no exercises—just a day doing honest work.',
-    href: '/dust-and-leather',
-    icon: Users,
-    color: 'amber',
-    schedule: 'First Saturday of each month',
-  },
-  {
-    slug: 'groundwork',
-    title: 'Groundwork',
-    tagline: 'A half-day for men',
-    description: 'Four hours. A horse that doesn\'t care about your job title. No talking circle. No trust falls.',
-    href: '/groundwork',
-    icon: Compass,
-    color: 'stone',
-    schedule: 'Second Saturday of each month',
-  },
-  {
-    slug: 'corporate',
-    title: 'Corporate Programs',
-    tagline: 'Team development with horses',
-    description: 'Leadership workshops, team building, and organizational development. Horses respond to the real you—not your title.',
-    href: '/corporate',
-    icon: Building2,
-    color: 'blue',
-    schedule: 'By arrangement',
-  },
-  {
-    slug: 'mustang',
-    title: 'Mustang Immersion',
-    tagline: 'Three days with a wild horse',
-    description: 'Work directly with a BLM mustang learning to trust humans. Witness transformation—theirs and yours.',
-    href: '/mustang',
-    icon: HelpCircle,
-    color: 'red',
-    schedule: 'Limited availability',
+    title: 'No horse experience needed',
+    body: 'You do not need the right horse words. Come curious, unsure, or out of practice.',
   },
 ];
 
 export default function ExperiencesPage() {
   const { getImageUrl, getImageStyle } = useProgramImages();
+  const cards = getPublishedExperiences({ page: 'experiences' });
 
   return (
     <>
       {/* Hero Section */}
       <section className="relative py-20 px-4 bg-gradient-to-b from-stone-900 to-black">
         <div className="max-w-4xl mx-auto text-center">
+          <p className="text-xs md:text-sm font-semibold uppercase tracking-[0.2em] text-red-500 mb-4">
+            Horse-led workshops in Chapel Hill, North Carolina
+          </p>
           <h1 className="text-4xl md:text-5xl font-bold mb-6">
-            Our <span className="text-red-500">Experiences</span>
+            Horses don&rsquo;t care what your title is.
           </h1>
-          <p className="text-xl text-stone-400 mb-8 max-w-2xl mx-auto">
-            Horses respond to who you really are, not who you're trying to be.
-            Every program here uses that truth as the foundation.
+          <p className="text-xl text-stone-400 mb-6 max-w-2xl mx-auto">
+            They notice clarity, pressure, hesitation, and intent. Decode Horsemanship creates hands-on
+            experiences for people meeting horses for the first time, leaders building better teams,
+            organizations moving through change, and horse people ready to see something new.
+          </p>
+          <p className="text-sm text-stone-500">
+            No horse experience required. Most experiences happen on the ground.
           </p>
         </div>
       </section>
 
-      {/* Programs Grid */}
-      <section className="py-16 px-4">
+      {/* Upcoming dates - renders only while an event is current */}
+      <FeaturedEvent />
+
+      {/* Personal experiences */}
+      <section id="personal-experiences" className="py-16 px-4 scroll-mt-20">
         <div className="max-w-6xl mx-auto">
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {programs.map((program) => {
-              const Icon = program.icon;
-              const isNew = 'isNew' in program && program.isNew;
-              return (
-                <Link
-                  key={program.slug}
-                  href={program.href}
-                  className={`group relative p-8 rounded-xl border transition-all hover:bg-stone-900/70 ${
-                    isNew
-                      ? 'bg-gradient-to-br from-amber-950/40 to-stone-900/50 border-amber-700/50 hover:border-amber-600'
-                      : 'bg-stone-900/50 border-stone-800 hover:border-red-700'
-                  }`}
-                >
-                  {isNew && (
-                    <span className="absolute top-4 right-4 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-amber-600 text-stone-950 rounded">
-                      New
-                    </span>
-                  )}
-                  <div className="flex items-start justify-between mb-4">
-                    <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
-                      isNew ? 'bg-amber-900/40' : 'bg-red-900/30'
-                    }`}>
-                      <Icon className={isNew ? 'text-amber-500' : 'text-red-500'} size={24} />
-                    </div>
-                    {!isNew && (
-                      <ArrowRight
-                        size={20}
-                        className="text-stone-600 group-hover:text-red-500 transition-colors mt-2"
-                      />
-                    )}
-                  </div>
-                  <h3 className="text-xl font-bold text-stone-100 mb-1">
-                    {program.title}
-                  </h3>
-                  <p className={`text-sm mb-3 italic ${isNew ? 'text-amber-500' : 'text-red-500'}`}>
-                    {program.tagline}
-                  </p>
-                  <p className="text-stone-400 text-sm mb-4">
-                    {program.description}
-                  </p>
-                  <p className="text-xs text-stone-500 uppercase tracking-wide">
-                    {program.schedule}
-                  </p>
-                </Link>
-              );
-            })}
+          <div className="text-center mb-12 max-w-3xl mx-auto">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-red-500 mb-3">Workshops and experiences</p>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Come for a day. Leave with something real.</h2>
+            <p className="text-lg text-stone-400">
+              These are not riding lessons dressed up as retreats. They are small, hands-on experiences built
+              around honest attention, useful work, and what a horse notices before people say a word.
+            </p>
+          </div>
+          <ExperienceGrid cards={cards} />
+        </div>
+      </section>
+
+      {/* Leadership and organizational experiences */}
+      <section id="organizations" className="py-16 px-4 bg-stone-900/30 scroll-mt-20">
+        <div className="max-w-4xl mx-auto text-center">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-red-500 mb-3">For teams and organizations</p>
+          <h2 className="text-3xl md:text-4xl font-bold mb-6">
+            When the pattern is hard to name, let the horse make it visible.
+          </h2>
+          <p className="text-lg text-stone-400 mb-8">
+            Leadership gaps, mixed signals, stalled trust, and change fatigue do not disappear because a team has
+            discussed them. A ground-based experience with horses gives the group something real to respond
+            to—then a skilled facilitator helps turn what happened into useful language and next steps.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link
+              href="/corporate#inquiry"
+              className="px-8 py-4 bg-red-700 hover:bg-red-600 text-white font-semibold rounded-lg transition-colors"
+            >
+              Plan a team experience
+            </Link>
+            <Link
+              href="/corporate"
+              className="px-8 py-4 border-2 border-stone-600 hover:border-red-500 text-stone-200 hover:text-red-500 font-semibold rounded-lg transition-colors"
+            >
+              See how the work happens
+            </Link>
           </div>
         </div>
       </section>
+
+      {/* What to expect */}
+      <section className="py-16 px-4">
+        <div className="max-w-5xl mx-auto">
+          <h2 className="text-3xl font-bold text-center mb-10">What to expect</h2>
+          <div className="grid md:grid-cols-3 gap-6">
+            {expectations.map((item) => (
+              <div key={item.title} className="bg-stone-900/50 p-6 rounded-xl border border-stone-800">
+                <h3 className="text-lg font-semibold text-stone-100 mb-2">{item.title}</h3>
+                <p className="text-stone-400">{item.body}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Dawn and herd credibility */}
+      <WhyDecode />
 
       {/* The Mustang Story */}
       <section className="py-16 px-4 bg-stone-900/30">
@@ -208,70 +182,20 @@ export default function ExperiencesPage() {
         </div>
       </section>
 
-      {/* Why Decode */}
-      <section className="py-16 px-4">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4">
-              Why <span className="text-red-500">Decode</span>?
-            </h2>
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-8">
-            <div className="bg-stone-900/50 p-6 rounded-xl border border-stone-800">
-              <h3 className="text-lg font-semibold text-stone-100 mb-2">
-                Corporate + Equine Expertise
-              </h3>
-              <p className="text-stone-400">
-                Our founder brings 25+ years of corporate leadership experience
-                across Tech, Healthcare, and Finance.
-              </p>
-            </div>
-            <div className="bg-stone-900/50 p-6 rounded-xl border border-stone-800">
-              <h3 className="text-lg font-semibold text-stone-100 mb-2">
-                Rescue Philosophy
-              </h3>
-              <p className="text-stone-400">
-                Every horse in our program has a story of transformation—they
-                understand change at the deepest level.
-              </p>
-            </div>
-            <div className="bg-stone-900/50 p-6 rounded-xl border border-stone-800">
-              <h3 className="text-lg font-semibold text-stone-100 mb-2">
-                Tailored Experiences
-              </h3>
-              <p className="text-stone-400">
-                We design each program around your specific goals, whether
-                personal growth or team development.
-              </p>
-            </div>
-            <div className="bg-stone-900/50 p-6 rounded-xl border border-stone-800">
-              <h3 className="text-lg font-semibold text-stone-100 mb-2">
-                Intimate Setting
-              </h3>
-              <p className="text-stone-400">
-                Small groups ensure personalized attention and deeper engagement
-                with the horses and facilitators.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* CTA Section */}
       <section className="py-20 px-4 bg-stone-900/30">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl font-bold mb-4">Not Sure Where to Start?</h2>
+          <h2 className="text-3xl font-bold mb-4">You do not have to know which program you need.</h2>
           <p className="text-stone-400 mb-8 max-w-2xl mx-auto">
-            Whether you're exploring for yourself or your organization, we'd
-            love to discuss which program might be right for you.
+            Tell us who is coming, what is changing, or what keeps pulling you toward horses. We&rsquo;ll tell you
+            the clearest place to start.
           </p>
           <Link
             href="/contact"
             className="px-8 py-4 bg-red-700 hover:bg-red-600 text-white font-semibold rounded-lg transition-colors inline-flex items-center gap-2"
           >
-            Get in Touch
-            <ArrowRight size={20} />
+            Start the conversation
+            <ArrowRight size={20} aria-hidden="true" />
           </Link>
         </div>
       </section>

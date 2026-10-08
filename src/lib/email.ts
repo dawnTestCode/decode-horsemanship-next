@@ -675,8 +675,11 @@ export async function sendContactInquiryNotification({
     boarding: 'Boarding Inquiry',
     general: 'General Question',
     'volunteer/support': 'Volunteer/Support',
-    corporate: 'Corporate Programs',
-    personal: 'Personal Development',
+    corporate: 'Leadership or Team Experience',
+    personal: 'Personal Workshop',
+    'organizational-change': 'Organizational Change Work',
+    lessons: 'Private Lessons',
+    'not-sure': 'Not Sure Yet',
     mustang: 'Mustang Immersion',
     youth: 'Youth Programs',
   };

@@ -169,11 +169,6 @@ const KidsLessonsLayout: React.FC<KidsLessonsLayoutProps> = ({ children }) => {
                   </Link>
                 </li>
                 <li>
-                  <Link href="/groundwork" className="text-[#a89890] hover:text-[#dc143c] transition-colors text-sm">
-                    Groundwork
-                  </Link>
-                </li>
-                <li>
                   <Link href="/" className="text-[#a89890] hover:text-[#dc143c] transition-colors text-sm">
                     Horse Rescue & Adoption
                   </Link>

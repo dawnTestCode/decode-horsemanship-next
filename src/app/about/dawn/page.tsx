@@ -48,9 +48,9 @@ export default function AboutDawnPage() {
               </h2>
               <div className="space-y-4 text-stone-400">
                 <p>
-                  Before horses became my life&apos;s work, I spent over 25 years in
-                  corporate America — managing teams since 1999, consulting
-                  across Tech, Healthcare, and Finance, and teaching at
+                  Before horses became my life&apos;s work, I spent more than two decades in
+                  corporate leadership across tech, healthcare, and finance —
+                  managing teams since 1999, consulting, and teaching at
                   conferences worldwide. I understood leadership, communication,
                   and the weight of responsibility that comes with both.
                 </p>
@@ -160,7 +160,7 @@ export default function AboutDawnPage() {
                 <h4 className="font-semibold text-stone-200 mb-2">
                   Corporate Leadership
                 </h4>
-                <p className="text-sm text-stone-500">25+ Years</p>
+                <p className="text-sm text-stone-500">More than two decades</p>
               </div>
             </div>
           </div>

@@ -1,12 +1,15 @@
 import type { Metadata } from "next";
 import PageLayout from "@/components/layout/PageLayout";
 
+// Re-render hourly so a featured event drops off once it has passed
+export const revalidate = 3600;
+
 export const metadata: Metadata = {
-  title: "Experiences — Decode Horsemanship",
-  description: "Horses respond to who you really are, not who you're trying to be. Every experience here uses that truth as the foundation.",
+  title: "Workshops & Experiences — Decode Horsemanship",
+  description: "Horse-led workshops in Chapel Hill, NC for first-timers, leaders, teams, and lifelong horse lovers. Ground-based, small groups, no horse experience required.",
   openGraph: {
-    title: "Experiences — Decode Horsemanship",
-    description: "Horses respond to who you really are, not who you're trying to be. Every experience here uses that truth as the foundation.",
+    title: "Workshops & Experiences — Decode Horsemanship",
+    description: "Horse-led workshops in Chapel Hill, NC for first-timers, leaders, teams, and lifelong horse lovers. Ground-based, small groups, no horse experience required.",
     type: "website",
     siteName: "Decode Horsemanship",
   },

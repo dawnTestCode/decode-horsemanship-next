@@ -168,11 +168,6 @@ const LessonsLayout: React.FC<LessonsLayoutProps> = ({ children }) => {
                   </Link>
                 </li>
                 <li>
-                  <Link href="/groundwork" className="text-stone-500 hover:text-red-500 transition-colors text-sm">
-                    Groundwork
-                  </Link>
-                </li>
-                <li>
                   <Link href="/" className="text-stone-500 hover:text-red-500 transition-colors text-sm">
                     Horse Rescue & Adoption
                   </Link>

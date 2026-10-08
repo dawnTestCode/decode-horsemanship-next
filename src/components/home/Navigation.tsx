@@ -5,6 +5,18 @@ import Link from 'next/link';
 import { Menu, X, Settings, Users, Lock } from 'lucide-react';
 import { siteConfig } from '@/config/siteConfig';
 
+type NavItem = { label: string; href?: string; section?: string; primary?: boolean };
+
+// Same order on desktop and mobile
+const navItems: NavItem[] = [
+  { label: 'Workshops', href: '/experiences', primary: true },
+  { label: 'Teams & Organizations', href: '/corporate' },
+  { label: 'Lessons', href: '/lessons' },
+  { label: 'Horses & Rescue', section: 'mission' },
+  { label: 'About', href: '/about/dawn' },
+  { label: 'Contact', section: 'contact' },
+];
+
 interface NavigationProps {
   activeSection: string;
   onSectionClick: (section: string) => void;
@@ -23,60 +35,51 @@ export default function Navigation({ activeSection, onSectionClick }: Navigation
     <nav className="fixed top-0 left-0 right-0 z-50 bg-black/95 backdrop-blur-sm border-b border-stone-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
-          <div
-            className="flex items-center gap-3 cursor-pointer"
+          <button
+            type="button"
+            className="flex items-center gap-3"
             onClick={() => handleSectionClick('home')}
           >
-            <img src={siteConfig.branding.logoUrl} alt="Decode Horsemanship" className="h-14 w-auto" />
-          </div>
+            <img src={siteConfig.branding.logoUrl} alt="Decode Horsemanship home" className="h-14 w-auto" />
+          </button>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-8">
-            <Link
-              href="/lessons"
-              className="text-sm font-medium transition-colors hover:text-red-500 text-stone-300"
-            >
-              Lessons
-            </Link>
-            <Link
-              href="/kids-lessons"
-              className="text-sm font-medium transition-colors hover:text-red-500 text-stone-300"
-            >
-              Kids & Family
-            </Link>
-            <Link
-              href="/experiences"
-              className="text-sm font-medium transition-colors hover:text-red-500 text-stone-300"
-            >
-              Experiences
-            </Link>
-            <button
-              onClick={() => handleSectionClick('horses')}
-              className={`text-sm font-medium transition-colors hover:text-red-500 ${
-                activeSection === 'horses' ? 'text-red-500' : 'text-stone-300'
-              }`}
-            >
-              Horses
-            </button>
-            <Link
-              href="/contact"
-              className="text-sm font-medium transition-colors hover:text-red-500 text-stone-300"
-            >
-              Contact
-            </Link>
-            <a
-              href="https://forms.gle/DszFyex1HKBbLDw6A"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm font-medium transition-colors hover:text-red-500 text-stone-300"
-            >
-              Waiver
-            </a>
+          <div className="hidden lg:flex items-center gap-6">
+            {navItems.map((item) =>
+              item.section ? (
+                <a
+                  key={item.label}
+                  href={`#${item.section}`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleSectionClick(item.section!);
+                  }}
+                  className={`text-sm font-medium transition-colors hover:text-red-500 ${
+                    activeSection === item.section ? 'text-red-500' : 'text-stone-300'
+                  }`}
+                >
+                  {item.label}
+                </a>
+              ) : (
+                <Link
+                  key={item.label}
+                  href={item.href!}
+                  className={
+                    item.primary
+                      ? 'px-4 py-2 text-sm font-semibold bg-red-700 hover:bg-red-600 text-white rounded-lg transition-colors'
+                      : 'text-sm font-medium transition-colors hover:text-red-500 text-stone-300'
+                  }
+                >
+                  {item.label}
+                </Link>
+              )
+            )}
             <div className="relative">
               <button
                 onClick={() => setShowSettingsDropdown(!showSettingsDropdown)}
                 className="p-2 text-stone-500 hover:text-red-500 transition-colors"
                 title="Portal Access"
+                aria-label="Portal access"
               >
                 <Settings size={20} />
               </button>
@@ -110,12 +113,13 @@ export default function Navigation({ activeSection, onSectionClick }: Navigation
           </div>
 
           {/* Mobile Menu Button */}
-          <div className="md:hidden flex items-center gap-2">
+          <div className="lg:hidden flex items-center gap-2">
             <div className="relative">
               <button
                 onClick={() => setShowSettingsDropdown(!showSettingsDropdown)}
                 className="p-2 text-stone-500 hover:text-red-500 transition-colors"
                 title="Portal Access"
+                aria-label="Portal access"
               >
                 <Settings size={20} />
               </button>
@@ -149,6 +153,9 @@ export default function Navigation({ activeSection, onSectionClick }: Navigation
             <button
               className="p-2 text-stone-300 hover:text-red-500"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
+              aria-expanded={mobileMenuOpen}
+              aria-controls="mobile-menu"
             >
               {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
@@ -158,51 +165,36 @@ export default function Navigation({ activeSection, onSectionClick }: Navigation
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-black/95 border-t border-stone-800">
+        <div id="mobile-menu" className="lg:hidden bg-black/95 border-t border-stone-800">
           <div className="px-4 py-4 space-y-3">
-            <Link
-              href="/lessons"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block w-full text-left py-2 text-stone-300 hover:text-red-500"
-            >
-              Lessons
-            </Link>
-            <Link
-              href="/kids-lessons"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block w-full text-left py-2 text-stone-300 hover:text-red-500"
-            >
-              Kids & Family
-            </Link>
-            <Link
-              href="/experiences"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block w-full text-left py-2 text-stone-300 hover:text-red-500"
-            >
-              Experiences
-            </Link>
-            <button
-              onClick={() => handleSectionClick('horses')}
-              className="block w-full text-left py-2 text-stone-300 hover:text-red-500"
-            >
-              Horses
-            </button>
-            <Link
-              href="/contact"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block w-full text-left py-2 text-stone-300 hover:text-red-500"
-            >
-              Contact
-            </Link>
-            <a
-              href="https://forms.gle/DszFyex1HKBbLDw6A"
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block w-full text-left py-2 text-stone-300 hover:text-red-500"
-            >
-              Waiver
-            </a>
+            {navItems.map((item) =>
+              item.section ? (
+                <a
+                  key={item.label}
+                  href={`#${item.section}`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleSectionClick(item.section!);
+                  }}
+                  className="block w-full text-left py-2 text-stone-300 hover:text-red-500"
+                >
+                  {item.label}
+                </a>
+              ) : (
+                <Link
+                  key={item.label}
+                  href={item.href!}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={
+                    item.primary
+                      ? 'block w-full text-center py-3 bg-red-700 hover:bg-red-600 text-white font-semibold rounded-lg'
+                      : 'block w-full text-left py-2 text-stone-300 hover:text-red-500'
+                  }
+                >
+                  {item.label}
+                </Link>
+              )
+            )}
           </div>
         </div>
       )}

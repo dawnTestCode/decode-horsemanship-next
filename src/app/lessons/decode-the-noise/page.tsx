@@ -113,7 +113,7 @@ export default function DecodeTheNoisePage() {
         <section className="py-16 border-b border-stone-800">
           <h2 className="text-xs font-semibold tracking-[0.2em] text-[#9E1B32] mb-6">WHO RUNS IT</h2>
           <p className="text-lg text-stone-300 max-w-3xl">
-            Dawn, founder of Decode Horsemanship. Before horses, she spent two decades in corporate leadership — running teams, developing people, consulting on team dynamics at the executive level. She&apos;s been training, rehabilitating, and partnering with horses for over a decade, including mustangs straight off Bureau of Land Management holdings. She&apos;s not teaching a franchised method. She&apos;s telling you what&apos;s true, for your horse, based on what she actually sees in front of her.
+            Dawn, founder of Decode Horsemanship. Before horses, she spent more than two decades in corporate leadership across tech, healthcare, and finance — running teams, developing people, consulting on team dynamics at the executive level. She&apos;s been training, rehabilitating, and partnering with horses for over a decade, including mustangs straight off Bureau of Land Management holdings. She&apos;s not teaching a franchised method. She&apos;s telling you what&apos;s true, for your horse, based on what she actually sees in front of her.
           </p>
         </section>
 

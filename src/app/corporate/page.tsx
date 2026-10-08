@@ -266,7 +266,7 @@ export default function CorporatePage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 px-4 bg-stone-900/30">
+      <section id="inquiry" className="py-20 px-4 bg-stone-900/30 scroll-mt-20">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl font-bold mb-4">Ready to Transform Your Team?</h2>
           <p className="text-stone-400 mb-8 max-w-2xl mx-auto">

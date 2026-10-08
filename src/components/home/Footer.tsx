@@ -52,7 +52,7 @@ export default function Footer({ onSectionClick }: FooterProps) {
                   onClick={() => onSectionClick('mission')}
                   className="text-stone-500 hover:text-red-500 transition-colors text-sm"
                 >
-                  Mission
+                  Horses &amp; Rescue
                 </button>
               </li>
               <li>
@@ -69,6 +69,16 @@ export default function Footer({ onSectionClick }: FooterProps) {
                 </Link>
               </li>
               <li>
+                <a
+                  href="https://forms.gle/DszFyex1HKBbLDw6A"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-stone-500 hover:text-red-500 transition-colors text-sm"
+                >
+                  Waiver
+                </a>
+              </li>
+              <li>
                 <Link href="/volunteer" className="text-stone-500 hover:text-green-500 transition-colors text-sm">
                   Volunteer Portal
                 </Link>
@@ -76,21 +86,16 @@ export default function Footer({ onSectionClick }: FooterProps) {
             </ul>
           </div>
           <div>
-            <h4 className="font-semibold text-stone-200 mb-4">Experiences</h4>
+            <h4 className="font-semibold text-stone-200 mb-4">Workshops</h4>
             <ul className="space-y-2">
               <li>
                 <Link href="/experiences" className="text-stone-500 hover:text-red-500 transition-colors text-sm">
-                  All Experiences
+                  All Workshops &amp; Experiences
                 </Link>
               </li>
               <li>
                 <Link href="/dust-and-leather" className="text-stone-500 hover:text-red-500 transition-colors text-sm">
                   Dust and Leather
-                </Link>
-              </li>
-              <li>
-                <Link href="/groundwork" className="text-stone-500 hover:text-red-500 transition-colors text-sm">
-                  Groundwork
                 </Link>
               </li>
               <li>
@@ -100,7 +105,7 @@ export default function Footer({ onSectionClick }: FooterProps) {
               </li>
               <li>
                 <Link href="/corporate" className="text-stone-500 hover:text-red-500 transition-colors text-sm">
-                  Corporate Programs
+                  Teams &amp; Organizations
                 </Link>
               </li>
               <li>
@@ -114,12 +119,12 @@ export default function Footer({ onSectionClick }: FooterProps) {
             <h4 className="font-semibold text-stone-200 mb-4">Contact</h4>
             <ul className="space-y-2 text-sm text-stone-500">
               <li>
-                <a href={`tel:${siteConfig.contact.phone}`} className="hover:text-red-500 transition-colors">
+                <a href={siteConfig.contact.phoneHref} className="hover:text-red-500 transition-colors">
                   {siteConfig.contact.phone}
                 </a>
               </li>
               <li>
-                <a href={`mailto:${siteConfig.contact.email}`} className="hover:text-red-500 transition-colors">
+                <a href={`mailto:${siteConfig.contact.email}`} className="hover:text-red-500 transition-colors break-all">
                   {siteConfig.contact.email}
                 </a>
               </li>

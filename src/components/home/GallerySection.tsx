@@ -39,9 +39,10 @@ const getVideoThumbnail = (url: string): string | null => {
 
 interface GallerySectionProps {
   galleryItems: GalleryItem[];
+  loading?: boolean;
 }
 
-export default function GallerySection({ galleryItems }: GallerySectionProps) {
+export default function GallerySection({ galleryItems, loading = false }: GallerySectionProps) {
   const [galleryIndex, setGalleryIndex] = useState(0);
   const [galleryModalItem, setGalleryModalItem] = useState<GalleryItem | null>(null);
 
@@ -99,7 +100,13 @@ export default function GallerySection({ galleryItems }: GallerySectionProps) {
             </p>
           </div>
 
-          {galleryItems.length > 0 ? (
+          {loading && galleryItems.length === 0 ? (
+            <div
+              className="aspect-[2/1] rounded-2xl bg-stone-900/50 border border-stone-800 motion-safe:animate-pulse"
+              role="status"
+              aria-label="Loading gallery"
+            />
+          ) : galleryItems.length > 0 ? (
             <div className="relative">
               {/* Main Carousel */}
               <div className="relative overflow-hidden rounded-2xl bg-stone-900/50 border border-stone-800">
@@ -160,12 +167,14 @@ export default function GallerySection({ galleryItems }: GallerySectionProps) {
                     <>
                       <button
                         onClick={prevGallerySlide}
+                        aria-label="Previous gallery item"
                         className="absolute left-4 top-1/2 -translate-y-1/2 p-2 bg-black/50 hover:bg-red-700 rounded-full transition-colors"
                       >
                         <ChevronLeft size={24} />
                       </button>
                       <button
                         onClick={nextGallerySlide}
+                        aria-label="Next gallery item"
                         className="absolute right-4 top-1/2 -translate-y-1/2 p-2 bg-black/50 hover:bg-red-700 rounded-full transition-colors"
                       >
                         <ChevronRight size={24} />
@@ -192,11 +201,13 @@ export default function GallerySection({ galleryItems }: GallerySectionProps) {
 
               {/* Thumbnail strip */}
               {galleryItems.length > 1 && (
-                <div className="mt-4 flex gap-2 overflow-x-auto pb-2 justify-center">
+                <div className="mt-4 flex gap-2 overflow-x-auto pb-2 [&>*:first-child]:ml-auto [&>*:last-child]:mr-auto">
                   {galleryItems.map((item, idx) => (
                     <button
                       key={item.id}
                       onClick={() => setGalleryIndex(idx)}
+                      aria-label={`Show ${item.title || `gallery item ${idx + 1}`}`}
+                      aria-current={idx === galleryIndex}
                       className={`w-20 h-14 flex-shrink-0 rounded-lg overflow-hidden border-2 transition-colors relative ${
                         idx === galleryIndex ? 'border-red-500' : 'border-transparent hover:border-stone-600'
                       }`}
@@ -233,6 +244,8 @@ export default function GallerySection({ galleryItems }: GallerySectionProps) {
                     <button
                       key={idx}
                       onClick={() => setGalleryIndex(idx)}
+                      aria-label={`Go to gallery item ${idx + 1}`}
+                      aria-current={idx === galleryIndex}
                       className={`w-2 h-2 rounded-full transition-colors ${
                         idx === galleryIndex ? 'bg-red-500' : 'bg-stone-600 hover:bg-stone-500'
                       }`}
@@ -258,6 +271,7 @@ export default function GallerySection({ galleryItems }: GallerySectionProps) {
         >
           <button
             onClick={() => setGalleryModalItem(null)}
+            aria-label="Close image"
             className="absolute top-4 right-4 p-2 bg-black/50 rounded-full hover:bg-red-700 transition-colors"
           >
             <X size={24} />

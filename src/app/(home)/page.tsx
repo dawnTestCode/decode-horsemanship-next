@@ -5,11 +5,15 @@ import { supabase } from '@/lib/supabase';
 import { Horse, GalleryItem } from '@/types';
 import Navigation from '@/components/home/Navigation';
 import HeroSection from '@/components/home/HeroSection';
-import TwoWaysIn from '@/components/home/TwoWaysIn';
-import WhoRunsIt from '@/components/home/WhoRunsIt';
-import OtherWaysToStart from '@/components/home/FrontDoorModule';
-import MissionSection from '@/components/home/MissionSection';
+import AudienceRouter from '@/components/home/AudienceRouter';
+import FeaturedEvent from '@/components/home/FeaturedEvent';
+import WorkshopsSection from '@/components/home/WorkshopsSection';
+import WhyDecode from '@/components/home/WhyDecode';
+import OrganizationCTA from '@/components/home/OrganizationCTA';
+import LessonsCTA from '@/components/home/LessonsCTA';
+import RescueProof from '@/components/home/RescueProof';
 import HorsesSection from '@/components/home/HorsesSection';
+import Testimonials from '@/components/home/Testimonials';
 import GallerySection from '@/components/home/GallerySection';
 import ContactSection from '@/components/home/ContactSection';
 import Footer from '@/components/home/Footer';
@@ -19,6 +23,7 @@ export default function HomePage() {
   const [horses, setHorses] = useState<Horse[]>([]);
   const [loadingHorses, setLoadingHorses] = useState(true);
   const [galleryItems, setGalleryItems] = useState<GalleryItem[]>([]);
+  const [loadingGallery, setLoadingGallery] = useState(true);
   const [favorites, setFavorites] = useState<string[]>([]);
 
   // Load favorites from localStorage
@@ -65,6 +70,8 @@ export default function HomePage() {
         setGalleryItems(data || []);
       } catch (err) {
         console.error('Error fetching gallery:', err);
+      } finally {
+        setLoadingGallery(false);
       }
     };
 
@@ -107,19 +114,25 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-black text-stone-100">
       <Navigation activeSection={activeSection} onSectionClick={scrollToSection} />
-      <HeroSection />
-      <TwoWaysIn />
-      <WhoRunsIt />
-      <OtherWaysToStart />
-      <MissionSection />
-      <HorsesSection
-        horses={horses}
-        loading={loadingHorses}
-        favorites={favorites}
-        onToggleFavorite={toggleFavorite}
-      />
-      <GallerySection galleryItems={galleryItems} />
-      <ContactSection horses={horses} />
+      <main>
+        <HeroSection />
+        <AudienceRouter />
+        <FeaturedEvent />
+        <WorkshopsSection />
+        <WhyDecode />
+        <OrganizationCTA />
+        <LessonsCTA />
+        <RescueProof />
+        <HorsesSection
+          horses={horses}
+          loading={loadingHorses}
+          favorites={favorites}
+          onToggleFavorite={toggleFavorite}
+        />
+        <Testimonials />
+        <GallerySection galleryItems={galleryItems} loading={loadingGallery} />
+        <ContactSection horses={horses} />
+      </main>
       <Footer onSectionClick={scrollToSection} />
     </div>
   );

@@ -1,9 +1,16 @@
 // Site configuration - edit this file to update contact info, stats, and social links
 
+// Verified rescue metrics - single source for the homepage rescue block and stats bar
+const rescueStats = [
+  { value: '15+', label: 'Horses Rescued' },
+  { value: '11+', label: 'Forever Homes Found' },
+];
+
 export const siteConfig = {
   // Contact Information
   contact: {
     phone: '(919) 244-2647',
+    phoneHref: 'tel:+19192442647',
     email: 'info@decodehorsemanship.com',
     location: 'Chapel Hill, NC',
     locationNote: 'By appointment only',
@@ -29,13 +36,17 @@ export const siteConfig = {
     youtube: 'https://youtube.com/@decodehorsemanship',
   },
 
+  rescueStats,
+
   // Homepage Statistics
   stats: [
-    { value: '15+', label: 'Horses Rescued' },
-    { value: '11+', label: 'Forever Homes Found' },
+    ...rescueStats,
     { value: '5', label: 'Years Experience' },
     { value: '100%', label: 'Commitment' },
   ],
+
+  // Leadership tenure - use this phrase everywhere unless Dawn confirms a precise number
+  leadershipTenure: 'More than two decades of corporate leadership across tech, healthcare, and finance.',
 
   // Branding
   branding: {

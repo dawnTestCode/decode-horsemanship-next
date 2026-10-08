@@ -273,6 +273,11 @@ const InquiriesPanel: React.FC<InquiriesPanelProps> = ({ onClose }) => {
             <option value="boarding">Boarding</option>
             <option value="general">General</option>
             <option value="volunteer">Volunteer</option>
+            <option value="personal">Personal Workshop</option>
+            <option value="corporate">Leadership / Team</option>
+            <option value="organizational-change">Organizational Change</option>
+            <option value="lessons">Private Lessons</option>
+            <option value="not-sure">Not Sure Yet</option>
           </select>
         </div>
 

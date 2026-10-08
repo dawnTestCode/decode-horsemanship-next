@@ -1,18 +1,25 @@
 import type { Metadata } from 'next';
 
+// Re-render hourly so a featured event drops off once it has passed
+export const revalidate = 3600;
+
+const title = 'Horse-Led Workshops, Leadership & Horsemanship | Decode Horsemanship';
+const description =
+  'Ground-based horse experiences in Chapel Hill, NC for first-timers, leaders, teams, organizations navigating change, and lifelong horse lovers. No horse experience required.';
+
 export const metadata: Metadata = {
-  title: 'Decode Horsemanship | Lessons, Experiences & Horse Rescue — Chapel Hill, NC',
-  description: 'Private lessons for kids and adults, hands-on horsemanship experiences, and horses given a second chance — all in Chapel Hill, NC. No experience required.',
+  title,
+  description,
   openGraph: {
-    title: 'Decode Horsemanship | Lessons, Experiences & Horse Rescue — Chapel Hill, NC',
-    description: 'Lessons for kids and adults, guided experiences, and rescued horses finding forever homes — all under one roof in Chapel Hill.',
+    title,
+    description,
     type: 'website',
     siteName: 'Decode Horsemanship',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Decode Horsemanship | Lessons, Experiences & Horse Rescue — Chapel Hill, NC',
-    description: 'Private horsemanship lessons, hands-on experiences, and horse rescue & rehab — Chapel Hill, NC. Cracking the code to better horsemanship.',
+    title,
+    description,
     images: ['/og-image-main.png'],
   },
 };

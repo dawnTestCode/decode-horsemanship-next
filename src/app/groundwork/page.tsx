@@ -171,8 +171,8 @@ export default async function GroundworkPage() {
           </p>
           <div className="space-y-6 text-lg md:text-xl leading-relaxed">
             <p>
-              Dawn — founder of Decode Horsemanship. Before horses, she spent two decades in corporate
-              leadership: running teams, developing people, consulting on team dynamics at the executive
+              Dawn — founder of Decode Horsemanship. Before horses, she spent more than two decades in corporate
+              leadership across tech, healthcare, and finance: running teams, developing people, consulting on team dynamics at the executive
               level. She&apos;s been training and rehabilitating horses for over a decade, including mustangs
               straight off BLM holdings.
             </p>

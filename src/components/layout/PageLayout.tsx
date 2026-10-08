@@ -14,9 +14,15 @@ const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
 
-  // Scroll to top on route change
+  // Scroll to top on route change, unless the URL targets a section (e.g. /corporate#inquiry)
   useEffect(() => {
-    window.scrollTo(0, 0);
+    const hash = window.location.hash.slice(1);
+    const target = hash ? document.getElementById(hash) : null;
+    if (target) {
+      target.scrollIntoView();
+    } else {
+      window.scrollTo(0, 0);
+    }
   }, [pathname]);
 
   const isActive = (path: string) => pathname === path;
@@ -131,11 +137,6 @@ const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {
                 <li>
                   <Link href="/experiences" className="text-stone-500 hover:text-red-500 transition-colors text-sm">
                     All Experiences
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/groundwork" className="text-stone-500 hover:text-red-500 transition-colors text-sm">
-                    Groundwork
                   </Link>
                 </li>
                 <li>

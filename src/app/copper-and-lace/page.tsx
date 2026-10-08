@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { createClient } from "@supabase/supabase-js";
+import { siteConfig } from "@/config/siteConfig";
 
 // Fetch package pricing from database
 async function getPackagePricing() {
@@ -757,7 +758,7 @@ export default async function CopperAndLacePage() {
             Main Site
           </a>
           <a
-            href="mailto:info@decodehorsemanship.com"
+            href={`mailto:${siteConfig.contact.email}`}
             className="no-underline text-[var(--cl-muted)] mx-2.5 hover:text-[var(--cl-copper-light)] transition-colors"
           >
             Email
