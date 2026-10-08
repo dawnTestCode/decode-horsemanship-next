@@ -35,6 +35,8 @@ export type FeaturedEvent = {
   // Owner-approved destinations. Leave undefined until confirmed; the CTA will not render.
   bookingUrl?: string;
   facilitatorUrl?: string;
+  // Optional flyer shown beside the event details
+  image?: { src: string; alt: string };
 };
 
 // Harmonic Horse Connection registration lives on Victoria Haffer's site.
@@ -56,6 +58,10 @@ export const featuredEvents: FeaturedEvent[] = [
     price: 255,
     bookingUrl: HARMONIC_HORSE_BOOKING_URL ?? undefined,
     facilitatorUrl: 'https://victoriahaffer.com/about-victoria/',
+    image: {
+      src: '/harmonic-horse-flyer.jpg',
+      alt: 'Harmonic Horse Connection transformative clinic flyer — Saturday, November 14, 10:00am to 4:00pm, $255, VictoriaHaffer.com',
+    },
   },
 ];
 
