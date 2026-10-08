@@ -12,6 +12,19 @@ export const metadata: Metadata = {
     description: "Horse-led workshops in Chapel Hill, NC for first-timers, leaders, teams, and lifelong horse lovers. Ground-based, small groups, no horse experience required.",
     type: "website",
     siteName: "Decode Horsemanship",
+    images: [
+      {
+        url: "/og-image-experiences.png",
+        width: 1200,
+        height: 630,
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Workshops & Experiences — Decode Horsemanship",
+    description: "Horse-led workshops in Chapel Hill, NC for first-timers, leaders, teams, and lifelong horse lovers. Ground-based, small groups, no horse experience required.",
+    images: ["/og-image-experiences.png"],
   },
 };
 
