@@ -36,10 +36,11 @@ export default function ExperiencesPage() {
             Horse-led workshops in Chapel Hill, North Carolina
           </p>
           <h1 className="text-4xl md:text-5xl font-bold mb-6">
-            Horses don&rsquo;t care what your title is.
+            Horses respond to who you really are.
           </h1>
           <p className="text-xl text-stone-400 mb-6 max-w-2xl mx-auto">
-            They notice clarity, pressure, hesitation, and intent. Decode Horsemanship creates hands-on
+            Not your title. Not the story you tell about yourself. Your clarity, your pressure, your intent
+            — that is what the horse answers. Decode Horsemanship creates hands-on
             experiences for people meeting horses for the first time, leaders building better teams,
             organizations moving through change, and horse people ready to see something new.
           </p>

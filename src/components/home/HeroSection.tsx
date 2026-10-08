@@ -17,32 +17,32 @@ export default function HeroSection() {
       <div className="relative z-10 text-center px-4 max-w-4xl mx-auto pt-28 pb-16">
         <img src={siteConfig.branding.logoUrl} alt="Decode Horsemanship" className="h-20 md:h-28 mx-auto mb-8" />
         <p className="text-xs md:text-sm font-semibold uppercase tracking-[0.2em] text-red-500 mb-4">
-          Horse-led workshops in Chapel Hill, North Carolina
+          For women who hold everything together
         </p>
         <h1 className="text-4xl md:text-6xl font-bold text-stone-100 mb-6 leading-tight">
-          Horses don&rsquo;t care what your title is.
+          Something just for you. That asks nothing of you.
         </h1>
         <p className="text-lg md:text-xl text-stone-300 mb-10 max-w-2xl mx-auto">
-          They notice clarity, pressure, hesitation, and intent. Decode Horsemanship creates hands-on
-          experiences for people meeting horses for the first time, leaders building better teams,
-          organizations moving through change, and horse people ready to see something new.
+          No performing. No producing. No taking care of anyone else for a few hours. A horse doesn&rsquo;t
+          need you to be anything — she responds to what&rsquo;s real. Come tired. This is rest, honesty, and
+          connection on your terms.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link
-            href="/experiences"
+            href="/no-reins"
             className="px-8 py-4 bg-red-700 hover:bg-red-600 text-white font-semibold rounded-lg transition-colors shadow-lg shadow-red-900/30 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-400"
           >
-            See the workshops
+            See No Reins
           </Link>
           <Link
-            href="/corporate"
+            href="/experiences"
             className="px-8 py-4 border-2 border-stone-600 hover:border-red-500 text-stone-200 hover:text-red-500 font-semibold rounded-lg transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-400"
           >
-            Bring your team
+            Explore all experiences
           </Link>
         </div>
         <p className="mt-6 text-sm text-stone-400">
-          No horse experience required. Most experiences happen on the ground.
+          No horse experience needed. You don&rsquo;t have to share anything, or be &ldquo;ready.&rdquo;
         </p>
       </div>
 
