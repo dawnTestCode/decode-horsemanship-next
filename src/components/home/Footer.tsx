@@ -86,11 +86,11 @@ export default function Footer({ onSectionClick }: FooterProps) {
             </ul>
           </div>
           <div>
-            <h4 className="font-semibold text-stone-200 mb-4">Workshops</h4>
+            <h4 className="font-semibold text-stone-200 mb-4">Experiences</h4>
             <ul className="space-y-2">
               <li>
                 <Link href="/experiences" className="text-stone-500 hover:text-red-500 transition-colors text-sm">
-                  All Workshops &amp; Experiences
+                  All Experiences
                 </Link>
               </li>
               <li>

@@ -9,7 +9,7 @@ type NavItem = { label: string; href?: string; section?: string; primary?: boole
 
 // Same order on desktop and mobile
 const navItems: NavItem[] = [
-  { label: 'Workshops', href: '/experiences', primary: true },
+  { label: 'Experiences', href: '/experiences', primary: true },
   { label: 'Teams & Organizations', href: '/corporate' },
   { label: 'Lessons', href: '/lessons' },
   { label: 'Horses & Rescue', section: 'mission' },
